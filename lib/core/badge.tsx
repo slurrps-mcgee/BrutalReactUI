@@ -14,7 +14,7 @@ const badgeStyles = cva(
     "relative z-10 isolate inline-flex w-fit self-center items-center justify-center",
 
     // Border and typography. Color matches the drawn stroke.
-    "border-[3px] border-border text-center font-mono text-xs font-bold uppercase border-none",
+    "border-[3px] border-none text-center font-mono text-xs font-bold uppercase",
 
     // Disabled state and reduced motion
     "motion-reduce:transition-none",
@@ -22,9 +22,9 @@ const badgeStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-sky text-main-txt",
-        secondary: "bg-rose text-main-txt",
-        outline: "bg-muted text-txt",
+        primary: "bg-chart-1 text-main-foreground",
+        secondary: "bg-chart-3 text-main-foreground",
+        outline: "bg-secondary-background text-foreground",
       },
       size: {
         sm: "px-2 py-1",
@@ -43,6 +43,7 @@ const badgeStyles = cva(
 export type BadgeProps = HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof badgeStyles> & {
     animate?: AnimationTrigger;
+    rounded?: boolean;
   };
 
 // Main Badge component
@@ -52,6 +53,7 @@ export default function Badge({
   variant,
   size,
   animate = false,
+  rounded = false,
   ...props
 }: BadgeProps) {
   // Animation trigger
@@ -61,11 +63,19 @@ export default function Badge({
   return (
     <span
       ref={ref}
-      className={twMerge(badgeStyles({ variant, size }), className)}
+      className={twMerge(
+        badgeStyles({ variant, size }),
+        rounded && "rounded-[var(--radius)]",
+        className,
+      )}
       {...props}
     >
       {/* Border */}
-      <DrawBorder animate={shouldAnimate} className="z-10" />
+      <DrawBorder
+        animate={shouldAnimate}
+        radius={rounded ? "var(--radius)" : undefined}
+        className="z-10"
+      />
       {/* Children */}
       <span className="relative z-10">{children}</span>
     </span>

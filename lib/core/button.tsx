@@ -14,7 +14,7 @@ const buttonStyles = cva(
     "group/button relative z-10 isolate inline-flex items-center justify-center self-center gap-2",
 
     // Border and typography. Color matches the drawn stroke.
-    "border-[3px] border-border font-mono font-bold uppercase tracking-wide border-none",
+    "border-[3px] border-none font-mono font-bold uppercase tracking-wide",
 
     // Press interaction
     "transition-transform duration-150",
@@ -25,6 +25,9 @@ const buttonStyles = cva(
     "focus-visible:outline-none focus-visible:ring-2",
     "focus-visible:ring-ring focus-visible:ring-offset-2",
 
+    // Selected text. className can override these utilities.
+    "selection:bg-main selection:text-main-foreground",
+
     // Disabled state and reduced motion
     "disabled:pointer-events-none",
     "motion-reduce:transition-none",
@@ -32,10 +35,11 @@ const buttonStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-main text-main-txt",
-        secondary: "bg-mint text-main-txt",
+        primary:
+          "bg-main text-main-foreground group-hover/button:text-foreground group-focus-visible/button:text-foreground",
+        secondary: "bg-chart-2 text-main-foreground",
         outline:
-          "bg-paper text-main-txt dark:text-txt dark:hover:text-main-txt",
+          "bg-secondary-background text-foreground group-hover/button:text-main-foreground group-focus-visible/button:text-main-foreground",
       },
       size: {
         sm: "px-3 py-2 text-xs",
@@ -71,7 +75,7 @@ const fillStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-mint",
+        primary: "bg-chart-2",
         secondary: "bg-main",
         outline: "bg-main",
       },
@@ -87,6 +91,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonStyles> & {
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
+    rounded?: boolean;
   };
 
 // Main Button component
@@ -98,6 +103,7 @@ export default function Button({
   fullWidth,
   animate = false,
   popDirection = "out",
+  rounded = false,
   type = "button",
   ...props
 }: ButtonProps) {
@@ -113,10 +119,8 @@ export default function Button({
     fullWidth ? "flex w-full" : "inline-flex w-fit",
 
     // Shadow
-    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    "before:translate-x-[var(--shadow-offset-x)]",
-    "before:translate-y-[var(--shadow-offset-y)]",
-    "before:bg-[var(--shadow-color)]",
+    "shadow-[var(--shadow)]",
+    rounded && "rounded-[var(--radius)]",
 
     // Animation
     shouldAnimate && "animate-brutal-pop",
@@ -135,20 +139,33 @@ export default function Button({
         className={twMerge(
           buttonStyles({ variant, size, fullWidth }),
           shouldAnimate && "brutal-pop-face",
+          rounded && "rounded-[var(--radius)]",
           className,
         )}
         {...props}
       >
         {/* Border */}
-        <DrawBorder animate={shouldAnimate} className="z-10" />
+        <DrawBorder
+          animate={shouldAnimate}
+          radius={rounded ? "var(--radius)" : undefined}
+          className="z-10"
+        />
         {/* Children */}
         <span className="relative z-10">{children}</span>
         {/* Fill */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-[1px] z-0 overflow-hidden"
+          className={twMerge(
+            "pointer-events-none absolute -inset-[1px] z-0 overflow-hidden",
+            rounded && "rounded-[calc(var(--radius)+1px)]",
+          )}
         >
-          <span className={fillStyles({ variant })} />
+          <span
+            className={twMerge(
+              fillStyles({ variant }),
+              rounded && "rounded-[calc(var(--radius)+2px)]",
+            )}
+          />
         </span>
       </button>
     </div>

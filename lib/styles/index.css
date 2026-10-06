@@ -20,141 +20,56 @@
 :root {
   color-scheme: light;
 
-  --palette-bg: #fffdeb;
-  --palette-paper: #f4f4f0;
-  --palette-main: #facc15;
-  --palette-main-text: #000000;
-  --palette-border: #000000;
-  --palette-border-dark: #000000;
-  --palette-text: #000000;
-  --palette-sub-text: #404040;
-  --palette-accent: #22c55e;
-  --palette-sky: #22d3ee;
-  --palette-rose: #e879f9;
-  --palette-secondary: #e879f9;
-  --palette-muted: #d9d9d5;
-  --palette-destructive: #ef4444;
-  --palette-input: #ffffff;
-  --palette-ring: #000000;
-  --palette-overlay: rgb(0 0 0 / 55%);
+  --background: hsl(190, 95%, 90%);
+  --secondary-background: oklch(100% 0 0);
+  --foreground: oklch(0% 0 0);
+  --main-foreground: oklch(0% 0 0);
+  --main: hsl(190, 100%, 47%);
+  --border: oklch(0% 0 0);
+  --ring: oklch(0% 0 0);
+  --overlay: oklch(0% 0 0 / 0.8);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --chart-1: #00C8F0;
+  --chart-2: #FF7A05;
+  --chart-3: #7A83FF;
+  --chart-4: #FF4D50;
+  --chart-5: #FACC00;
+  --chart-active-dot: #000;
 
-  --palette-chart-1: #facc15;
-  --palette-chart-2: #22d3ee;
-  --palette-chart-3: #e879f9;
-  --palette-chart-4: #22c55e;
-  --palette-chart-5: #ef4444;
-  --palette-chart-active-dot: #000000;
-
-  --palette-sidebar: #d9d9d5;
-  --palette-sidebar-accent: #22d3ee;
-
-  /* Radius and scrollbar colors */
   --radius: 0.375rem;
-  --sb-track-color: var(--palette-bg);
-  --sb-thumb-color: var(--palette-border);
+  --sb-track-color: var(--background);
+  --sb-thumb-color: var(--border);
 
-  /* Shared semantic tokens: define once */
-  --neobrutalism-bg: var(--palette-bg);
-  --neobrutalism-paper: var(--palette-paper);
-  --neobrutalism-main: var(--palette-main);
-  --neobrutalism-main-txt: var(--palette-main-text);
-  --neobrutalism-border: var(--palette-border);
-  --neobrutalism-border-dark: var(--palette-border-dark);
-  --neobrutalism-txt: var(--palette-text);
-  --neobrutalism-sub-txt: var(--palette-sub-text);
-  --neobrutalism-accent: var(--palette-accent);
-  --neobrutalism-sky: var(--palette-sky);
-  --neobrutalism-rose: var(--palette-rose);
-  --neobrutalism-ink: var(--palette-text);
-
-  /* Semantic tokens */
-  --background: var(--palette-bg);
-  --foreground: var(--palette-text);
-  --card: var(--palette-paper);
-  --card-foreground: var(--palette-text);
-  --popover: var(--palette-paper);
-  --popover-foreground: var(--palette-text);
-  --primary: var(--palette-main);
-  --primary-foreground: var(--palette-main-text);
-  --secondary: var(--palette-secondary);
-  --secondary-foreground: var(--palette-text);
-  --muted: var(--palette-muted);
-  --muted-foreground: var(--palette-sub-text);
-  --accent: var(--palette-accent);
-  --accent-foreground: var(--palette-text);
-  --destructive: var(--palette-destructive);
-  --border: var(--palette-border);
-  --input: var(--palette-input);
-  --ring: var(--palette-ring);
-  --secondary-background: var(--palette-paper);
-  --main: var(--palette-main);
-  --main-foreground: var(--palette-main-text);
-  --overlay: var(--palette-overlay);
-
-  /* Shadow tokens */
-  --shadow-offset-x: 8px;
-  --shadow-offset-y: 8px;
-  --shadow-color: #000000;
-  --shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0 0
-    var(--shadow-color);
-
-  /* Chart tokens */
-  --chart-1: var(--palette-chart-1);
-  --chart-2: var(--palette-chart-2);
-  --chart-3: var(--palette-chart-3);
-  --chart-4: var(--palette-chart-4);
-  --chart-5: var(--palette-chart-5);
-  --chart-active-dot: var(--palette-chart-active-dot);
-
-  /* Sidebar tokens */
-  --sidebar: var(--palette-sidebar);
-  --sidebar-foreground: var(--palette-text);
-  --sidebar-primary: var(--palette-main);
-  --sidebar-primary-foreground: var(--palette-main-text);
-  --sidebar-accent: var(--palette-sidebar-accent);
-  --sidebar-accent-foreground: var(--palette-text);
-  --sidebar-border: var(--palette-border);
-  --sidebar-ring: var(--palette-ring);
+  /* Components paint var(--shadow). Offsets are the same distances, used by press and pop. */
+  --shadow-offset-x: 6px;
+  --shadow-offset-y: 6px;
+  --shadow-color: var(--border);
+  --shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0 0 var(--shadow-color);
 }
 
 /*
  * Add a theme by copying this block.
- * Override --palette-* and color-scheme only.
- * Semantic tokens on :root already point at the palette.
+ * Override these color names and color-scheme only.
  * Then add the theme name to themeNames in lib/utils/theme-context.tsx.
  * In an app, put the new block in that app's index.css instead of editing this file.
  */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  /* Dark palette: override only raw colors */
-  --palette-bg: #3a3a36;
-  --palette-paper: #4a4a45;
-  --palette-main: #facc15;
-  --palette-main-text: #000000;
-  --palette-border: #000000;
-  --palette-border-dark: #000000;
-  --palette-text: #fffdeb;
-  --palette-sub-text: #d6d6cc;
-  --palette-accent: #4ade80;
-  --palette-sky: #22d3ee;
-  --palette-rose: #e879f9;
-  --palette-secondary: #e879f9;
-  --palette-muted: #5a5a54;
-  --palette-destructive: #ff5a5a;
-  --palette-input: #454540;
-  --palette-ring: #facc15;
-  --palette-overlay: rgb(0 0 0 / 55%);
-
-  --palette-chart-1: #facc15;
-  --palette-chart-2: #22d3ee;
-  --palette-chart-3: #e879f9;
-  --palette-chart-4: #4ade80;
-  --palette-chart-5: #ff5a5a;
-  --palette-chart-active-dot: #fffdeb;
-
-  --palette-sidebar: #30302d;
-  --palette-sidebar-accent: #5a5a54;
+  --background: hsl(190, 40%, 10%);
+  --secondary-background: hsl(190, 28%, 16%);
+  --foreground: hsl(190, 95%, 90%);
+  --main-foreground: oklch(0% 0 0);
+  --main: hsl(190, 100%, 47%);
+  --border: oklch(0% 0 0);
+  --ring: hsl(190, 100%, 47%);
+  --overlay: oklch(0% 0 0 / 0.8);
+  --chart-1: #00c8f0;
+  --chart-2: #ff7a05;
+  --chart-3: #7a83ff;
+  --chart-4: #ff4d50;
+  --chart-5: #facc00;
+  --chart-active-dot: hsl(190, 95%, 90%);
 }
 
 @theme inline {
@@ -163,59 +78,33 @@
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  /* Color tokens */
-  --color-bg: var(--neobrutalism-bg);
-  --color-paper: var(--neobrutalism-paper);
-  --color-main: var(--neobrutalism-main);
-  --color-main-txt: var(--neobrutalism-main-txt);
-  --color-border-dark: var(--neobrutalism-border-dark);
-  --color-txt: var(--neobrutalism-txt);
-  --color-sub-txt: var(--neobrutalism-sub-txt);
-  --color-mint: var(--neobrutalism-accent);
-  --color-sky: var(--neobrutalism-sky);
-  --color-rose: var(--neobrutalism-rose);
-  --color-ink: var(--neobrutalism-ink);
-
-  /* Semantic color tokens */
+  --color-main: var(--main);
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  /* Chart color tokens */
   --color-secondary-background: var(--secondary-background);
+  --color-foreground: var(--foreground);
   --color-main-foreground: var(--main-foreground);
+  --color-border: var(--border);
   --color-overlay: var(--overlay);
+  --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --color-chart-active-dot: var(--chart-active-dot);
 
-  /* Sidebar color tokens */
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  /* Shadow tokens */
+  --spacing-boxShadowX: 4px;
+  --spacing-boxShadowY: 4px;
+
+  --spacing-reverseBoxShadowX: -4px;
+  --spacing-reverseBoxShadowY: -4px;
+
+  /* Shadow token */
+  --shadow-shadow: var(--shadow);
+
+  /* Font tokens */
+  --font-weight-base: 500;
+  --font-weight-heading: 700;
 
   /* Radius tokens */
   --radius-sm: calc(var(--radius) * 0.6);
@@ -227,16 +116,6 @@
   --radius-4xl: calc(var(--radius) * 2.6);
   --radius-base: 5px;
 
-  /* Spacing tokens */
-  --spacing-boxShadowX: 4px;
-  --spacing-boxShadowY: 4px;
-  --spacing-reverseBoxShadowX: -4px;
-  --spacing-reverseBoxShadowY: -4px;
-
-  /* Font and shadow tokens */
-  --font-weight-base: 500;
-  --font-weight-heading: 700;
-  --shadow-shadow: var(--shadow);
 
   /* Animation tokens */
   --animate-marquee: marquee 5s linear infinite;

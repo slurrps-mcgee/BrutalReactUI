@@ -14,7 +14,7 @@ const cardStyles = cva(
     "relative z-10 isolate flex h-full w-full flex-col",
 
     // Border and typography. Color matches the drawn stroke.
-    "border-[3px] border-border bg-paper text-txt border-none",
+    "border-[3px] border-none bg-secondary-background text-foreground",
 
     // Press interaction
     "transition-transform duration-150",
@@ -27,9 +27,9 @@ const cardStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-main text-main-txt",
-        secondary: "bg-mint text-txt",
-        outline: "bg-paper text-txt",
+        primary: "bg-secondary-background text-foreground",
+        secondary: "bg-chart-2 text-main-foreground",
+        outline: "bg-secondary-background text-foreground",
       },
       size: {
         sm: "gap-3 p-4 text-sm",
@@ -49,6 +49,7 @@ export type CardProps = HTMLAttributes<HTMLElement> &
   VariantProps<typeof cardStyles> & {
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
+    rounded?: boolean;
     children?: ReactNode;
   };
 
@@ -60,6 +61,7 @@ export default function Card({
   size,
   animate = false,
   popDirection = "out",
+  rounded = false,
   ...props
 }: CardProps) {
   // Animation trigger
@@ -71,10 +73,8 @@ export default function Card({
     "relative isolate h-full w-full",
 
     // Shadow
-    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    "before:translate-x-[var(--shadow-offset-x)]",
-    "before:translate-y-[var(--shadow-offset-y)]",
-    "before:bg-[var(--shadow-color)]",
+    "shadow-[var(--shadow)]",
+    rounded && "rounded-[var(--radius)]",
 
     // Animation
     shouldAnimate && "animate-brutal-pop",
@@ -89,13 +89,17 @@ export default function Card({
         className={twMerge(
           cardStyles({ variant, size }),
           shouldAnimate && "brutal-pop-face",
+          rounded && "rounded-[var(--radius)]",
           className,
         )}
         {...props}
       >
         {/* Border */}
-        <DrawBorder animate={shouldAnimate} className="z-30" />
-        {/* Children */}
+        <DrawBorder
+          animate={shouldAnimate}
+          radius={rounded ? "var(--radius)" : undefined}
+          className="z-30"
+        />
         {children}
       </article>
     </div>

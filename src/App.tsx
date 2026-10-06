@@ -23,7 +23,7 @@ function App() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-8">
-      <header className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-txt sm:flex-row sm:items-end sm:justify-between">
+      <header className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-foreground sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
           <p className="font-mono text-xs font-bold uppercase tracking-wide">
             Component library
@@ -48,7 +48,7 @@ function App() {
           <Button variant="secondary">Secondary</Button>
           <Button variant="outline">Outline</Button>
           <Button size="sm">Small</Button>
-          <Button size="lg" animate>
+          <Button size="lg" animate rounded>
             Large
           </Button>
           <Button disabled>Disabled</Button>
@@ -67,7 +67,9 @@ function App() {
           <Badge variant="outline" size="lg">
             Outline
           </Badge>
-          <Badge animate>Animated</Badge>
+          <Badge animate rounded>
+            Animated
+          </Badge>
         </div>
       </Container>
 
@@ -105,6 +107,7 @@ function App() {
             variant="outline"
             size="lg"
             placeholder="Outline"
+            rounded
           />
         </div>
       </Container>
@@ -118,19 +121,20 @@ function App() {
         </div>
       </Container>
 
-      <Container id="images" title="Image" fullWidth>
+      <Container id="images" title="Image" fullWidth rounded>
         <div className="max-w-xl">
           <Image
             image={{ src: exampleUrl, width: 1200, height: 675 }}
             title="Library preview"
             animate="scroll"
+            rounded
           />
         </div>
       </Container>
 
       <Container id="cards" title="Cards" fullWidth>
         <div className="grid gap-8 lg:grid-cols-2">
-          <Card animate="scroll">
+          <Card animate="scroll" rounded>
             <CardImage>
               <Image
                 image={{ src: exampleUrl, width: 1200, height: 675 }}
@@ -145,7 +149,7 @@ function App() {
               <h3 className="font-display text-2xl font-bold">
                 Brutal React UI
               </h3>
-              <p className="mt-2 text-sub-txt">
+              <p className="mt-2">
                 Thick borders, hard shadows, and a palette you can swap without
                 rewriting components.
               </p>
@@ -180,7 +184,7 @@ function App() {
             </CardHeader>
             <CardBody>
               <h3 className="font-display text-2xl font-bold">Field Notes</h3>
-              <p className="mt-2 text-sub-txt">
+              <p className="mt-2 text-foreground">
                 The same card with the outline variant, a second image, and a
                 shorter chip list.
               </p>

@@ -16,11 +16,9 @@ const componentStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-main text-main-txt hover:text-txt focus-visible:text-txt",
-        secondary:
-          "bg-mint text-txt hover:text-main-txt focus-visible:text-main-txt",
-        outline:
-          "bg-paper text-txt hover:text-main-txt focus-visible:text-main-txt",
+        primary: "bg-main text-main-foreground",
+        secondary: "bg-chart-2 text-main-foreground",
+        outline: "bg-secondary-background text-foreground",
       },
       size: {
         sm: "px-3 py-2 text-xs",
@@ -71,6 +69,7 @@ type ComponentProps = HTMLAttributes<HTMLDivElement> &
     children?: ReactNode;
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
+    rounded?: boolean;
   };
 
 /**
@@ -94,16 +93,15 @@ export default function Component({
   fullWidth,
   animate = false,
   popDirection = "out",
+  rounded = false,
   ...props
 }: ComponentProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const wrapperClasses = [
     "relative isolate",
     fullWidth ? "flex w-full" : "inline-flex w-fit",
-    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    "before:translate-x-[var(--shadow-offset-x)]",
-    "before:translate-y-[var(--shadow-offset-y)]",
-    "before:bg-[var(--shadow-color)]",
+    "shadow-[var(--shadow)]",
+    rounded && "rounded-[var(--radius)]",
     shouldAnimate && "animate-brutal-pop",
   ]
     .filter(Boolean)
@@ -123,11 +121,16 @@ export default function Component({
             fullWidth,
           }),
           shouldAnimate && "brutal-pop-face",
+          rounded && "rounded-[var(--radius)]",
           className,
         )}
         {...props}
       >
-        <DrawBorder animate={shouldAnimate} className="z-10" />
+        <DrawBorder
+          animate={shouldAnimate}
+          radius={rounded ? "var(--radius)" : undefined}
+          className="z-10"
+        />
         <span className="relative z-10">{children}</span>
       </div>
     </div>

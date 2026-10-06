@@ -27,9 +27,10 @@ const inputStyles = cva(
     variants: {
       variant: {
         primary:
-          "bg-paper text-main-txt dark:text-txt placeholder:text-sub-txt",
-        secondary: "bg-paper text-txt placeholder:text-sub-txt",
-        outline: "bg-background text-foreground placeholder:text-sub-txt",
+          "bg-secondary-background text-foreground placeholder:text-foreground/60",
+        secondary:
+          "bg-secondary-background text-foreground placeholder:text-foreground/60",
+        outline: "bg-background text-foreground placeholder:text-foreground/60",
       },
       size: {
         sm: "px-3 py-2 text-xs",
@@ -48,6 +49,7 @@ const inputStyles = cva(
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> &
   VariantProps<typeof inputStyles> & {
     wrapperClassName?: string;
+    rounded?: boolean;
   };
 
 // Main Input component
@@ -56,6 +58,7 @@ export default function Input({
   wrapperClassName,
   variant,
   size,
+  rounded = false,
   ...inputProps
 }: InputProps) {
   // Wrapper classes
@@ -65,21 +68,21 @@ export default function Input({
   return (
     <div className={wrapperClasses}>
       <div className="relative isolate w-full">
-        {/* Border */}
+        {/* Shadow plate. It uses the same translate as the field so the curve stays aligned. */}
         <div
           aria-hidden="true"
-          className={[
-            // Layout and stacking
-            "pointer-events-none absolute inset-0 z-0",
-
-            // Shadow
+          className={twMerge(
+            "pointer-events-none absolute inset-0 z-0 bg-[var(--shadow-color)]",
             "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-            "bg-[var(--shadow-color)]",
-          ].join(" ")}
+            rounded && "rounded-[var(--radius)]",
+          )}
         />
-        {/* Input */}
         <input
-          className={twMerge(inputStyles({ variant, size, className }))}
+          className={twMerge(
+            inputStyles({ variant, size }),
+            rounded && "rounded-[var(--radius)]",
+            className,
+          )}
           {...inputProps}
         />
       </div>

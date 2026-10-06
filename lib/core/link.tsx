@@ -67,10 +67,7 @@ export default function Link({
     "relative isolate inline-flex w-fit items-center self-center",
 
     // Shadow
-    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    "before:translate-x-[var(--shadow-offset-x)]",
-    "before:translate-y-[var(--shadow-offset-y)]",
-    "before:bg-[var(--shadow-color)]",
+    "shadow-[var(--shadow)]",
 
     // Animation
     shouldAnimate && "animate-brutal-pop",
@@ -92,7 +89,7 @@ export default function Link({
       rel={isExternal ? "noopener noreferrer" : props.rel}
     >
       {/* Children */}
-      <span className="relative col-start-1 row-start-1 inline-flex items-center gap-2 text-txt">
+      <span className="relative col-start-1 row-start-1 inline-flex items-center gap-2 text-foreground">
         {children}
         <MoveRight aria-hidden="true" className="h-5 w-5 shrink-0" />
         <span

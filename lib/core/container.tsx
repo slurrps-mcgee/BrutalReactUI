@@ -14,7 +14,7 @@ const containerStyles = cva(
     "relative z-10 isolate flex",
 
     // Border and typography
-    "border-[3px] border-border bg-paper text-txt",
+    "border-[3px] border-none bg-secondary-background text-foreground",
 
     // Disabled state and reduced motion
     "motion-reduce:transition-none",
@@ -22,9 +22,9 @@ const containerStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-main text-main-txt",
-        secondary: "bg-mint text-txt",
-        outline: "bg-paper text-txt",
+        primary: "bg-secondary-background text-foreground",
+        secondary: "bg-chart-2 text-main-foreground",
+        outline: "bg-secondary-background text-foreground",
       },
       size: {
         sm: "p-4 text-sm",
@@ -59,7 +59,7 @@ const containerStyles = cva(
       },
     },
     defaultVariants: {
-      variant: "outline",
+      variant: "primary",
       size: "md",
       direction: "column",
       align: "stretch",
@@ -77,6 +77,7 @@ export type ContainerProps = HTMLAttributes<HTMLElement> &
     animate?: AnimationTrigger;
     shadow?: boolean;
     popDirection?: "out" | "in";
+    rounded?: boolean;
     children?: ReactNode;
   };
 
@@ -95,6 +96,7 @@ export default function Container({
   animate = false,
   shadow = false,
   popDirection = "out",
+  rounded = false,
   ...props
 }: ContainerProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
@@ -108,13 +110,9 @@ export default function Container({
     fullWidth ? "flex w-full" : "inline-flex w-fit",
 
     // Shadow
-    shadow && 'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    shadow && "before:translate-x-[var(--shadow-offset-x)]",
-    shadow && "before:translate-y-[var(--shadow-offset-y)]",
-    shadow && "before:bg-[var(--shadow-color)]",
+    shadow && "shadow-[var(--shadow)]",
+    rounded && "rounded-[var(--radius)]",
 
-    // Animation
-    shouldAnimate && "animate-brutal-pop",
   ]
     .filter(Boolean)
     .join(" ");
@@ -134,17 +132,18 @@ export default function Container({
             fullWidth,
           }),
           shouldAnimate && "brutal-pop-face",
+          rounded && "rounded-[var(--radius)]",
           className,
         )}
         {...props}
       >
         {/* Border */}
-        <DrawBorder animate={shouldAnimate} className="z-10" />
-        {/* Title */}
-        <h2 className="relative z-10 font-display text-2xl font-bold">
-          {title}
-        </h2>
-        {/* Children */}
+        <DrawBorder
+          animate={shouldAnimate}
+          radius={rounded ? "var(--radius)" : undefined}
+          className="z-10"
+        />
+        <h2 className="relative z-10 font-display text-2xl font-bold">{title}</h2>
         {children}
       </section>
     </div>

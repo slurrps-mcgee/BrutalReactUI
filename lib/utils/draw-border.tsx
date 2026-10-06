@@ -2,12 +2,14 @@ type DrawBorderProps = {
   className?: string;
   animate?: boolean;
   strokeWidth?: number;
+  radius?: string;
 };
 
 export default function DrawBorder({
   className = "",
   animate = false,
   strokeWidth = 3,
+  radius,
 }: DrawBorderProps) {
   const svgClasses = [
     "pointer-events-none absolute overflow-visible",
@@ -45,6 +47,8 @@ export default function DrawBorder({
         style={{
           width: `calc(100% - ${box}px)`,
           height: `calc(100% - ${box}px)`,
+          rx: radius,
+          ry: radius,
         }}
       />
     </svg>

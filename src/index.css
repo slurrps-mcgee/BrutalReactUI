@@ -2,22 +2,27 @@
 
 /*
  * Add a theme by copying the :root[data-theme='dark'] block in lib/styles/index.css.
- * Override --palette-* and color-scheme only.
- * Semantic tokens on :root already point at the palette.
+ * Override these color names and color-scheme only.
  * Then add the theme name to themeNames in lib/utils/theme-context.tsx.
  *
  * Example:
  *
  * :root[data-theme='ocean'] {
  *   color-scheme: dark;
- *   --palette-bg: #06283D;
- *   --palette-paper: #1363DF;
- *   --palette-main: #47B5FF;
- *   --palette-main-text: #06283D;
- *   --palette-text: #DFF6FF;
- *   --palette-sub-text: #DFF6FF;
- *   --palette-accent: #47B5FF;
- *   --palette-input: #0A4D8C;
- *   --palette-sidebar: #041C2C;
+ *   --background: #06283D;
+ *   --secondary-background: #1363DF;
+ *   --foreground: #DFF6FF;
+ *   --main-foreground: #06283D;
+ *   --main: #47B5FF;
+ *   --border: #000000;
+ *   --ring: #47B5FF;
+ *   --overlay: oklch(0% 0 0 / 0.8);
+ *   --shadow: 4px 4px 0px 0px var(--border);
+ *   --chart-1: #00C8F0;
+ *   --chart-2: #FF7A05;
+ *   --chart-3: #7A83FF;
+ *   --chart-4: #FF4D50;
+ *   --chart-5: #FACC00;
+ *   --chart-active-dot: #DFF6FF;
  * }
  */

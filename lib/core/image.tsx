@@ -13,7 +13,7 @@ const imageStyles = [
   "relative z-10 aspect-video w-full",
 
   // Border
-  "border-[3px] border-border bg-paper border-none",
+  "border-[3px] border-none bg-secondary-background",
 ].join(" ");
 
 // Image props
@@ -22,6 +22,7 @@ export type ImageProps = HTMLAttributes<HTMLDivElement> & {
   title: string;
   animate?: AnimationTrigger;
   popDirection?: "out" | "in";
+  rounded?: boolean;
 };
 
 // Main Image component
@@ -31,6 +32,7 @@ export default function Image({
   className,
   animate = false,
   popDirection = "out",
+  rounded = false,
   ...props
 }: ImageProps) {
   // Animation trigger
@@ -44,10 +46,8 @@ export default function Image({
     "relative isolate block w-full",
 
     // Shadow
-    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    "before:translate-x-[var(--shadow-offset-x)]",
-    "before:translate-y-[var(--shadow-offset-y)]",
-    "before:bg-[var(--shadow-color)]",
+    "shadow-[var(--shadow)]",
+    rounded && "rounded-[var(--radius)]",
 
     // Animation
     shouldAnimate && "animate-brutal-pop",
@@ -67,10 +67,10 @@ export default function Image({
         className={twMerge(
           imageStyles,
           shouldAnimate && "brutal-pop-face",
+          rounded && "rounded-[var(--radius)]",
           className,
         )}
       >
-        {/* Image */}
         <img
           src={image.src}
           alt={`Screenshot of ${title}`}
@@ -79,13 +79,20 @@ export default function Image({
           loading="lazy"
           decoding="async"
           onError={() => setFailedSrc(image.src)}
-          className={["block h-full w-full object-cover", failed && "sr-only"]
-            .filter(Boolean)
-            .join(" ")}
+          className={twMerge(
+            "block h-full w-full object-cover object-top",
+            rounded &&
+              "absolute inset-0 overflow-hidden rounded-[var(--radius)]",
+            failed && "sr-only",
+          )}
         />
 
         {/* Border */}
-        <DrawBorder animate={shouldAnimate} className="z-10" />
+        <DrawBorder
+          animate={shouldAnimate}
+          radius={rounded ? "var(--radius)" : undefined}
+          className="z-10"
+        />
       </div>
     </div>
   );

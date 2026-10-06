@@ -5,7 +5,11 @@ import Button from "./button";
 // ThemeToggle is a Button. Styles, shouldAnimate, and the shadow wrapper live there.
 // className stays on the button face.
 
-export default function ThemeToggle() {
+export default function ThemeToggle({
+  rounded = false,
+}: {
+  rounded?: boolean;
+}) {
   const { theme, setTheme } = useTheme();
   const isDark =
     theme === "dark" ||
@@ -22,6 +26,7 @@ export default function ThemeToggle() {
       aria-label={`Switch to ${isDark ? "light" : "dark"} theme`}
       aria-pressed={isDark}
       onClick={handleThemeChange}
+      rounded={rounded}
       className="size-10 !px-0 !py-0"
     >
       {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
