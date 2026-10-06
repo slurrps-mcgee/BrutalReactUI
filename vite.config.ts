@@ -31,6 +31,7 @@ export default defineConfig({
         "react/jsx-runtime",
         "lucide-react",
         "class-variance-authority",
+        "tailwind-merge",
       ],
       output: {
         globals: {

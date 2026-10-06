@@ -40,7 +40,7 @@ function App() {
         <ThemeToggle />
       </header>
 
-      <Container id="buttons" title="Buttons" fullWidth>
+      <Container id="buttons" title="Buttons" fullWidth animate="scroll">
         <div className="flex flex-wrap items-center gap-4">
           <Button onClick={() => setPresses((count) => count + 1)}>
             Pressed {presses}

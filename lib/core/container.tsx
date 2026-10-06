@@ -1,24 +1,29 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
+// Container styles
 const containerStyles = cva(
   [
-    "group relative z-10 isolate flex",
+    // Layout and stacking
+    "relative z-10 isolate flex",
+
+    // Border and typography
     "border-[3px] border-border bg-paper text-txt",
+
+    // Disabled state and reduced motion
     "motion-reduce:transition-none",
   ].join(" "),
   {
     variants: {
       variant: {
-        primary:
-          "bg-main text-main-txt group-hover:text-txt group-focus-visible:text-txt",
-        secondary:
-          "bg-mint text-txt group-hover:text-main-txt group-focus-visible:text-main-txt",
+        primary: "bg-main text-main-txt",
+        secondary: "bg-mint text-txt",
         outline: "bg-paper text-txt",
       },
       size: {
@@ -65,14 +70,17 @@ const containerStyles = cva(
   },
 );
 
+// Container props
 export type ContainerProps = HTMLAttributes<HTMLElement> &
   VariantProps<typeof containerStyles> & {
     title: string;
     animate?: AnimationTrigger;
+    shadow?: boolean;
     popDirection?: "out" | "in";
     children?: ReactNode;
   };
 
+// Main Container component
 export default function Container({
   title,
   children,
@@ -85,46 +93,58 @@ export default function Container({
   gap,
   fullWidth,
   animate = false,
+  shadow = false,
   popDirection = "out",
   ...props
 }: ContainerProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
 
+  // Wrapper classes
   const wrapperClasses = [
+    // Layout and stacking
     "relative isolate",
+
+    // Full width
     fullWidth ? "flex w-full" : "inline-flex w-fit",
-    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    "before:translate-x-[var(--shadow-offset-x)]",
-    "before:translate-y-[var(--shadow-offset-y)]",
-    "before:bg-[var(--shadow-color)]",
+
+    // Shadow
+    shadow && 'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
+    shadow && "before:translate-x-[var(--shadow-offset-x)]",
+    shadow && "before:translate-y-[var(--shadow-offset-y)]",
+    shadow && "before:bg-[var(--shadow-color)]",
+
+    // Animation
     shouldAnimate && "animate-brutal-pop",
   ]
     .filter(Boolean)
     .join(" ");
 
-  const faceClassName = [shouldAnimate && "brutal-pop-face", className]
-    .filter(Boolean)
-    .join(" ");
-
+  // Main return
   return (
     <div ref={ref} className={wrapperClasses} data-pop-direction={popDirection}>
       <section
-        className={containerStyles({
-          variant,
-          size,
-          direction,
-          align,
-          justify,
-          gap,
-          fullWidth,
-          className: faceClassName,
-        })}
+        className={twMerge(
+          containerStyles({
+            variant,
+            size,
+            direction,
+            align,
+            justify,
+            gap,
+            fullWidth,
+          }),
+          shouldAnimate && "brutal-pop-face",
+          className,
+        )}
         {...props}
       >
+        {/* Border */}
         <DrawBorder animate={shouldAnimate} className="z-10" />
+        {/* Title */}
         <h2 className="relative z-10 font-display text-2xl font-bold">
           {title}
         </h2>
+        {/* Children */}
         {children}
       </section>
     </div>

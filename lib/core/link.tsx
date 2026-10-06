@@ -1,18 +1,22 @@
 import type { AnchorHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { twMerge } from "tailwind-merge";
 import { MoveRight } from "lucide-react";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
+// Link styles
 const linkStyles = cva(
   [
     // Layout and stacking
-    "group/action pointer-events-auto relative z-20 inline-grid whitespace-nowrap pb-1",
+    "group/action pointer-events-auto relative z-20 inline-grid items-center self-center whitespace-nowrap pb-1",
 
     // Typography
     "font-mono font-bold",
+
+    // Focus state
     "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring",
   ].join(" "),
   {
@@ -33,6 +37,7 @@ const linkStyles = cva(
   },
 );
 
+// Link props
 export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
   VariantProps<typeof linkStyles> & {
     href: string;
@@ -41,6 +46,7 @@ export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
     popDirection?: "out" | "in";
   };
 
+// Main Link component
 export default function Link({
   href,
   children,
@@ -51,25 +57,42 @@ export default function Link({
   popDirection = "out",
   ...props
 }: LinkProps) {
+  // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
+
+  // Wrapper classes
   const isExternal = /^https?:\/\//.test(href);
-  const faceClassName = [shouldAnimate && "brutal-pop-face", className]
+  const wrapperClasses = [
+    // Layout and stacking
+    "relative isolate inline-flex w-fit items-center self-center",
+
+    // Shadow
+    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
+    "before:translate-x-[var(--shadow-offset-x)]",
+    "before:translate-y-[var(--shadow-offset-y)]",
+    "before:bg-[var(--shadow-color)]",
+
+    // Animation
+    shouldAnimate && "animate-brutal-pop",
+  ]
     .filter(Boolean)
     .join(" ");
 
+  // Main return
   const link = (
     <a
       href={href}
-      className={linkStyles({
-        variant,
-        size,
-        className: faceClassName,
-      })}
+      className={twMerge(
+        linkStyles({ variant, size }),
+        shouldAnimate && "brutal-pop-face",
+        className,
+      )}
       {...props}
       target={isExternal ? "_blank" : props.target}
       rel={isExternal ? "noopener noreferrer" : props.rel}
     >
-      <span className="col-start-1 row-start-1 inline-flex items-center gap-2 text-txt">
+      {/* Children */}
+      <span className="relative col-start-1 row-start-1 inline-flex items-center gap-2 text-txt">
         {children}
         <MoveRight aria-hidden="true" className="h-5 w-5 shrink-0" />
         <span
@@ -80,7 +103,7 @@ export default function Link({
 
       <span
         aria-hidden="true"
-        className="pointer-events-none col-start-1 row-start-1 inline-flex items-center gap-2 text-main [-webkit-text-stroke:1px_currentColor] [clip-path:inset(0_100%_0_0)] transition-[clip-path] duration-300 ease-out group-hover/action:[clip-path:inset(-1px)] motion-reduce:transition-none"
+        className="pointer-events-none relative col-start-1 row-start-1 inline-flex items-center gap-2 text-main [-webkit-text-stroke:1px_currentColor] [clip-path:inset(0_100%_0_0)] transition-[clip-path] duration-300 ease-out group-hover/action:[clip-path:inset(-1px)] motion-reduce:transition-none"
       >
         {children}
         <MoveRight className="h-5 w-5 shrink-0" />
@@ -92,17 +115,6 @@ export default function Link({
   if (!animate) {
     return link;
   }
-
-  const wrapperClasses = [
-    "relative isolate inline-flex w-fit self-start",
-    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
-    "before:translate-x-[var(--shadow-offset-x)]",
-    "before:translate-y-[var(--shadow-offset-y)]",
-    "before:bg-[var(--shadow-color)]",
-    shouldAnimate && "animate-brutal-pop",
-  ]
-    .filter(Boolean)
-    .join(" ");
 
   return (
     <span

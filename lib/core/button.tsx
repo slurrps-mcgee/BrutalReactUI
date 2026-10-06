@@ -1,15 +1,17 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
+// Button styles
 const buttonStyles = cva(
   [
     // Layout and stacking
-    "group relative z-10 isolate inline-flex items-center justify-center gap-2",
+    "group/button relative z-10 isolate inline-flex items-center justify-center self-center gap-2",
 
     // Border and typography. Color matches the drawn stroke.
     "border-[3px] border-border font-mono font-bold uppercase tracking-wide border-none",
@@ -53,14 +55,15 @@ const buttonStyles = cva(
   },
 );
 
+// Hover and focus fill styles
 const fillStyles = cva(
   [
-    // Fill layer positioning
-    "pointer-events-none absolute -inset-[3px] z-0 origin-left",
+    // Fill layer positioning. Slightly larger than the clip so subpixels still meet the stroke.
+    "pointer-events-none absolute -inset-px origin-left",
 
     // Fill reveal on hover and keyboard focus
     "scale-x-0 transition-transform duration-300 ease-out",
-    "group-hover:scale-x-100 group-focus-visible:scale-x-100",
+    "group-hover/button:scale-x-100 group-focus-visible/button:scale-x-100",
 
     // Reduced motion
     "motion-reduce:transition-none",
@@ -79,12 +82,14 @@ const fillStyles = cva(
   },
 );
 
+// Button props
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonStyles> & {
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
   };
 
+// Main Button component
 export default function Button({
   children,
   className,
@@ -96,48 +101,55 @@ export default function Button({
   type = "button",
   ...props
 }: ButtonProps) {
+  // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+
+  // Wrapper classes
   const wrapperClasses = [
-    // Wrapper layout and stacking
-    "relative isolate",
+    // Layout and stacking
+    "relative isolate self-center items-center",
+
+    // Full width
     fullWidth ? "flex w-full" : "inline-flex w-fit",
 
-    // Wrapper-owned stationary shadow
+    // Shadow
     'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
     "before:translate-x-[var(--shadow-offset-x)]",
     "before:translate-y-[var(--shadow-offset-y)]",
     "before:bg-[var(--shadow-color)]",
 
-    // Optional load animation and disabled appearance
+    // Animation
     shouldAnimate && "animate-brutal-pop",
+
+    // Disabled state
     "has-[:disabled]:opacity-50",
   ]
     .filter(Boolean)
     .join(" ");
 
-  const buttonClassName = [
-    // Optional pop target and caller classes
-    shouldAnimate && "brutal-pop-face",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
+  // Main return
   return (
     <div ref={ref} className={wrapperClasses} data-pop-direction={popDirection}>
       <button
         type={type}
-        className={buttonStyles({
-          variant,
-          size,
-          fullWidth,
-          className: buttonClassName,
-        })}
+        className={twMerge(
+          buttonStyles({ variant, size, fullWidth }),
+          shouldAnimate && "brutal-pop-face",
+          className,
+        )}
         {...props}
       >
+        {/* Border */}
         <DrawBorder animate={shouldAnimate} className="z-10" />
+        {/* Children */}
         <span className="relative z-10">{children}</span>
-        <span aria-hidden="true" className={fillStyles({ variant })} />
+        {/* Fill */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -inset-[1px] z-0 overflow-hidden"
+        >
+          <span className={fillStyles({ variant })} />
+        </span>
       </button>
     </div>
   );

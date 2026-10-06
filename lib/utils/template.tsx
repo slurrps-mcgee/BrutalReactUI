@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { twMerge } from "tailwind-merge";
 import DrawBorder from "./draw-border";
 import {
   useAnimationTrigger,
@@ -8,19 +9,18 @@ import {
 
 const componentStyles = cva(
   [
-    "group relative z-10 isolate flex",
+    "relative z-10 isolate flex",
     "border-[3px] border-border font-mono font-bold uppercase tracking-wide",
     "motion-reduce:transition-none",
   ].join(" "),
   {
     variants: {
       variant: {
-        primary:
-          "bg-main text-main-txt group-hover:text-txt group-focus-visible:text-txt",
+        primary: "bg-main text-main-txt hover:text-txt focus-visible:text-txt",
         secondary:
-          "bg-mint text-txt group-hover:text-main-txt group-focus-visible:text-main-txt",
+          "bg-mint text-txt hover:text-main-txt focus-visible:text-main-txt",
         outline:
-          "bg-paper text-txt group-hover:text-main-txt group-focus-visible:text-main-txt",
+          "bg-paper text-txt hover:text-main-txt focus-visible:text-main-txt",
       },
       size: {
         sm: "px-3 py-2 text-xs",
@@ -75,8 +75,10 @@ type ComponentProps = HTMLAttributes<HTMLDivElement> &
 
 /**
  * Reference shape for core components. Do not import this into the app.
+ * Order: styles, props, component, shouldAnimate, wrapperClasses.
+ * className is merged onto the face only.
  * Components with a resting shadow always render the wrapper.
- * Components without one, such as Badge, render the wrapper only when animate is true.
+ * Badge has no shadow. Its animate prop only draws the border.
  * The pop face must be the wrapper's direct child: .animate-brutal-pop > .brutal-pop-face.
  * Layout props (direction, align, justify, gap, fullWidth) belong on layout components such as Container.
  */
@@ -107,23 +109,22 @@ export default function Component({
     .filter(Boolean)
     .join(" ");
 
-  const faceClassName = [shouldAnimate && "brutal-pop-face", className]
-    .filter(Boolean)
-    .join(" ");
-
   return (
     <div ref={ref} className={wrapperClasses} data-pop-direction={popDirection}>
       <div
-        className={componentStyles({
-          variant,
-          size,
-          direction,
-          align,
-          justify,
-          gap,
-          fullWidth,
-          className: faceClassName,
-        })}
+        className={twMerge(
+          componentStyles({
+            variant,
+            size,
+            direction,
+            align,
+            justify,
+            gap,
+            fullWidth,
+          }),
+          shouldAnimate && "brutal-pop-face",
+          className,
+        )}
         {...props}
       >
         <DrawBorder animate={shouldAnimate} className="z-10" />

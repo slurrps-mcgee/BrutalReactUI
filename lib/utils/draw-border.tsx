@@ -18,31 +18,33 @@ export default function DrawBorder({
     .filter(Boolean)
     .join(" ");
 
-  const half = strokeWidth / 2;
+  const gutter = 1;
+  const inset = strokeWidth / 2 + gutter;
+  const box = strokeWidth + gutter * 2;
 
   return (
     <svg
       aria-hidden="true"
       className={svgClasses}
       preserveAspectRatio="none"
-      shapeRendering="crispEdges"
       style={{
-        left: -strokeWidth,
-        top: -strokeWidth,
-        width: `calc(100% + ${strokeWidth * 2}px)`,
-        height: `calc(100% + ${strokeWidth * 2}px)`,
+        left: -inset,
+        top: -inset,
+        width: `calc(100% + ${box}px)`,
+        height: `calc(100% + ${box}px)`,
       }}
     >
       <rect
-        x={half}
-        y={half}
+        x={inset}
+        y={inset}
         pathLength="100"
         fill="none"
         stroke="currentColor"
         strokeWidth={strokeWidth}
+        strokeLinejoin="miter"
         style={{
-          width: `calc(100% - ${strokeWidth}px)`,
-          height: `calc(100% - ${strokeWidth}px)`,
+          width: `calc(100% - ${box}px)`,
+          height: `calc(100% - ${box}px)`,
         }}
       />
     </svg>

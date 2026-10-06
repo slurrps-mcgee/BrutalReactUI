@@ -2,18 +2,17 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "../utils/theme-context";
 import Button from "./button";
 
-export default function ThemeToggle() {
-  // Access the current theme and the function to update it
-  const { theme, setTheme } = useTheme();
+// ThemeToggle is a Button. Styles, shouldAnimate, and the shadow wrapper live there.
+// className stays on the button face.
 
-  // Determine if dark mode is active (handles explicit 'dark' or 'system' matching dark)
+export default function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
   const isDark =
     theme === "dark" ||
     (theme === "system" &&
       window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   const handleThemeChange = () => {
-    // If it's dark, switch to light. If it's light, switch to dark.
     setTheme(isDark ? "light" : "dark");
   };
 
@@ -29,5 +28,3 @@ export default function ThemeToggle() {
     </Button>
   );
 }
-
-//Will extend this to handle other themes in future

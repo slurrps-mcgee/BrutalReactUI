@@ -1,9 +1,14 @@
 import type { InputHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { twMerge } from "tailwind-merge";
 
+// Input styles
 const inputStyles = cva(
   [
+    // Layout and stacking
     "relative z-10 w-full border-[3px] border-border font-mono",
+
+    // Shadow
     "transition-transform duration-150",
     "translate-x-[var(--shadow-offset-x)]",
     "translate-y-[var(--shadow-offset-y)]",
@@ -11,7 +16,11 @@ const inputStyles = cva(
     "focus:translate-x-0",
     "focus:translate-y-0",
     "focus:z-20 focus-visible:outline-none",
+
+    // Disabled state
     "disabled:cursor-not-allowed disabled:opacity-50",
+
+    // Reduced motion
     "motion-reduce:transition-none",
   ].join(" "),
   {
@@ -35,11 +44,13 @@ const inputStyles = cva(
   },
 );
 
+// Input props
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> &
   VariantProps<typeof inputStyles> & {
     wrapperClassName?: string;
   };
 
+// Main Input component
 export default function Input({
   className,
   wrapperClassName,
@@ -47,23 +58,28 @@ export default function Input({
   size,
   ...inputProps
 }: InputProps) {
+  // Wrapper classes
+  const wrapperClasses = twMerge("flex w-full items-center", wrapperClassName);
+
+  // Main return
   return (
-    <div
-      className={["flex w-full items-center", wrapperClassName]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <div className={wrapperClasses}>
       <div className="relative isolate w-full">
+        {/* Border */}
         <div
           aria-hidden="true"
           className={[
+            // Layout and stacking
             "pointer-events-none absolute inset-0 z-0",
+
+            // Shadow
             "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
             "bg-[var(--shadow-color)]",
           ].join(" ")}
         />
+        {/* Input */}
         <input
-          className={inputStyles({ variant, size, className })}
+          className={twMerge(inputStyles({ variant, size, className }))}
           {...inputProps}
         />
       </div>
