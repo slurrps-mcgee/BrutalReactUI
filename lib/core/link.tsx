@@ -1,0 +1,116 @@
+import type { AnchorHTMLAttributes } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { MoveRight } from "lucide-react";
+import {
+  useAnimationTrigger,
+  type AnimationTrigger,
+} from "../utils/use-enter-viewport";
+
+const linkStyles = cva(
+  [
+    // Layout and stacking
+    "group/action pointer-events-auto relative z-20 inline-grid whitespace-nowrap pb-1",
+
+    // Typography
+    "font-mono font-bold",
+    "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring",
+  ].join(" "),
+  {
+    variants: {
+      variant: {
+        default: "",
+      },
+      size: {
+        sm: "text-xs",
+        md: "text-sm",
+        lg: "text-base",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "md",
+    },
+  },
+);
+
+export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
+  VariantProps<typeof linkStyles> & {
+    href: string;
+    children: string;
+    animate?: AnimationTrigger;
+    popDirection?: "out" | "in";
+  };
+
+export default function Link({
+  href,
+  children,
+  className,
+  variant,
+  size,
+  animate = false,
+  popDirection = "out",
+  ...props
+}: LinkProps) {
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
+  const isExternal = /^https?:\/\//.test(href);
+  const faceClassName = [shouldAnimate && "brutal-pop-face", className]
+    .filter(Boolean)
+    .join(" ");
+
+  const link = (
+    <a
+      href={href}
+      className={linkStyles({
+        variant,
+        size,
+        className: faceClassName,
+      })}
+      {...props}
+      target={isExternal ? "_blank" : props.target}
+      rel={isExternal ? "noopener noreferrer" : props.rel}
+    >
+      <span className="col-start-1 row-start-1 inline-flex items-center gap-2 text-txt">
+        {children}
+        <MoveRight aria-hidden="true" className="h-5 w-5 shrink-0" />
+        <span
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 right-0 h-0.5 bg-current"
+        />
+      </span>
+
+      <span
+        aria-hidden="true"
+        className="pointer-events-none col-start-1 row-start-1 inline-flex items-center gap-2 text-main [-webkit-text-stroke:1px_currentColor] [clip-path:inset(0_100%_0_0)] transition-[clip-path] duration-300 ease-out group-hover/action:[clip-path:inset(-1px)] motion-reduce:transition-none"
+      >
+        {children}
+        <MoveRight className="h-5 w-5 shrink-0" />
+        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-current" />
+      </span>
+    </a>
+  );
+
+  if (!animate) {
+    return link;
+  }
+
+  const wrapperClasses = [
+    "relative isolate inline-flex w-fit self-start",
+    'before:pointer-events-none before:absolute before:inset-0 before:z-0 before:content-[""]',
+    "before:translate-x-[var(--shadow-offset-x)]",
+    "before:translate-y-[var(--shadow-offset-y)]",
+    "before:bg-[var(--shadow-color)]",
+    shouldAnimate && "animate-brutal-pop",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <span
+      ref={ref}
+      className={wrapperClasses}
+      data-pop-direction={popDirection}
+    >
+      {link}
+    </span>
+  );
+}
