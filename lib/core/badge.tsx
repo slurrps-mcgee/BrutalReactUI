@@ -13,8 +13,8 @@ const badgeStyles = cva(
     // Layout and stacking
     "relative z-10 isolate inline-flex w-fit self-center items-center justify-center",
 
-    // Border and typography. Color matches the drawn stroke.
-    "border-[3px] text-center font-mono text-xs font-bold uppercase",
+    // Border and typography. Thinner than the 3px stroke on buttons and cards.
+    "border-2 text-center font-mono text-xs font-bold uppercase",
 
     // Disabled state and reduced motion
     "motion-reduce:transition-none",
@@ -22,10 +22,50 @@ const badgeStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-chart-1 text-main-foreground [--surface:var(--chart-1)]",
-        secondary: "bg-chart-3 text-main-foreground [--surface:var(--chart-3)]",
-        outline: "bg-[var(--surface)] text-foreground",
+        primary: [
+          // Fill and ink
+          "bg-chart-1 text-main-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--chart-1)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        secondary: [
+          // Fill and ink
+          "bg-chart-3 text-main-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--chart-3)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        success: [
+          // Fill and ink
+          "bg-success text-success-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--success)] [--surface-foreground:var(--success-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        warning: [
+          // Fill and ink
+          "bg-warning text-warning-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--warning)] [--surface-foreground:var(--warning-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        danger: [
+          // Fill and ink
+          "bg-danger text-danger-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--danger)] [--surface-foreground:var(--danger-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        info: [
+          // Fill and ink
+          "bg-info text-info-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--info)] [--surface-foreground:var(--info-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
       },
+      // Padding and type size
       size: {
         sm: "px-2 py-1",
         md: "px-3 py-1.5",
@@ -66,21 +106,28 @@ export default function Badge({
     <span
       ref={ref}
       className={twMerge(
-        badgeStyles({ variant, size }),
-        shouldAnimate ? "border-none" : "border-border",
-        rounded && "rounded-[var(--radius)]",
-        faceClassName,
-        className,
+        [
+          badgeStyles({ variant, size }),
+
+          // Resting stroke, or none while the SVG draws it.
+          shouldAnimate ? "border-none" : "border-border",
+          rounded && "rounded-[var(--radius)]",
+          faceClassName,
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     >
       {/* Border */}
       {shouldAnimate && (
-        <DrawBorder
-          animate
-          radius={rounded ? "var(--radius)" : undefined}
-          className="z-10"
-        />
+          <DrawBorder
+            animate
+            strokeWidth={2}
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
       )}
       {/* Children */}
       <span className="relative z-10">{children}</span>

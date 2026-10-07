@@ -12,8 +12,11 @@ const imageStyles = [
   // Layout and stacking
   "relative z-10 aspect-video w-full",
 
-  // Border
-  "border-[3px] bg-secondary-background [--surface:var(--secondary-background)]",
+  // Border and fill
+  "border-[3px] bg-secondary-background",
+
+  // Surface for outline children. Hover slide stays main.
+  "[--surface:var(--secondary-background)] [--surface-foreground:var(--foreground)] [--outline-button-fill:var(--main)]",
 ].join(" ");
 
 // Image props
@@ -72,12 +75,20 @@ export default function Image({
     >
       <div
         className={twMerge(
-          imageStyles,
-          shouldAnimate ? "border-none" : "border-border",
-          shouldAnimate && "brutal-pop-face",
-          rounded && "rounded-[var(--radius)]",
-          faceClassName,
-          className,
+          [
+            imageStyles,
+
+            // Resting stroke, or none while the SVG draws it.
+            shouldAnimate ? "border-none" : "border-border",
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+            rounded && "rounded-[var(--radius)]",
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
       >
         <img
@@ -89,10 +100,16 @@ export default function Image({
           decoding="async"
           onError={() => setFailedSrc(image.src)}
           className={twMerge(
-            "block h-full w-full object-cover object-top",
-            rounded &&
-              "absolute inset-0 overflow-hidden rounded-[var(--radius)]",
-            failed && "sr-only",
+            [
+              // Crop from the top so previews keep the header in frame.
+              "block h-full w-full object-cover object-top",
+
+              // Clip the photo to the radius without clipping the drawn stroke.
+              rounded && "absolute inset-0 overflow-hidden rounded-[var(--radius)]",
+              failed && "sr-only",
+            ]
+              .filter(Boolean)
+              .join(" "),
           )}
         />
 

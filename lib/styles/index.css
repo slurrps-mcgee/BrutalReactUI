@@ -23,8 +23,13 @@
   /* Background tokens */
   --background: hsl(190, 95%, 90%);
   --secondary-background: oklch(100% 0 0);
-  /* Outline faces paint this. Filled faces override it with the color they paint. */
+
+  /* Surface tokens. Outline faces inherit these from the nearest parent. */
   --surface: var(--background);
+  --surface-foreground: var(--foreground);
+
+  /* Outline button hover. Main parents override this to the secondary fill. */
+  --outline-button-fill: var(--main);
 
   /* Foreground tokens */
   --foreground: oklch(0% 0 0);
@@ -66,9 +71,9 @@
   /* Radius tokens */
   --radius: 0.375rem;
 
-  /* Scrollbar tokens */
+  /* Scrollbar tokens. Thumb follows the ink so it stays visible in dark. */
   --sb-track-color: var(--background);
-  --sb-thumb-color: var(--border);
+  --sb-thumb-color: var(--foreground);
 
   /* Components paint var(--shadow). Offsets are the same distances, used by press and pop. */
   --shadow-offset-x: 6px;
@@ -97,8 +102,8 @@
   /* Main tokens */
   --main: hsl(190, 100%, 47%);
 
-  /* Border tokens */
-  --border: oklch(0% 0 0);
+  /* Border tokens. Pale ink so the stroke and hard shadow stay visible. */
+  --border: var(--foreground);
 
   /* Ring tokens */
   --ring: hsl(190, 100%, 47%);
@@ -131,6 +136,7 @@
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
+  /* Color tokens. Mapped once so components use bg-main, text-foreground, and the rest. */
   --color-main: var(--main);
   --color-background: var(--background);
   --color-secondary-background: var(--secondary-background);
@@ -205,16 +211,19 @@
 
 /* Base layer */
 @layer base {
+  /* Default border and focus ring for every element. */
   * {
     @apply border-border outline-ring/50;
   }
 
+  /* Page type and the thin scrollbar used by Firefox. */
   html {
     @apply font-sans;
     scrollbar-width: thin;
     scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
   }
 
+  /* Page fill and ink. Color eases when the theme changes. */
   body {
     @apply bg-background text-foreground font-base;
     min-height: 100vh;
@@ -223,6 +232,7 @@
       color 180ms ease;
   }
 
+  /* Headings use the display weight. */
   h1,
   h2,
   h3,
@@ -232,6 +242,7 @@
     @apply font-heading;
   }
 
+  /* WebKit scrollbar. The thumb follows the foreground so it stays visible in dark. */
   ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
@@ -250,6 +261,7 @@
     filter: brightness(0.9);
   }
 
+  /* Reduced motion. Keep one frame of each animation. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

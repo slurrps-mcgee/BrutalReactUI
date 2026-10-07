@@ -27,11 +27,26 @@ const cardStyles = cva(
   {
     variants: {
       variant: {
-        primary:
-          "bg-secondary-background text-foreground [--surface:var(--secondary-background)]",
-        secondary: "bg-chart-2 text-main-foreground [--surface:var(--chart-2)]",
-        outline: "bg-[var(--surface)] text-foreground",
+        primary: [
+          // Fill and ink
+          "bg-main text-main-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--secondary-background)] [--surface-foreground:var(--foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        secondary: [
+          // Fill and ink
+          "bg-chart-2 text-main-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--chart-2)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        outline: [
+          // Cut out of the parent surface and ink.
+          "bg-[var(--surface)] text-[var(--surface-foreground)]",
+        ].join(" "),
       },
+      // Padding, gap, and type size
       size: {
         sm: "gap-3 p-4 text-sm",
         md: "gap-4 p-6 text-base",
@@ -95,12 +110,20 @@ export default function Card({
     <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
       <article
         className={twMerge(
-          cardStyles({ variant, size }),
-          shouldAnimate ? "border-none" : "border-border",
-          shouldAnimate && "brutal-pop-face",
-          rounded && "rounded-[var(--radius)]",
-          faceClassName,
-          className,
+          [
+            cardStyles({ variant, size }),
+
+            // Resting stroke, or none while the SVG draws it.
+            shouldAnimate ? "border-none" : "border-border",
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+            rounded && "rounded-[var(--radius)]",
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
         {...props}
       >

@@ -41,8 +41,13 @@ export default function DrawBorder({
   }, [radius]);
 
   const svgClasses = [
+    // Sit over the face without taking clicks.
     "pointer-events-none absolute overflow-visible",
+
+    // Start the dash only after the perimeter is known.
     animate && ready && "animate-drawBorder",
+
+    // Stroke color follows the border token.
     "text-border",
     className,
   ]

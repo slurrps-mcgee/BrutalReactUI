@@ -17,7 +17,7 @@ const inputStyles = cva(
     "focus:z-20 focus-visible:outline-none",
 
     // Disabled state
-    "disabled:cursor-not-allowed disabled:opacity-50",
+    "disabled:cursor-not-allowed disabled:bg-secondary-background disabled:text-foreground",
 
     // Reduced motion
     "motion-reduce:transition-none",
@@ -25,13 +25,26 @@ const inputStyles = cva(
   {
     variants: {
       variant: {
-        primary:
-          "bg-secondary-background text-foreground placeholder:text-foreground/60 [--surface:var(--secondary-background)]",
-        secondary:
-          "bg-secondary-background text-foreground placeholder:text-foreground/60 [--surface:var(--secondary-background)]",
-        outline:
-          "bg-[var(--surface)] text-foreground placeholder:text-foreground/60",
+        primary: [
+          // Fill, ink, and hint
+          "bg-secondary-background text-foreground placeholder:text-foreground/60",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--secondary-background)] [--surface-foreground:var(--foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        secondary: [
+          // Fill, ink, and hint
+          "bg-secondary-background text-foreground placeholder:text-foreground/60",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--secondary-background)] [--surface-foreground:var(--foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        outline: [
+          // Cut out of the parent. The hint follows that same ink.
+          "bg-[var(--surface)] text-[var(--surface-foreground)] placeholder:text-current/60",
+        ].join(" "),
       },
+      // Padding and type size
       size: {
         sm: "px-3 py-2 text-xs",
         md: "px-4 py-3 text-sm",
@@ -76,9 +89,14 @@ export default function Input({
         <div
           aria-hidden="true"
           className={twMerge(
-            "pointer-events-none absolute inset-0 z-0 bg-[var(--shadow-color)]",
-            "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-            rounded && "rounded-[var(--radius)]",
+            [
+              // Offset plate. The field covers it at rest and lifts off on focus.
+              "pointer-events-none absolute inset-0 z-0 bg-[var(--shadow-color)]",
+              "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
+              rounded && "rounded-[var(--radius)]",
+            ]
+              .filter(Boolean)
+              .join(" "),
           )}
         />
         <input

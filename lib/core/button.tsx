@@ -28,24 +28,40 @@ const buttonStyles = cva(
     // Selected text. className can override these utilities.
     "selection:bg-main selection:text-main-foreground",
 
-    // Disabled state and reduced motion
-    "disabled:pointer-events-none",
+    // Disabled state and reduced motion. Opacity would fade the label.
+    "disabled:pointer-events-none disabled:bg-secondary-background disabled:text-foreground",
     "motion-reduce:transition-none",
   ].join(" "),
   {
     variants: {
       variant: {
-        primary:
-          "bg-main text-main-foreground [--surface:var(--main)] group-hover/button:text-foreground group-focus-visible/button:text-foreground",
-        secondary: "bg-chart-2 text-main-foreground [--surface:var(--chart-2)]",
-        outline:
-          "bg-[var(--surface)] text-foreground group-hover/button:text-main-foreground group-focus-visible/button:text-main-foreground",
+        primary: [
+          // Fill and ink. Hover text flips when the slide covers the face.
+          "bg-main text-main-foreground",
+          "group-hover/button:text-foreground group-focus-visible/button:text-foreground",
+
+          // Surface for outline children. A main parent slides the outline button in secondary.
+          "[--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]",
+        ].join(" "),
+        secondary: [
+          // Fill and ink
+          "bg-chart-2 text-main-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--chart-2)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        outline: [
+          // Cut out of the parent surface and ink. Hover ink lives on the label.
+          "bg-[var(--surface)] text-[var(--surface-foreground)]",
+        ].join(" "),
       },
+      // Padding and type size
       size: {
         sm: "px-3 py-2 text-xs",
         md: "px-5 py-3 text-sm",
         lg: "px-7 py-4 text-base",
       },
+      // Stretch the face with the wrapper
       fullWidth: {
         true: "w-full",
         false: "",
@@ -74,10 +90,11 @@ const fillStyles = cva(
   ].join(" "),
   {
     variants: {
+      // Slide color. Outline reads the parent so a main parent uses secondary.
       variant: {
         primary: "bg-chart-2",
         secondary: "bg-main",
-        outline: "bg-main",
+        outline: "bg-[var(--outline-button-fill)]",
       },
     },
     defaultVariants: {
@@ -132,8 +149,7 @@ export default function Button({
       // Animation
       shouldAnimate && "animate-brutal-pop",
 
-      // Disabled state
-      "has-[:disabled]:opacity-50",
+      // Disabled state stays at full strength so the label remains readable.
     ]
       .filter(Boolean)
       .join(" "),
@@ -146,12 +162,20 @@ export default function Button({
       <button
         type={type}
         className={twMerge(
-          buttonStyles({ variant, size, fullWidth }),
-          shouldAnimate ? "border-none" : "border-border",
-          shouldAnimate && "brutal-pop-face",
-          rounded && "rounded-[var(--radius)]",
-          faceClassName,
-          className,
+          [
+            buttonStyles({ variant, size, fullWidth }),
+
+            // Resting stroke, or none while the SVG draws it.
+            shouldAnimate ? "border-none" : "border-border",
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+            rounded && "rounded-[var(--radius)]",
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
         {...props}
       >
@@ -163,14 +187,27 @@ export default function Button({
             className="z-10"
           />
         )}
-        {/* Children */}
-        <span className="relative z-10">{children}</span>
+        {/* Children. Outline ink turns dark on the slide, which is a descendant of the group. */}
+        <span
+          className={twMerge(
+            "relative z-10",
+            variant === "outline" &&
+              "group-hover/button:text-main-foreground group-focus-visible/button:text-main-foreground",
+          )}
+        >
+          {children}
+        </span>
         {/* Fill */}
         <span
           aria-hidden="true"
           className={twMerge(
-            "pointer-events-none absolute -inset-[1px] z-0 overflow-hidden",
-            rounded && "rounded-[calc(var(--radius)+1px)]",
+            [
+              // Clip the slide to the stroke so it does not paint past the border.
+              "pointer-events-none absolute -inset-[1px] z-0 overflow-hidden",
+              rounded && "rounded-[calc(var(--radius)+1px)]",
+            ]
+              .filter(Boolean)
+              .join(" "),
           )}
         >
           <span

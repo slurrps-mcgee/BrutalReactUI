@@ -30,7 +30,15 @@ export default function ThemeToggle({
       aria-pressed={isDark}
       onClick={handleThemeChange}
       rounded={rounded}
-      className={twMerge("size-10 !px-0 !py-0", className)}
+      className={twMerge(
+        [
+          // Square icon button. Padding is cleared so the icon stays centered.
+          "size-10 !px-0 !py-0",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      )}
     >
       {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
     </Button>

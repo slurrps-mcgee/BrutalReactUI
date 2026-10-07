@@ -15,6 +15,8 @@ import {
   useTheme,
 } from "../lib/main";
 import exampleUrl from "./assets/example.png";
+import { Send } from "lucide-react";
+
 
 function Snippet({ code }: { code: string }) {
   return (
@@ -28,9 +30,6 @@ function OutlineSet() {
   return (
     <div className="flex flex-wrap items-center gap-4">
       <Button variant="outline">Outline</Button>
-      <Badge variant="outline" size="lg">
-        Outline
-      </Badge>
       <div className="w-full max-w-48">
         <Input
           aria-label="Outline field"
@@ -43,7 +42,6 @@ function OutlineSet() {
 }
 
 const outlineSetCode = `<Button variant="outline">Outline</Button>
-<Badge variant="outline" size="lg">Outline</Badge>
 <Input variant="outline" placeholder="Outline" />`;
 
 function App() {
@@ -53,7 +51,7 @@ function App() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-8">
-      <header className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-foreground [--surface:var(--main)]">
+      <header className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
             <p className="font-mono text-xs font-bold uppercase tracking-wide">
@@ -71,7 +69,7 @@ function App() {
           <ThemeToggle />
         </div>
         <Snippet
-          code={`<header className="bg-main [--surface:var(--main)]">
+          code={`<header className="bg-main text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
   <ThemeToggle />
 </header>`}
         />
@@ -80,8 +78,9 @@ function App() {
       <section id="surface" className="flex flex-col gap-6">
         <h2 className="font-display text-2xl font-bold">Surface</h2>
         <p className="max-w-2xl font-sans">
-          Outline faces paint <span className="font-mono">--surface</span> from
-          the nearest parent. The page falls back to the background color.
+          Outline faces paint <span className="font-mono">--surface</span> and
+          use the parent text color. An outline button on a main parent uses
+          the secondary fill. The page falls back to the background color.
         </p>
 
         <div className="flex flex-col gap-4">
@@ -108,11 +107,11 @@ function App() {
           />
         </Container>
 
-        <div className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-foreground [--surface:var(--main)]">
+        <div className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
           <h3 className="font-display text-xl font-bold">Main parent</h3>
           <OutlineSet />
           <Snippet
-            code={`<div className="bg-main [--surface:var(--main)]">
+            code={`<div className="bg-main text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
   ${outlineSetCode.split("\n").join("\n  ")}
 </div>`}
           />
@@ -131,6 +130,7 @@ function App() {
             Large
           </Button>
           <Button disabled>Disabled</Button>
+          <Button animate rounded><Send /></Button>
         </div>
         <Button fullWidth variant="secondary">
           Full width
@@ -152,26 +152,22 @@ function App() {
           <Badge variant="secondary" size="md">
             Secondary
           </Badge>
-          <Badge variant="outline" size="lg">
-            Outline
-          </Badge>
           <Badge animate rounded>
             Animated
           </Badge>
-          <Badge className="bg-success text-success-foreground">Success</Badge>
-          <Badge className="bg-warning text-warning-foreground">Warning</Badge>
-          <Badge className="bg-danger text-danger-foreground">Danger</Badge>
-          <Badge className="bg-info text-info-foreground">Info</Badge>
+          <Badge variant="success">Success</Badge>
+          <Badge variant="warning">Warning</Badge>
+          <Badge variant="danger">Danger</Badge>
+          <Badge variant="info">Info</Badge>
         </div>
         <Snippet
           code={`<Badge>Primary</Badge>
 <Badge variant="secondary" size="md">Secondary</Badge>
-<Badge variant="outline" size="lg">Outline</Badge>
 <Badge animate rounded>Animated</Badge>
-<Badge className="bg-success text-success-foreground">Success</Badge>
-<Badge className="bg-warning text-warning-foreground">Warning</Badge>
-<Badge className="bg-danger text-danger-foreground">Danger</Badge>
-<Badge className="bg-info text-info-foreground">Info</Badge>`}
+<Badge variant="success">Success</Badge>
+<Badge variant="warning">Warning</Badge>
+<Badge variant="danger">Danger</Badge>
+<Badge variant="info">Info</Badge>`}
         />
       </Container>
 
@@ -223,13 +219,17 @@ function App() {
       <Container id="links" title="Links" fullWidth>
         <div className="flex flex-wrap gap-6">
           <Link href="#buttons">Back to buttons</Link>
-          <Link href="https://github.com" size="lg">
+          <Link href="#buttons" variant="primary">
+            Primary
+          </Link>
+          <Link href="https://github.com" variant="secondary" size="lg">
             GitHub
           </Link>
         </div>
         <Snippet
           code={`<Link href="#buttons">Back to buttons</Link>
-<Link href="https://github.com" size="lg">GitHub</Link>`}
+<Link href="#buttons" variant="primary">Primary</Link>
+<Link href="https://github.com" variant="secondary" size="lg">GitHub</Link>`}
         />
       </Container>
 
@@ -263,7 +263,7 @@ function App() {
               />
             </CardImage>
             <CardHeader>
-              <Badge>Library</Badge>
+              <Badge variant="info">Library</Badge>
             </CardHeader>
             <CardBody>
               <h3 className="font-display text-2xl font-bold">
@@ -280,13 +280,13 @@ function App() {
                 aria-label="Project technologies"
               >
                 <li>
-                  <Badge>React</Badge>
+                  <Badge variant="success">React</Badge>
                 </li>
                 <li>
-                  <Badge>Tailwind</Badge>
+                  <Badge variant="success">Tailwind</Badge>
                 </li>
                 <li>
-                  <Badge>TypeScript</Badge>
+                  <Badge variant="success">TypeScript</Badge>
                 </li>
               </ul>
             </CardFooter>
@@ -300,11 +300,11 @@ function App() {
               />
             </CardImage>
             <CardHeader>
-              <Badge variant="outline">Outline</Badge>
+              <Badge variant="info">Info</Badge>
             </CardHeader>
             <CardBody>
               <h3 className="font-display text-2xl font-bold">Field Notes</h3>
-              <p className="mt-2 text-foreground">
+              <p className="mt-2">
                 The same card with the outline variant, a second image, and a
                 shorter chip list.
               </p>
@@ -315,7 +315,7 @@ function App() {
                 aria-label="Project technologies"
               >
                 <li>
-                  <Badge variant="outline">Vite</Badge>
+                  <Badge variant="success">Vite</Badge>
                 </li>
               </ul>
             </CardFooter>
@@ -332,7 +332,7 @@ function App() {
       />
     </CardImage>
     <CardHeader>
-      <Badge>Library</Badge>
+      <Badge variant="info">Library</Badge>
     </CardHeader>
     <CardBody>
       <h3>Brutal React UI</h3>
@@ -342,9 +342,9 @@ function App() {
       </p>
     </CardBody>
     <CardFooter>
-      <Badge>React</Badge>
-      <Badge>Tailwind</Badge>
-      <Badge>TypeScript</Badge>
+      <Badge variant="success">React</Badge>
+      <Badge variant="success">Tailwind</Badge>
+      <Badge variant="success">TypeScript</Badge>
     </CardFooter>
   </Card>
   <Card variant="outline">
@@ -356,7 +356,7 @@ function App() {
       />
     </CardImage>
     <CardHeader>
-      <Badge variant="outline">Outline</Badge>
+      <Badge variant="info">Info</Badge>
     </CardHeader>
     <CardBody>
       <h3>Field Notes</h3>
@@ -366,7 +366,7 @@ function App() {
       </p>
     </CardBody>
     <CardFooter>
-      <Badge variant="outline">Vite</Badge>
+      <Badge variant="success">Vite</Badge>
     </CardFooter>
   </Card>
 </Container>`}

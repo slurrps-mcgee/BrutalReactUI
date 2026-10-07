@@ -11,6 +11,7 @@
  */
 
 @layer utilities {
+  /* Drawn stroke. The dash is the measured perimeter plus a 2px overlap. */
   @keyframes drawBorder {
     to {
       stroke-dashoffset: 0;
@@ -23,6 +24,7 @@
     animation: drawBorder 800ms ease-in-out forwards;
   }
 
+  /* Load pop. The face travels from the shadow offset back to rest. */
   @keyframes brutalPopOut {
     from {
       translate: var(--shadow-offset-x) var(--shadow-offset-y);
@@ -52,6 +54,7 @@
     animation: brutalPopIn 450ms cubic-bezier(0.2, 0.8, 0.2, 1) 800ms backwards;
   }
 
+  /* Stagger. Ancestors set --brutal-animate-index. */
   .brutal-animate-delay .animate-drawBorder rect {
     animation-delay: calc(var(--brutal-animate-index, 0) * 75ms);
   }
@@ -63,6 +66,7 @@
     animation-delay: calc(800ms + (var(--brutal-animate-index, 0) * 75ms));
   }
 
+  /* Reduced motion. Show the finished stroke and skip the pop. */
   @media (prefers-reduced-motion: reduce) {
     .animate-drawBorder rect,
     .animate-brutal-pop > .brutal-pop-face {

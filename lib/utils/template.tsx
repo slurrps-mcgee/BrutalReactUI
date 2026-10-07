@@ -9,44 +9,70 @@ import {
 
 const componentStyles = cva(
   [
+    // Layout and stacking
     "relative z-10 isolate flex",
+
+    // Border and typography
     "border-[3px] border-border font-mono font-bold uppercase tracking-wide",
+
+    // Reduced motion
     "motion-reduce:transition-none",
   ].join(" "),
   {
     variants: {
       variant: {
-        primary: "bg-main text-main-foreground [--surface:var(--main)]",
-        secondary: "bg-chart-2 text-main-foreground [--surface:var(--chart-2)]",
-        outline: "bg-[var(--surface)] text-foreground",
+        primary: [
+          // Fill and ink
+          "bg-main text-main-foreground",
+
+          // Surface for outline children. A main parent slides the outline button in secondary.
+          "[--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]",
+        ].join(" "),
+        secondary: [
+          // Fill and ink
+          "bg-chart-2 text-main-foreground",
+
+          // Surface for outline children. Hover slide stays main.
+          "[--surface:var(--chart-2)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        outline: [
+          // Cut out of the parent surface and ink.
+          "bg-[var(--surface)] text-[var(--surface-foreground)]",
+        ].join(" "),
       },
+      // Padding and type size
       size: {
         sm: "px-3 py-2 text-xs",
         md: "px-5 py-3 text-sm",
         lg: "px-7 py-4 text-base",
       },
+      // Flex direction
       direction: {
         row: "flex-row",
         column: "flex-col",
       },
+      // Cross-axis alignment
       align: {
         start: "items-start",
         center: "items-center",
         end: "items-end",
         stretch: "items-stretch",
       },
+      // Main-axis alignment
       justify: {
         start: "justify-start",
         center: "justify-center",
         end: "justify-end",
         between: "justify-between",
       },
+      // Space between children
       gap: {
         none: "gap-0",
         sm: "gap-3",
         md: "gap-5",
         lg: "gap-8",
       },
+      // Stretch the face with the wrapper
       fullWidth: {
         true: "w-full",
         false: "",
@@ -104,10 +130,17 @@ export default function Component({
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const wrapperClassName = twMerge(
     [
+      // Layout and stacking
       "relative isolate",
+
+      // Full width
       fullWidth ? "flex w-full" : "inline-flex w-fit",
+
+      // Shadow
       "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
+
+      // Animation
       shouldAnimate && "animate-brutal-pop",
     ]
       .filter(Boolean)
@@ -119,20 +152,28 @@ export default function Component({
     <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
       <div
         className={twMerge(
-          componentStyles({
-            variant,
-            size,
-            direction,
-            align,
-            justify,
-            gap,
-            fullWidth,
-          }),
-          shouldAnimate ? "border-none" : "border-border",
-          shouldAnimate && "brutal-pop-face",
-          rounded && "rounded-[var(--radius)]",
-          faceClassName,
-          className,
+          [
+            componentStyles({
+              variant,
+              size,
+              direction,
+              align,
+              justify,
+              gap,
+              fullWidth,
+            }),
+
+            // Resting stroke, or none while the SVG draws it.
+            shouldAnimate ? "border-none" : "border-border",
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+            rounded && "rounded-[var(--radius)]",
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
         {...props}
       >
