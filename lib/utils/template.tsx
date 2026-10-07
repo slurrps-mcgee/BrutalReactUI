@@ -16,9 +16,9 @@ const componentStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-main text-main-foreground",
-        secondary: "bg-chart-2 text-main-foreground",
-        outline: "bg-secondary-background text-foreground",
+        primary: "bg-main text-main-foreground [--surface:var(--main)]",
+        secondary: "bg-chart-2 text-main-foreground [--surface:var(--chart-2)]",
+        outline: "bg-[var(--surface)] text-foreground",
       },
       size: {
         sm: "px-3 py-2 text-xs",
@@ -70,13 +70,16 @@ type ComponentProps = HTMLAttributes<HTMLDivElement> &
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
     rounded?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
   };
 
 /**
  * Reference shape for core components. Do not import this into the app.
- * Order: styles, props, component, shouldAnimate, wrapperClasses.
- * className is merged onto the face only.
- * Components with a resting shadow always render the wrapper.
+ * Order: styles, props, component, shouldAnimate, wrapperClassName.
+ * className and faceClassName merge onto the face, className last.
+ * wrapperClassName merges onto the shadow wrapper.
+ * DrawBorder mounts only when shouldAnimate is true. Otherwise the face uses border-border.
  * Badge has no shadow. Its animate prop only draws the border.
  * The pop face must be the wrapper's direct child: .animate-brutal-pop > .brutal-pop-face.
  * Layout props (direction, align, justify, gap, fullWidth) belong on layout components such as Container.
@@ -94,21 +97,26 @@ export default function Component({
   animate = false,
   popDirection = "out",
   rounded = false,
+  wrapperClassName: wrapperClassNameProp,
+  faceClassName,
   ...props
 }: ComponentProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const wrapperClasses = [
-    "relative isolate",
-    fullWidth ? "flex w-full" : "inline-flex w-fit",
-    "shadow-[var(--shadow)]",
-    rounded && "rounded-[var(--radius)]",
-    shouldAnimate && "animate-brutal-pop",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const wrapperClassName = twMerge(
+    [
+      "relative isolate",
+      fullWidth ? "flex w-full" : "inline-flex w-fit",
+      "shadow-[var(--shadow)]",
+      rounded && "rounded-[var(--radius)]",
+      shouldAnimate && "animate-brutal-pop",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    wrapperClassNameProp,
+  );
 
   return (
-    <div ref={ref} className={wrapperClasses} data-pop-direction={popDirection}>
+    <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
       <div
         className={twMerge(
           componentStyles({
@@ -120,17 +128,21 @@ export default function Component({
             gap,
             fullWidth,
           }),
+          shouldAnimate ? "border-none" : "border-border",
           shouldAnimate && "brutal-pop-face",
           rounded && "rounded-[var(--radius)]",
+          faceClassName,
           className,
         )}
         {...props}
       >
-        <DrawBorder
-          animate={shouldAnimate}
-          radius={rounded ? "var(--radius)" : undefined}
-          className="z-10"
-        />
+        {shouldAnimate && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
+        )}
         <span className="relative z-10">{children}</span>
       </div>
     </div>

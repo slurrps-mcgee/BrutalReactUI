@@ -13,8 +13,8 @@ const buttonStyles = cva(
     // Layout and stacking
     "group/button relative z-10 isolate inline-flex items-center justify-center self-center gap-2",
 
-    // Border and typography. Color matches the drawn stroke.
-    "border-[3px] border-none font-mono font-bold uppercase tracking-wide",
+    // Border width. Color is chosen once we know if the stroke is drawn.
+    "border-[3px] font-mono font-bold uppercase tracking-wide",
 
     // Press interaction
     "transition-transform duration-150",
@@ -36,10 +36,10 @@ const buttonStyles = cva(
     variants: {
       variant: {
         primary:
-          "bg-main text-main-foreground group-hover/button:text-foreground group-focus-visible/button:text-foreground",
-        secondary: "bg-chart-2 text-main-foreground",
+          "bg-main text-main-foreground [--surface:var(--main)] group-hover/button:text-foreground group-focus-visible/button:text-foreground",
+        secondary: "bg-chart-2 text-main-foreground [--surface:var(--chart-2)]",
         outline:
-          "bg-secondary-background text-foreground group-hover/button:text-main-foreground group-focus-visible/button:text-main-foreground",
+          "bg-[var(--surface)] text-foreground group-hover/button:text-main-foreground group-focus-visible/button:text-main-foreground",
       },
       size: {
         sm: "px-3 py-2 text-xs",
@@ -92,6 +92,9 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
     rounded?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
+    fillClassName?: string;
   };
 
 // Main Button component
@@ -104,6 +107,9 @@ export default function Button({
   animate = false,
   popDirection = "out",
   rounded = false,
+  wrapperClassName: wrapperClassNameProp,
+  faceClassName,
+  fillClassName,
   type = "button",
   ...props
 }: ButtonProps) {
@@ -111,45 +117,52 @@ export default function Button({
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
 
   // Wrapper classes
-  const wrapperClasses = [
-    // Layout and stacking
-    "relative isolate self-center items-center",
+  const wrapperClassName = twMerge(
+    [
+      // Layout and stacking
+      "relative isolate self-center items-center",
 
-    // Full width
-    fullWidth ? "flex w-full" : "inline-flex w-fit",
+      // Full width
+      fullWidth ? "flex w-full" : "inline-flex w-fit",
 
-    // Shadow
-    "shadow-[var(--shadow)]",
-    rounded && "rounded-[var(--radius)]",
+      // Shadow
+      "shadow-[var(--shadow)]",
+      rounded && "rounded-[var(--radius)]",
 
-    // Animation
-    shouldAnimate && "animate-brutal-pop",
+      // Animation
+      shouldAnimate && "animate-brutal-pop",
 
-    // Disabled state
-    "has-[:disabled]:opacity-50",
-  ]
-    .filter(Boolean)
-    .join(" ");
+      // Disabled state
+      "has-[:disabled]:opacity-50",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    wrapperClassNameProp,
+  );
 
   // Main return
   return (
-    <div ref={ref} className={wrapperClasses} data-pop-direction={popDirection}>
+    <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
       <button
         type={type}
         className={twMerge(
           buttonStyles({ variant, size, fullWidth }),
+          shouldAnimate ? "border-none" : "border-border",
           shouldAnimate && "brutal-pop-face",
           rounded && "rounded-[var(--radius)]",
+          faceClassName,
           className,
         )}
         {...props}
       >
         {/* Border */}
-        <DrawBorder
-          animate={shouldAnimate}
-          radius={rounded ? "var(--radius)" : undefined}
-          className="z-10"
-        />
+        {shouldAnimate && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
+        )}
         {/* Children */}
         <span className="relative z-10">{children}</span>
         {/* Fill */}
@@ -164,6 +177,7 @@ export default function Button({
             className={twMerge(
               fillStyles({ variant }),
               rounded && "rounded-[calc(var(--radius)+2px)]",
+              fillClassName,
             )}
           />
         </span>

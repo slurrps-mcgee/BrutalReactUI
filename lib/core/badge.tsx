@@ -14,7 +14,7 @@ const badgeStyles = cva(
     "relative z-10 isolate inline-flex w-fit self-center items-center justify-center",
 
     // Border and typography. Color matches the drawn stroke.
-    "border-[3px] border-none text-center font-mono text-xs font-bold uppercase",
+    "border-[3px] text-center font-mono text-xs font-bold uppercase",
 
     // Disabled state and reduced motion
     "motion-reduce:transition-none",
@@ -22,9 +22,9 @@ const badgeStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-chart-1 text-main-foreground",
-        secondary: "bg-chart-3 text-main-foreground",
-        outline: "bg-secondary-background text-foreground",
+        primary: "bg-chart-1 text-main-foreground [--surface:var(--chart-1)]",
+        secondary: "bg-chart-3 text-main-foreground [--surface:var(--chart-3)]",
+        outline: "bg-[var(--surface)] text-foreground",
       },
       size: {
         sm: "px-2 py-1",
@@ -44,6 +44,7 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof badgeStyles> & {
     animate?: AnimationTrigger;
     rounded?: boolean;
+    faceClassName?: string;
   };
 
 // Main Badge component
@@ -54,6 +55,7 @@ export default function Badge({
   size,
   animate = false,
   rounded = false,
+  faceClassName,
   ...props
 }: BadgeProps) {
   // Animation trigger
@@ -65,17 +67,21 @@ export default function Badge({
       ref={ref}
       className={twMerge(
         badgeStyles({ variant, size }),
+        shouldAnimate ? "border-none" : "border-border",
         rounded && "rounded-[var(--radius)]",
+        faceClassName,
         className,
       )}
       {...props}
     >
       {/* Border */}
-      <DrawBorder
-        animate={shouldAnimate}
-        radius={rounded ? "var(--radius)" : undefined}
-        className="z-10"
-      />
+      {shouldAnimate && (
+        <DrawBorder
+          animate
+          radius={rounded ? "var(--radius)" : undefined}
+          className="z-10"
+        />
+      )}
       {/* Children */}
       <span className="relative z-10">{children}</span>
     </span>

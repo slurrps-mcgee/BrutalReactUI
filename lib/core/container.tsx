@@ -14,7 +14,7 @@ const containerStyles = cva(
     "relative z-10 isolate flex",
 
     // Border and typography
-    "border-[3px] border-none bg-secondary-background text-foreground",
+    "border-[3px] bg-secondary-background text-foreground",
 
     // Disabled state and reduced motion
     "motion-reduce:transition-none",
@@ -22,9 +22,10 @@ const containerStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-secondary-background text-foreground",
-        secondary: "bg-chart-2 text-main-foreground",
-        outline: "bg-secondary-background text-foreground",
+        primary:
+          "bg-secondary-background text-foreground [--surface:var(--secondary-background)]",
+        secondary: "bg-chart-2 text-main-foreground [--surface:var(--chart-2)]",
+        outline: "bg-[var(--surface)] text-foreground",
       },
       size: {
         sm: "p-4 text-sm",
@@ -78,6 +79,8 @@ export type ContainerProps = HTMLAttributes<HTMLElement> &
     shadow?: boolean;
     popDirection?: "out" | "in";
     rounded?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
     children?: ReactNode;
   };
 
@@ -97,29 +100,33 @@ export default function Container({
   shadow = false,
   popDirection = "out",
   rounded = false,
+  wrapperClassName: wrapperClassNameProp,
+  faceClassName,
   ...props
 }: ContainerProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
 
   // Wrapper classes
-  const wrapperClasses = [
-    // Layout and stacking
-    "relative isolate",
+  const wrapperClassName = twMerge(
+    [
+      // Layout and stacking
+      "relative isolate",
 
-    // Full width
-    fullWidth ? "flex w-full" : "inline-flex w-fit",
+      // Full width
+      fullWidth ? "flex w-full" : "inline-flex w-fit",
 
-    // Shadow
-    shadow && "shadow-[var(--shadow)]",
-    rounded && "rounded-[var(--radius)]",
-
-  ]
-    .filter(Boolean)
-    .join(" ");
+      // Shadow
+      shadow && "shadow-[var(--shadow)]",
+      rounded && "rounded-[var(--radius)]",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    wrapperClassNameProp,
+  );
 
   // Main return
   return (
-    <div ref={ref} className={wrapperClasses} data-pop-direction={popDirection}>
+    <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
       <section
         className={twMerge(
           containerStyles({
@@ -131,18 +138,22 @@ export default function Container({
             gap,
             fullWidth,
           }),
+          shouldAnimate ? "border-none" : "border-border",
           shouldAnimate && "brutal-pop-face",
           rounded && "rounded-[var(--radius)]",
+          faceClassName,
           className,
         )}
         {...props}
       >
         {/* Border */}
-        <DrawBorder
-          animate={shouldAnimate}
-          radius={rounded ? "var(--radius)" : undefined}
-          className="z-10"
-        />
+        {shouldAnimate && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
+        )}
         <h2 className="relative z-10 font-display text-2xl font-bold">{title}</h2>
         {children}
       </section>

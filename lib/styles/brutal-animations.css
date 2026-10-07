@@ -18,8 +18,8 @@
   }
 
   .animate-drawBorder rect {
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
+    stroke-dasharray: calc(var(--draw-length) + 2px);
+    stroke-dashoffset: calc(var(--draw-length) + 2px);
     animation: drawBorder 800ms ease-in-out forwards;
   }
 

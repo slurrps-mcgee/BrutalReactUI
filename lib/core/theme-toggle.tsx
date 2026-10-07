@@ -1,14 +1,17 @@
+import { twMerge } from "tailwind-merge";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "../utils/theme-context";
 import Button from "./button";
 
 // ThemeToggle is a Button. Styles, shouldAnimate, and the shadow wrapper live there.
-// className stays on the button face.
+// Class props forward to that button. className stays on the face, last.
 
 export default function ThemeToggle({
   rounded = false,
+  className,
 }: {
   rounded?: boolean;
+  className?: string;
 }) {
   const { theme, setTheme } = useTheme();
   const isDark =
@@ -27,7 +30,7 @@ export default function ThemeToggle({
       aria-pressed={isDark}
       onClick={handleThemeChange}
       rounded={rounded}
-      className="size-10 !px-0 !py-0"
+      className={twMerge("size-10 !px-0 !py-0", className)}
     >
       {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
     </Button>

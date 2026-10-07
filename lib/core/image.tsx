@@ -13,7 +13,7 @@ const imageStyles = [
   "relative z-10 aspect-video w-full",
 
   // Border
-  "border-[3px] border-none bg-secondary-background",
+  "border-[3px] bg-secondary-background [--surface:var(--secondary-background)]",
 ].join(" ");
 
 // Image props
@@ -23,6 +23,8 @@ export type ImageProps = HTMLAttributes<HTMLDivElement> & {
   animate?: AnimationTrigger;
   popDirection?: "out" | "in";
   rounded?: boolean;
+  wrapperClassName?: string;
+  faceClassName?: string;
 };
 
 // Main Image component
@@ -33,6 +35,8 @@ export default function Image({
   animate = false,
   popDirection = "out",
   rounded = false,
+  wrapperClassName: wrapperClassNameProp,
+  faceClassName,
   ...props
 }: ImageProps) {
   // Animation trigger
@@ -41,33 +45,38 @@ export default function Image({
   const failed = failedSrc === image.src;
 
   // Wrapper classes
-  const wrapperClasses = [
-    // Layout and stacking
-    "relative isolate block w-full",
+  const wrapperClassName = twMerge(
+    [
+      // Layout and stacking
+      "relative isolate block w-full",
 
-    // Shadow
-    "shadow-[var(--shadow)]",
-    rounded && "rounded-[var(--radius)]",
+      // Shadow
+      "shadow-[var(--shadow)]",
+      rounded && "rounded-[var(--radius)]",
 
-    // Animation
-    shouldAnimate && "animate-brutal-pop",
-  ]
-    .filter(Boolean)
-    .join(" ");
+      // Animation
+      shouldAnimate && "animate-brutal-pop",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    wrapperClassNameProp,
+  );
 
   // Main return
   return (
     <div
       ref={ref}
-      className={wrapperClasses}
+      className={wrapperClassName}
       data-pop-direction={popDirection}
       {...props}
     >
       <div
         className={twMerge(
           imageStyles,
+          shouldAnimate ? "border-none" : "border-border",
           shouldAnimate && "brutal-pop-face",
           rounded && "rounded-[var(--radius)]",
+          faceClassName,
           className,
         )}
       >
@@ -88,11 +97,13 @@ export default function Image({
         />
 
         {/* Border */}
-        <DrawBorder
-          animate={shouldAnimate}
-          radius={rounded ? "var(--radius)" : undefined}
-          className="z-10"
-        />
+        {shouldAnimate && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
+        )}
       </div>
     </div>
   );

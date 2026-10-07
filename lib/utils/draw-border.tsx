@@ -1,3 +1,5 @@
+import { useLayoutEffect, useRef, useState } from "react";
+
 type DrawBorderProps = {
   className?: string;
   animate?: boolean;
@@ -11,9 +13,36 @@ export default function DrawBorder({
   strokeWidth = 3,
   radius,
 }: DrawBorderProps) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const rectRef = useRef<SVGRectElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useLayoutEffect(() => {
+    const svg = svgRef.current;
+    const rect = rectRef.current;
+    if (!svg || !rect) {
+      return;
+    }
+
+    const apply = () => {
+      const length = rect.getTotalLength();
+      if (length <= 0) {
+        return;
+      }
+
+      rect.style.setProperty("--draw-length", `${length}px`);
+      setReady(true);
+    };
+
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(svg);
+    return () => observer.disconnect();
+  }, [radius]);
+
   const svgClasses = [
     "pointer-events-none absolute overflow-visible",
-    animate && "animate-drawBorder",
+    animate && ready && "animate-drawBorder",
     "text-border",
     className,
   ]
@@ -26,6 +55,7 @@ export default function DrawBorder({
 
   return (
     <svg
+      ref={svgRef}
       aria-hidden="true"
       className={svgClasses}
       preserveAspectRatio="none"
@@ -37,13 +67,13 @@ export default function DrawBorder({
       }}
     >
       <rect
+        ref={rectRef}
         x={inset}
         y={inset}
-        pathLength="100"
         fill="none"
         stroke="currentColor"
         strokeWidth={strokeWidth}
-        strokeLinejoin="miter"
+        strokeLinejoin={radius ? "round" : "miter"}
         style={{
           width: `calc(100% - ${box}px)`,
           height: `calc(100% - ${box}px)`,

@@ -24,5 +24,13 @@
  *   --chart-4: #FF4D50;
  *   --chart-5: #FACC00;
  *   --chart-active-dot: #DFF6FF;
+ *   --success: #00C853;
+ *   --success-foreground: #06283D;
+ *   --warning: #FACC00;
+ *   --warning-foreground: #06283D;
+ *   --danger: #FF4D50;
+ *   --danger-foreground: #06283D;
+ *   --info: #7A83FF;
+ *   --info-foreground: #06283D;
  * }
  */

@@ -14,7 +14,7 @@ const cardStyles = cva(
     "relative z-10 isolate flex h-full w-full flex-col",
 
     // Border and typography. Color matches the drawn stroke.
-    "border-[3px] border-none bg-secondary-background text-foreground",
+    "border-[3px] bg-secondary-background text-foreground",
 
     // Press interaction
     "transition-transform duration-150",
@@ -27,9 +27,10 @@ const cardStyles = cva(
   {
     variants: {
       variant: {
-        primary: "bg-secondary-background text-foreground",
-        secondary: "bg-chart-2 text-main-foreground",
-        outline: "bg-secondary-background text-foreground",
+        primary:
+          "bg-secondary-background text-foreground [--surface:var(--secondary-background)]",
+        secondary: "bg-chart-2 text-main-foreground [--surface:var(--chart-2)]",
+        outline: "bg-[var(--surface)] text-foreground",
       },
       size: {
         sm: "gap-3 p-4 text-sm",
@@ -50,6 +51,8 @@ export type CardProps = HTMLAttributes<HTMLElement> &
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
     rounded?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
     children?: ReactNode;
   };
 
@@ -62,44 +65,53 @@ export default function Card({
   animate = false,
   popDirection = "out",
   rounded = false,
+  wrapperClassName: wrapperClassNameProp,
+  faceClassName,
   ...props
 }: CardProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
 
   // Wrapper classes
-  const wrapperClasses = [
-    // Layout and stacking
-    "relative isolate h-full w-full",
+  const wrapperClassName = twMerge(
+    [
+      // Layout and stacking
+      "relative isolate h-full w-full",
 
-    // Shadow
-    "shadow-[var(--shadow)]",
-    rounded && "rounded-[var(--radius)]",
+      // Shadow
+      "shadow-[var(--shadow)]",
+      rounded && "rounded-[var(--radius)]",
 
-    // Animation
-    shouldAnimate && "animate-brutal-pop",
-  ]
-    .filter(Boolean)
-    .join(" ");
+      // Animation
+      shouldAnimate && "animate-brutal-pop",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    wrapperClassNameProp,
+  );
 
   // Main return
   return (
-    <div ref={ref} className={wrapperClasses} data-pop-direction={popDirection}>
+    <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
       <article
         className={twMerge(
           cardStyles({ variant, size }),
+          shouldAnimate ? "border-none" : "border-border",
           shouldAnimate && "brutal-pop-face",
           rounded && "rounded-[var(--radius)]",
+          faceClassName,
           className,
         )}
         {...props}
       >
         {/* Border */}
-        <DrawBorder
-          animate={shouldAnimate}
-          radius={rounded ? "var(--radius)" : undefined}
-          className="z-30"
-        />
+        {shouldAnimate && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-30"
+          />
+        )}
         {children}
       </article>
     </div>

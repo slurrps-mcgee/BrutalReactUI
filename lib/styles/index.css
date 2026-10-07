@@ -20,15 +20,32 @@
 :root {
   color-scheme: light;
 
+  /* Background tokens */
   --background: hsl(190, 95%, 90%);
   --secondary-background: oklch(100% 0 0);
+  /* Outline faces paint this. Filled faces override it with the color they paint. */
+  --surface: var(--background);
+
+  /* Foreground tokens */
   --foreground: oklch(0% 0 0);
   --main-foreground: oklch(0% 0 0);
+
+  /* Main tokens */
   --main: hsl(190, 100%, 47%);
+
+  /* Border tokens */
   --border: oklch(0% 0 0);
+
+  /* Ring tokens */
   --ring: oklch(0% 0 0);
+
+  /* Overlay tokens */
   --overlay: oklch(0% 0 0 / 0.8);
+
+  /* Shadow tokens */
   --shadow: 4px 4px 0px 0px var(--border);
+
+  /* Chart tokens */
   --chart-1: #00C8F0;
   --chart-2: #FF7A05;
   --chart-3: #7A83FF;
@@ -36,7 +53,20 @@
   --chart-5: #FACC00;
   --chart-active-dot: #000;
 
+  /* Success tokens */
+  --success: #00C853;
+  --success-foreground: oklch(0% 0 0);
+  --warning: #FACC00;
+  --warning-foreground: oklch(0% 0 0);
+  --danger: #FF4D50;
+  --danger-foreground: oklch(0% 0 0);
+  --info: #7A83FF;
+  --info-foreground: oklch(0% 0 0);
+
+  /* Radius tokens */
   --radius: 0.375rem;
+
+  /* Scrollbar tokens */
   --sb-track-color: var(--background);
   --sb-thumb-color: var(--border);
 
@@ -56,20 +86,43 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
+  /* Background tokens */
   --background: hsl(190, 40%, 10%);
   --secondary-background: hsl(190, 28%, 16%);
+
+  /* Foreground tokens */
   --foreground: hsl(190, 95%, 90%);
   --main-foreground: oklch(0% 0 0);
+
+  /* Main tokens */
   --main: hsl(190, 100%, 47%);
+
+  /* Border tokens */
   --border: oklch(0% 0 0);
+
+  /* Ring tokens */
   --ring: hsl(190, 100%, 47%);
+
+  /* Overlay tokens */
   --overlay: oklch(0% 0 0 / 0.8);
+
+  /* Chart tokens */
   --chart-1: #00c8f0;
   --chart-2: #ff7a05;
   --chart-3: #7a83ff;
   --chart-4: #ff4d50;
   --chart-5: #facc00;
   --chart-active-dot: hsl(190, 95%, 90%);
+
+  /* Success tokens */
+  --success: #00c853;
+  --success-foreground: oklch(0% 0 0);
+  --warning: #facc00;
+  --warning-foreground: oklch(0% 0 0);
+  --danger: #ff4d50;
+  --danger-foreground: oklch(0% 0 0);
+  --info: #7a83ff;
+  --info-foreground: oklch(0% 0 0);
 }
 
 @theme inline {
@@ -91,6 +144,14 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 
   /* Shadow tokens */
   --spacing-boxShadowX: 4px;

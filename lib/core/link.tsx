@@ -44,6 +44,9 @@ export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
     children: string;
     animate?: AnimationTrigger;
     popDirection?: "out" | "in";
+    wrapperClassName?: string;
+    faceClassName?: string;
+    fillClassName?: string;
   };
 
 // Main Link component
@@ -55,6 +58,9 @@ export default function Link({
   size,
   animate = false,
   popDirection = "out",
+  wrapperClassName: wrapperClassNameProp,
+  faceClassName,
+  fillClassName,
   ...props
 }: LinkProps) {
   // Animation trigger
@@ -62,18 +68,21 @@ export default function Link({
 
   // Wrapper classes
   const isExternal = /^https?:\/\//.test(href);
-  const wrapperClasses = [
-    // Layout and stacking
-    "relative isolate inline-flex w-fit items-center self-center",
+  const wrapperClassName = twMerge(
+    [
+      // Layout and stacking
+      "relative isolate inline-flex w-fit items-center self-center",
 
-    // Shadow
-    "shadow-[var(--shadow)]",
+      // Shadow
+      "shadow-[var(--shadow)]",
 
-    // Animation
-    shouldAnimate && "animate-brutal-pop",
-  ]
-    .filter(Boolean)
-    .join(" ");
+      // Animation
+      shouldAnimate && "animate-brutal-pop",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    wrapperClassNameProp,
+  );
 
   // Main return
   const link = (
@@ -82,6 +91,7 @@ export default function Link({
       className={twMerge(
         linkStyles({ variant, size }),
         shouldAnimate && "brutal-pop-face",
+        faceClassName,
         className,
       )}
       {...props}
@@ -100,7 +110,10 @@ export default function Link({
 
       <span
         aria-hidden="true"
-        className="pointer-events-none relative col-start-1 row-start-1 inline-flex items-center gap-2 text-main [-webkit-text-stroke:1px_currentColor] [clip-path:inset(0_100%_0_0)] transition-[clip-path] duration-300 ease-out group-hover/action:[clip-path:inset(-1px)] motion-reduce:transition-none"
+        className={twMerge(
+          "pointer-events-none relative col-start-1 row-start-1 inline-flex items-center gap-2 text-main [-webkit-text-stroke:1px_currentColor] [clip-path:inset(0_100%_0_0)] transition-[clip-path] duration-300 ease-out group-hover/action:[clip-path:inset(-1px)] motion-reduce:transition-none",
+          fillClassName,
+        )}
       >
         {children}
         <MoveRight className="h-5 w-5 shrink-0" />
@@ -116,7 +129,7 @@ export default function Link({
   return (
     <span
       ref={ref}
-      className={wrapperClasses}
+      className={wrapperClassName}
       data-pop-direction={popDirection}
     >
       {link}
