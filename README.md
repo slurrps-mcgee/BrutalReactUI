@@ -1,18 +1,20 @@
 # Brutal React UI
 
-React components with thick borders, hard shadows, and a palette stored in CSS variables. Tailwind CSS v4 turns those variables into utilities such as `bg-main`, `text-txt`, and `font-display`.
+React components with thick borders, hard shadows, and a palette stored in CSS variables. Tailwind CSS v4 turns those variables into utilities such as `bg-main`, `text-foreground`, and `font-display`.
 
 ## Install
 
 ```bash
-npm install brutal-react-ui react react-dom tailwindcss
+npm install brutal-react-ui react react-dom
 ```
 
-`react`, `react-dom`, and `tailwindcss` are peer dependencies. Fonts, `class-variance-authority`, and `lucide-react` are installed with the package.
+`react` and `react-dom` are peer dependencies. Tailwind CSS, the fonts, `class-variance-authority`, `lucide-react`, `tailwind-merge`, `prism-react-renderer`, and `tw-animate-css` are installed with the package.
 
-## Use the components
+The stylesheet is still a Tailwind v4 source file. The app compiles it. With Vite, keep the Tailwind plugin in the app:
 
-The stylesheet is the Tailwind entry. It loads Tailwind, the fonts, the palette, and the component animations. Point Tailwind at the package so classes used inside the components are generated. With the Vite plugin:
+```bash
+npm install -D @tailwindcss/vite
+```
 
 ```ts
 // vite.config.ts
@@ -30,7 +32,9 @@ export default defineConfig({
 @import "brutal-react-ui/styles.css";
 ```
 
-`styles.css` already contains `@source` paths for the component files shipped in the package, so you do not add a separate `@source` for normal use.
+`styles.css` already contains `@source` paths for the component files shipped in the package, so you do not add a separate `@source` for normal use. Another Tailwind v4 integration can replace the Vite plugin.
+
+## Use the components
 
 Wrap the tree in `ThemeProvider`. It writes `data-theme` on `<html>` and remembers the choice in `localStorage` under the key `theme`.
 
@@ -51,135 +55,92 @@ createRoot(document.getElementById("root")!).render(
 
 `ThemeToggle` and `useTheme` must render under `ThemeProvider`.
 
-### Button
+### Shared props
 
-| Prop           | Values                             | Default   |
-| -------------- | ---------------------------------- | --------- |
-| `variant`      | `primary`, `secondary`, `outline`  | `primary` |
-| `size`         | `sm`, `md`, `lg`                   | `md`      |
-| `fullWidth`    | `true`, `false`                    | `false`   |
-| `animate`      | draws the border and plays the pop | `false`   |
-| `popDirection` | `out`, `in`                        | `out`     |
+Many faces accept the same options:
 
-Other props are passed to `<button>`. `type` defaults to `"button"`.
+| Prop        | Values                                      | Default |
+| ----------- | ------------------------------------------- | ------- |
+| `variant`   | `primary`, `secondary`, `outline`           | varies  |
+| `size`      | `sm`, `md`, `lg`                            | `md`    |
+| `rounded`   | rounds the face and its shadow              | `false` |
+| `animate`   | `false`, `true`, or `"scroll"`              | `false` |
+| `shadow`    | hard shadow, where the prop exists          | varies  |
+
+`animate` draws the border, then pops the face outward. Entrance animation does not pop inward. `true` plays on mount. `"scroll"` plays the first time the element enters the viewport. `className` lands on the face. `wrapperClassName`, where present, lands on the shadow wrapper.
+
+Status colors used by alerts, badges, progress, and toasts are `success`, `warning`, `danger`, and `info`.
+
+### Components
+
+| Component | Use |
+| --------- | --- |
+| `Accordion` | Stacked panels. `type` is `"single"` or `"multiple"`. Single mode is collapsible. Parts: `AccordionItem`, `AccordionTrigger`, `AccordionContent`. |
+| `Alert` | Inline status. `dismissible` adds a close control. `timer` or `duration`, in milliseconds, fades it out. `0` keeps it open. |
+| `Badge` | Small label. `animate` draws its border and does not add a shadow. |
+| `Breadcrumb` | Trail of links. Parts: `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, `BreadcrumbSeparator`. |
+| `Button` | Pressable face. `fullWidth` stretches it. `type` defaults to `"button"`. Pressing moves it into its shadow. |
+| `ButtonGroup` | Joined buttons with one shadow. `selectionMode` is `"none"`, `"single"`, or `"multiple"`, and defaults to `"none"`. `orientation` is `"horizontal"` or `"vertical"`. |
+| `Card` | Surface that pops outward when `animate` is set. Hover moves it into its shadow. Parts: `CardHeader`, `CardBody`, `CardFooter`, `CardImage`. |
+| `Carousel` | Slide track. `loop`, `autoplay`, `controls`, `indicators`, and `swipe` are optional. Parts: `CarouselSlide`. |
+| `Checkbox` | Flat until checked, then it lifts with a short shadow. |
+| `CodeSnippet` | Highlighted source with a copy control. `code` and `language` are required. `showLanguage` defaults to `true`. |
+| `Collapse` | One panel. Control it with `open` and `onOpenChange`, or leave it uncontrolled. Parts: `CollapseTrigger`, `CollapseContent`. |
+| `Container` | Titled section. `shadow` defaults to `false`. `fullWidth` stretches it. |
+| `Dropdown` | Menu whose border draws, then pops out. Parts: `DropdownToggle`, `DropdownMenu`, `DropdownItem`. |
+| `FloatingLabel` | Label that rises while the field is focused or filled. Pass one `Input`. |
+| `Form` | Validated form. `noValidate` is applied for you. Parts: `FormField`, `FormLabel`, `FormFeedback`. Invalid fields use the danger border and shadow. |
+| `Image` | Framed image. `image` is `{ src, width?, height? }`. `title` becomes `Screenshot of ${title}`. |
+| `Input` | Field that sits in its shadow and lifts on focus. `valid` and `invalid` recolor the border. Invalid also recolors the shadow. |
+| `InputGroup` | Joined prefix, field, and suffix. The group lifts on focus. Parts: `InputGroupText`. |
+| `Link` | Text link. `href` is required and `children` is a string. External `http` and `https` URLs open in a new tab. |
+| `ListGroup` | Stacked items with one border and shadow. Parts: `ListGroupItem`, `ListGroupButton`, `ListGroupLink`. |
+| `Modal` | Dialog. `animate` draws the border, then reveals the face. Parts: `ModalHeader`, `ModalBody`, `ModalFooter`, `ModalClose`. |
+| `Nav` | Link list for a bar or sidebar. Parts: `NavItem`, `NavLink`, `NavGroup`. `NavItem` and `NavLink` accept `rounded`. |
+| `Navbar` | Top bar. Parts: `NavbarBrand`, `NavbarCollapse`. Pair the collapse with `Toggler`. |
+| `Pagination` | Page links. Parts: `PaginationList`, `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis`. |
+| `Progress` | Bar. Omit `value` for an indeterminate state. `shadow` defaults to `false`. |
+| `Radio` | Round option. The shadow appears only while it is selected. |
+| `Range` | Slider. `rounded` rounds the track and thumb. `showValue` prints the current value. |
+| `Select` | Listbox that pops open with its menu. Parts: `SelectOption`. |
+| `Sidebar` | Column that scrolls once it reaches the viewport height. `collapsed` switches it to an icon rail. `Offcanvas` is the overlay panel. |
+| `Skeleton` | Placeholder. `variant` is `text`, `circular`, or `rectangular`. `animation` is `pulse`, `wave`, or `none`. |
+| `Spinner` | Loading mark. `label` is announced to assistive technology. |
+| `Table` | Data table. The shadow and animation live on `TableResponsive`, not on each cell. `bordered`, `striped`, `hoverable`, `compact`, and `stickyHeader` belong to `Table`. |
+| `Toast` | Notification. Wrap the app in `ToastProvider`, render `ToastViewport`, and call `useToast()`. `timer` or `duration` fades each toast. |
+| `Tooltip` | Hover and focus hint. Parts: `TooltipTrigger`, `TooltipContent`. |
+| `Toggler` | Menu button. `iconAnimation` is `normal`, `spin`, `rotate-clockwise`, `rotate-counterclockwise`, `arrow-left`, `arrow-right`, `arrow-up`, or `arrow-down`. |
+| `ThemeToggle` | Switches between light and dark. It must render under `ThemeProvider`. |
 
 ```tsx
-<Button variant="secondary" size="lg" onClick={save}>
+<Button variant="secondary" size="lg" rounded animate="scroll">
   Save
 </Button>
 ```
 
-### Badge
-
-Same `variant`, `size`, `animate`, and `popDirection` props as `Button`. `size` defaults to `sm`. Props are passed to a `<span>`.
+```tsx
+<Card variant="outline" rounded>
+  <CardHeader>Library</CardHeader>
+  <CardBody>Thick borders and hard shadows.</CardBody>
+</Card>
+```
 
 ```tsx
-<Badge variant="outline" size="md">
-  Draft
-</Badge>
+<Link href="https://example.com">Demo</Link>
 ```
-
-### Input
-
-| Prop               | Values                            | Default   |
-| ------------------ | --------------------------------- | --------- |
-| `variant`          | `primary`, `secondary`, `outline` | `primary` |
-| `size`             | `sm`, `md`, `lg`                  | `md`      |
-| `wrapperClassName` | classes for the shadow wrapper    | —         |
-
-The native `size` attribute is omitted so it does not clash with the visual size. Every other `<input>` attribute works, including `value` and `onChange`.
-
-```tsx
-<label htmlFor="email">
-  Email
-  <Input id="email" type="email" placeholder="ada@example.com" />
-</label>
-```
-
-### Image
-
-`image` is `{ src, width?, height? }`. `title` is used in the alt text: `Screenshot of ${title}`. `animate` and `popDirection` match the other components.
-
-```tsx
-<Image
-  title="Studio"
-  image={{ src: "/studio.png", width: 1200, height: 675 }}
-/>
-```
-
-### ProjectLink
-
-`href` is required. `children` is a string, because the hover label is rendered twice. External `http` and `https` URLs open in a new tab with `rel="noopener noreferrer"`.
-
-| Prop           | Values               | Default   |
-| -------------- | -------------------- | --------- |
-| `variant`      | `default`            | `default` |
-| `size`         | `sm`, `md`, `lg`     | `md`      |
-| `animate`      | adds the pop wrapper | `false`   |
-| `popDirection` | `out`, `in`          | `out`     |
-
-```tsx
-<ProjectLink href="https://example.com">Demo</ProjectLink>
-```
-
-### ProjectCard
-
-`data` is a `ProjectCardData` object:
-
-```ts
-{
-  slug: string
-  title: string
-  subTitle: string
-  description: string
-  image: { src: string; width?: number; height?: number }
-  chips: string[]
-  demoURL?: string
-  githubURL?: string
-}
-```
-
-The card links to `/projects/${data.slug}`. `variant` is `primary`, `secondary`, or `outline` (default `primary`). `size` is `sm`, `md`, or `lg` (default `md`). `animate` and `popDirection` match the other components.
-
-`Project` extends `ProjectCardData` with longer case-study fields (`overview`, `role`, `problem`, and the rest). A full `Project` can be passed as `data`.
-
-```tsx
-<ProjectCard
-  data={{
-    slug: "field-notes",
-    title: "Field Notes",
-    subTitle: "Case study",
-    description: "Notes from the build.",
-    image: { src: "/cover.png" },
-    chips: ["React"],
-    demoURL: "https://example.com",
-  }}
-/>
-```
-
-### ThemeToggle
-
-Renders an icon button that switches between `light` and `dark`. It reads the current preference from `useTheme`.
-
-```tsx
-<ThemeToggle />
-```
-
-`useTheme()` returns `{ theme, setTheme, themes }`. `theme` is `'light'`, `'dark'`, `'system'`, or another name you have registered. `'system'` follows `prefers-color-scheme` and still sets `data-theme` to the resolved color theme.
 
 ## Theme engine
 
-Color is not baked into the components. Components use Tailwind utilities (`bg-main`, `text-txt`, `border-border`, `font-mono`). Those utilities read CSS variables defined in `lib/styles/index.css`.
+Color is not baked into the components. Components use Tailwind utilities (`bg-main`, `text-foreground`, `border-border`, `font-mono`). Those utilities read CSS variables defined in `lib/styles/index.css`.
 
 The chain is:
 
-1. `:root` sets the raw palette: `--palette-bg`, `--palette-paper`, `--palette-main`, `--palette-text`, and the rest.
-2. Semantic variables such as `--background` and `--main` point at the palette.
-3. `@theme inline` exposes them to Tailwind as `--color-main`, `--font-display`, and so on.
-4. `ThemeProvider` sets `data-theme` on `<html>`.
-5. A `:root[data-theme='dark']` block replaces only the `--palette-*` values. Everything else follows.
+1. `:root` sets semantic variables such as `--background`, `--foreground`, `--main`, `--border`, `--success`, `--warning`, `--danger`, and `--info`.
+2. `@theme inline` exposes them to Tailwind as `--color-main`, `--font-display`, and so on.
+3. `ThemeProvider` sets `data-theme` on `<html>`.
+4. A `:root[data-theme='dark']` block replaces the semantic colors. Components follow those variables.
 
-`@custom-variant dark` matches `[data-theme='dark']`, so `dark:` utilities apply in the dark theme.
+`@custom-variant dark` matches `[data-theme='dark']`, so `dark:` utilities follow the dark theme.
 
 Fonts:
 
@@ -189,53 +150,34 @@ Fonts:
 | `font-display` | Space Grotesk  |
 | `font-mono`    | IBM Plex Mono  |
 
-IBM Plex Sans is loaded and available as `font-family: 'IBM Plex Sans'` if you want it in a theme.
+IBM Plex Sans is loaded and available as `font-family: "IBM Plex Sans"`.
 
-### Add a theme in this repository
+`useTheme()` returns `{ theme, setTheme, themes }`. `theme` is `"light"`, `"dark"`, `"system"`, or another name you have registered. `"system"` follows `prefers-color-scheme` and still sets `data-theme` to the resolved color theme.
 
-1. Copy the `:root[data-theme='dark']` block into `src/index.css`.
-2. Change the attribute to your theme name and override `--palette-*` and `color-scheme`. Leave the semantic variables alone.
-3. Add that name to `themeNames` in `lib/utils/theme-context.tsx`.
+### Add a theme in an app
+
+Put the override after the library import, then pass the name to `ThemeProvider`:
 
 ```css
 /* src/index.css */
-@import "../lib/styles/index.css";
+@import "brutal-react-ui/styles.css";
 
 :root[data-theme="ocean"] {
   color-scheme: dark;
 
-  --palette-bg: #06283d;
-  --palette-paper: #1363df;
-  --palette-main: #47b5ff;
-  --palette-main-text: #06283d;
-  --palette-border: #000000;
-  --palette-border-dark: #000000;
-  --palette-text: #dff6ff;
-  --palette-sub-text: #dff6ff;
-  --palette-accent: #47b5ff;
-  --palette-sky: #47b5ff;
-  --palette-rose: #e879f9;
-  --palette-secondary: #e879f9;
-  --palette-muted: #0a4d8c;
-  --palette-destructive: #ff5a5a;
-  --palette-input: #0a4d8c;
-  --palette-ring: #47b5ff;
-  --palette-overlay: rgb(0 0 0 / 55%);
-  --palette-sidebar: #041c2c;
-  --palette-sidebar-accent: #0a4d8c;
+  --background: #06283d;
+  --secondary-background: #041c2c;
+  --foreground: #dff6ff;
+  --main: #47b5ff;
+  --main-foreground: #06283d;
+  --border: #dff6ff;
+  --ring: #47b5ff;
+  --success: #00c853;
+  --warning: #facc00;
+  --danger: #ff5a5a;
+  --info: #7a83ff;
 }
 ```
-
-```ts
-// lib/utils/theme-context.tsx
-export const themeNames = ["light", "dark", "ocean"] as const;
-```
-
-`setTheme('ocean')` then sets `data-theme="ocean"`. A stored theme name that is not in the active list falls back to `'system'`.
-
-### Add a theme in an app that installs the package
-
-Do the same in the app's CSS, after the library import. Pass the extra name to `ThemeProvider` instead of editing the package:
 
 ```tsx
 <ThemeProvider themes={["light", "dark", "ocean"]}>
@@ -243,7 +185,7 @@ Do the same in the app's CSS, after the library import. Pass the extra name to `
 </ThemeProvider>
 ```
 
-`themes` replaces the built-in list for validation. Include `'light'` and `'dark'` when you still want those themes.
+`themes` replaces the built-in list for validation. Include `"light"` and `"dark"` when you still want those themes. `setTheme("ocean")` sets `data-theme="ocean"`. A stored theme name that is not in the active list falls back to `"system"`.
 
 ## Develop and publish
 
