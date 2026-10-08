@@ -94,7 +94,6 @@ type ComponentProps = HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof componentStyles> & {
     children?: ReactNode;
     animate?: AnimationTrigger;
-    popDirection?: "out" | "in";
     rounded?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -121,7 +120,6 @@ export default function Component({
   gap,
   fullWidth,
   animate = false,
-  popDirection = "out",
   rounded = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -149,7 +147,11 @@ export default function Component({
   );
 
   return (
-    <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
+    <div
+      ref={ref}
+      className={wrapperClassName}
+      data-pop-direction="out"
+    >
       <div
         className={twMerge(
           [

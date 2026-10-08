@@ -1,6 +1,7 @@
 import type { InputHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
+import { useFormFieldControl } from "./form";
 
 // Input styles
 const inputStyles = cva(
@@ -17,7 +18,7 @@ const inputStyles = cva(
     "focus:z-20 focus-visible:outline-none",
 
     // Disabled state
-    "disabled:cursor-not-allowed disabled:bg-secondary-background disabled:text-foreground",
+    "disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-foreground",
 
     // Reduced motion
     "motion-reduce:transition-none",
@@ -50,10 +51,16 @@ const inputStyles = cva(
         md: "px-4 py-3 text-sm",
         lg: "px-5 py-4 text-base",
       },
+      validity: {
+        valid: "border-success",
+        invalid: "border-danger",
+        neutral: "",
+      },
     },
     defaultVariants: {
       variant: "primary",
       size: "md",
+      validity: "neutral",
     },
   },
 );
@@ -64,6 +71,8 @@ export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> &
     wrapperClassName?: string;
     faceClassName?: string;
     rounded?: boolean;
+    valid?: boolean;
+    invalid?: boolean;
   };
 
 // Main Input component
@@ -74,11 +83,24 @@ export default function Input({
   variant,
   size,
   rounded = false,
+  valid: validProp,
+  invalid: invalidProp,
+  id: idProp,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
   ...inputProps
 }: InputProps) {
+  const field = useFormFieldControl();
+  const valid = validProp ?? field?.valid ?? false;
+  const invalid = invalidProp ?? field?.invalid ?? false;
+  const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
+  const validity = isInvalid ? "invalid" : valid ? "valid" : "neutral";
+
   // Wrapper classes
   const wrapperClassName = twMerge(
     "flex w-full items-center",
+    isInvalid && "[--shadow-color:var(--danger)]",
+    !isInvalid && valid && "[--shadow-color:var(--success)]",
     wrapperClassNameProp,
   );
 
@@ -100,12 +122,17 @@ export default function Input({
           )}
         />
         <input
+          id={idProp ?? field?.controlId}
           className={twMerge(
-            inputStyles({ variant, size }),
+            inputStyles({ variant, size, validity }),
             rounded && "rounded-[var(--radius)]",
             faceClassName,
             className,
           )}
+          aria-describedby={
+            ariaDescribedBy ?? (isInvalid ? field?.feedbackId : undefined)
+          }
+          aria-invalid={isInvalid || undefined}
           {...inputProps}
         />
       </div>

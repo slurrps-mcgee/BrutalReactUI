@@ -122,12 +122,12 @@ export default function Badge({
     >
       {/* Border */}
       {shouldAnimate && (
-          <DrawBorder
-            animate
-            strokeWidth={2}
-            radius={rounded ? "var(--radius)" : undefined}
-            className="z-10"
-          />
+        <DrawBorder
+          animate
+          strokeWidth={2}
+          radius={rounded ? "var(--radius)" : undefined}
+          className="z-10"
+        />
       )}
       {/* Children */}
       <span className="relative z-10">{children}</span>

@@ -38,7 +38,7 @@ export default function DrawBorder({
     const observer = new ResizeObserver(apply);
     observer.observe(svg);
     return () => observer.disconnect();
-  }, [radius]);
+  }, [radius, strokeWidth]);
 
   const svgClasses = [
     // Sit over the face without taking clicks.

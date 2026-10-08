@@ -1,0 +1,134 @@
+/*
+ * Hamburger motions adapted from:
+ * https://codepen.io/slurrps-mcgee/pen/bNwbBaB
+ *
+ * Real elements keep every bar at the same rendered thickness.
+ */
+
+@layer components {
+  /* Icon frame */
+  .brutal-toggler-icon {
+    position: relative;
+    width: 20px;
+    height: 14px;
+    transition: transform 300ms ease;
+  }
+
+  /* Bars */
+  .brutal-toggler-bar {
+    position: absolute;
+    left: 0;
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: currentColor;
+    transition:
+      opacity 300ms ease,
+      transform 300ms ease,
+      width 300ms ease;
+  }
+
+  .brutal-toggler-bar:nth-child(1) {
+    top: 0;
+  }
+
+  .brutal-toggler-bar:nth-child(2) {
+    top: 6px;
+  }
+
+  .brutal-toggler-bar:nth-child(3) {
+    top: 12px;
+  }
+
+  /* Close marks */
+  [aria-expanded="true"][data-toggler-animation="normal"]
+    .brutal-toggler-bar:nth-child(2),
+  [aria-expanded="true"][data-toggler-animation="spin"]
+    .brutal-toggler-bar:nth-child(2),
+  [aria-expanded="true"][data-toggler-animation="rotate-counterclockwise"]
+    .brutal-toggler-bar:nth-child(2),
+  [aria-expanded="true"][data-toggler-animation="rotate-clockwise"]
+    .brutal-toggler-bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  [aria-expanded="true"][data-toggler-animation="normal"]
+    .brutal-toggler-bar:nth-child(1),
+  [aria-expanded="true"][data-toggler-animation="spin"]
+    .brutal-toggler-bar:nth-child(1),
+  [aria-expanded="true"][data-toggler-animation="rotate-counterclockwise"]
+    .brutal-toggler-bar:nth-child(1),
+  [aria-expanded="true"][data-toggler-animation="rotate-clockwise"]
+    .brutal-toggler-bar:nth-child(1) {
+    transform: translateY(6px) rotate(-45deg);
+  }
+
+  [aria-expanded="true"][data-toggler-animation="normal"]
+    .brutal-toggler-bar:nth-child(3),
+  [aria-expanded="true"][data-toggler-animation="spin"]
+    .brutal-toggler-bar:nth-child(3),
+  [aria-expanded="true"][data-toggler-animation="rotate-counterclockwise"]
+    .brutal-toggler-bar:nth-child(3),
+  [aria-expanded="true"][data-toggler-animation="rotate-clockwise"]
+    .brutal-toggler-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(45deg);
+  }
+
+  /* Rotating close marks */
+  [aria-expanded="true"][data-toggler-animation="spin"] .brutal-toggler-icon {
+    transform: rotate(360deg);
+  }
+
+  [aria-expanded="true"][data-toggler-animation="rotate-counterclockwise"]
+    .brutal-toggler-icon {
+    transform: rotate(-90deg);
+  }
+
+  [aria-expanded="true"][data-toggler-animation="rotate-clockwise"]
+    .brutal-toggler-icon {
+    transform: rotate(90deg);
+  }
+
+  /* Arrow heads */
+  [aria-expanded="true"][data-toggler-animation^="arrow-"]
+    .brutal-toggler-bar:nth-child(1),
+  [aria-expanded="true"][data-toggler-animation^="arrow-"]
+    .brutal-toggler-bar:nth-child(3) {
+    width: 11px;
+    transform-origin: left center;
+  }
+
+  [aria-expanded="true"][data-toggler-animation^="arrow-"]
+    .brutal-toggler-bar:nth-child(1) {
+    transform: translateY(6px) rotate(-45deg);
+  }
+
+  [aria-expanded="true"][data-toggler-animation^="arrow-"]
+    .brutal-toggler-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(45deg);
+  }
+
+  /* Arrow directions */
+  [aria-expanded="true"][data-toggler-animation="arrow-right"]
+    .brutal-toggler-icon {
+    transform: rotate(180deg);
+  }
+
+  [aria-expanded="true"][data-toggler-animation="arrow-up"]
+    .brutal-toggler-icon {
+    transform: rotate(90deg);
+  }
+
+  [aria-expanded="true"][data-toggler-animation="arrow-down"]
+    .brutal-toggler-icon {
+    transform: rotate(-90deg);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .brutal-toggler-icon,
+    .brutal-toggler-bar {
+      transition: none;
+    }
+  }
+}

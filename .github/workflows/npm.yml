@@ -29,6 +29,12 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
+      # Node 22 ships npm 10. Trusted publishing needs npm 11.5.1 or newer
+      # to exchange the GitHub OIDC token. Without that, the publish is
+      # anonymous and the registry answers 404.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
       - name: Install
         run: npm ci
 

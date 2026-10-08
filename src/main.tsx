@@ -1,13 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { ThemeProvider } from "../lib/main";
+import { ThemeProvider, ToastProvider, ToastViewport } from "../lib/main";
 import "./index.css";
 import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
-      <App />
+      <ToastProvider>
+        <App />
+        <ToastViewport />
+      </ToastProvider>
     </ThemeProvider>
   </StrictMode>,
 );

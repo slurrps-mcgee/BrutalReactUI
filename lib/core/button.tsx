@@ -28,8 +28,8 @@ const buttonStyles = cva(
     // Selected text. className can override these utilities.
     "selection:bg-main selection:text-main-foreground",
 
-    // Disabled state and reduced motion. Opacity would fade the label.
-    "disabled:pointer-events-none disabled:bg-secondary-background disabled:text-foreground",
+    // Disabled state and reduced motion. Gray communicates that it cannot be used.
+    "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
     "motion-reduce:transition-none",
   ].join(" "),
   {
@@ -107,7 +107,6 @@ const fillStyles = cva(
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonStyles> & {
     animate?: AnimationTrigger;
-    popDirection?: "out" | "in";
     rounded?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -122,7 +121,6 @@ export default function Button({
   size,
   fullWidth,
   animate = false,
-  popDirection = "out",
   rounded = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -144,7 +142,8 @@ export default function Button({
 
       // Shadow
       "shadow-[var(--shadow)]",
-      rounded && "rounded-[var(--radius)]",
+      rounded &&
+        "rounded-[var(--radius)]",
 
       // Animation
       shouldAnimate && "animate-brutal-pop",
@@ -158,7 +157,11 @@ export default function Button({
 
   // Main return
   return (
-    <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
+    <div
+      ref={ref}
+      className={wrapperClassName}
+      data-pop-direction="out"
+    >
       <button
         type={type}
         className={twMerge(

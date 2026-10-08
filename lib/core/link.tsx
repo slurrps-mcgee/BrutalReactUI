@@ -2,10 +2,6 @@ import type { AnchorHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { MoveRight } from "lucide-react";
-import {
-  useAnimationTrigger,
-  type AnimationTrigger,
-} from "../utils/use-enter-viewport";
 
 // Link styles
 const linkStyles = cva(
@@ -153,8 +149,6 @@ export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
   VariantProps<typeof linkStyles> & {
     href: string;
     children: string;
-    animate?: AnimationTrigger;
-    popDirection?: "out" | "in";
     wrapperClassName?: string;
     faceClassName?: string;
     fillClassName?: string;
@@ -167,16 +161,11 @@ export default function Link({
   className,
   variant,
   size,
-  animate = false,
-  popDirection = "out",
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   fillClassName,
   ...props
 }: LinkProps) {
-  // Animation trigger
-  const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
-
   // Wrapper classes
   const isExternal = /^https?:\/\//.test(href);
   const wrapperClassName = twMerge(
@@ -184,11 +173,6 @@ export default function Link({
       // Layout and stacking
       "relative isolate inline-flex w-fit items-center self-center",
 
-      // Shadow
-      "shadow-[var(--shadow)]",
-
-      // Animation
-      shouldAnimate && "animate-brutal-pop",
     ]
       .filter(Boolean)
       .join(" "),
@@ -204,7 +188,6 @@ export default function Link({
           linkStyles({ variant, size }),
 
           // Pop target. Must be the wrapper's direct child.
-          shouldAnimate && "brutal-pop-face",
           faceClassName,
           className,
         ]
@@ -232,15 +215,9 @@ export default function Link({
     </a>
   );
 
-  if (!animate) {
-    return link;
-  }
-
   return (
     <span
-      ref={ref}
       className={wrapperClassName}
-      data-pop-direction={popDirection}
     >
       {link}
     </span>

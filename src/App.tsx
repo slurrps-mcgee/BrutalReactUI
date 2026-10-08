@@ -1,377 +1,141 @@
-import { useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import {
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  CardImage,
-  Container,
-  Image,
-  Input,
-  Link,
+  Nav,
+  NavGroup,
+  NavItem,
+  NavLink,
+  Navbar,
+  NavbarBrand,
+  NavbarCollapse,
+  Sidebar,
   ThemeToggle,
-  useTheme,
+  Toggler,
 } from "../lib/main";
-import exampleUrl from "./assets/example.png";
-import { Send } from "lucide-react";
+import { PageView } from "./pages";
 
+const links = [
+  { id: "accordion", label: "Accordion" },
+  { id: "alert", label: "Alert" },
+  { id: "badges", label: "Badges" },
+  { id: "breadcrumb", label: "Breadcrumb" },
+  { id: "button-group", label: "Button Group" },
+  { id: "buttons", label: "Buttons" },
+  { id: "cards", label: "Cards" },
+  { id: "carousel", label: "Carousel" },
+  { id: "checkbox", label: "Checkbox" },
+  { id: "code-snippet", label: "Code Snippet" },
+  { id: "collapse", label: "Collapse" },
+  { id: "dropdown", label: "Dropdown" },
+  { id: "floating-label", label: "Floating Label" },
+  { id: "form", label: "Form" },
+  { id: "image", label: "Image" },
+  { id: "input-group", label: "Input Group" },
+  { id: "inputs", label: "Inputs" },
+  { id: "links", label: "Links" },
+  { id: "list-group", label: "List Group" },
+  { id: "modal", label: "Modal" },
+  { id: "navbar", label: "Navbar" },
+  { id: "pagination", label: "Pagination" },
+  { id: "progress", label: "Progress" },
+  { id: "radio", label: "Radio" },
+  { id: "range", label: "Range" },
+  { id: "select", label: "Select" },
+  { id: "sidebar", label: "Sidebar" },
+  { id: "skeleton", label: "Skeleton" },
+  { id: "spinner", label: "Spinner" },
+  { id: "table", label: "Table" },
+  { id: "toast", label: "Toast" },
+  { id: "tooltip", label: "Tooltip" },
+  { id: "validation", label: "Validation" },
+] as const;
 
-function Snippet({ code }: { code: string }) {
-  return (
-    <pre className="overflow-x-auto border-[3px] border-border bg-[var(--surface)] p-4 font-mono text-xs leading-relaxed">
-      <code>{code.trim()}</code>
-    </pre>
-  );
+function pageId(hash: string) {
+  const path = hash.replace(/^#\/?/, "");
+  return path || "home";
 }
 
-function OutlineSet() {
-  return (
-    <div className="flex flex-wrap items-center gap-4">
-      <Button variant="outline">Outline</Button>
-      <div className="w-full max-w-48">
-        <Input
-          aria-label="Outline field"
-          variant="outline"
-          placeholder="Outline"
-        />
-      </div>
-    </div>
-  );
+function preventDemoNavigation(event: MouseEvent<HTMLElement>) {
+  if ((event.target as Element).closest("a")) {
+    event.preventDefault();
+  }
 }
 
-const outlineSetCode = `<Button variant="outline">Outline</Button>
-<Input variant="outline" placeholder="Outline" />`;
+function SiteLinks({ current }: { current: string }) {
+  return (
+    <Nav direction="column">
+      <NavItem>
+        <NavLink href="#/" active={current === "home"}>
+          Home
+        </NavLink>
+      </NavItem>
+      <NavGroup label="Library" defaultOpen>
+        {links.map((link) => (
+          <NavItem key={link.id}>
+            <NavLink href={`#/${link.id}`} active={current === link.id}>
+              {link.label}
+            </NavLink>
+          </NavItem>
+        ))}
+      </NavGroup>
+    </Nav>
+  );
+}
 
 function App() {
-  const { theme } = useTheme();
-  const [presses, setPresses] = useState(0);
-  const [name, setName] = useState("Ada");
+  const [hash, setHash] = useState(() => window.location.hash || "#/");
+  const [open, setOpen] = useState(false);
+  const current = pageId(hash);
+
+  useEffect(() => {
+    function onHashChange() {
+      setHash(window.location.hash || "#/");
+      setOpen(false);
+    }
+
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-8">
-      <header className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex flex-col gap-2">
-            <p className="font-mono text-xs font-bold uppercase tracking-wide">
-              Component library
-            </p>
-            <h1 className="font-display text-4xl font-bold sm:text-5xl">
-              Brutal React UI
-            </h1>
-            <p className="max-w-xl font-sans text-base">
-              Buttons, badges, fields, links, images, and cards on the shared
-              palette. Active theme:{" "}
-              <span className="font-mono font-bold">{theme}</span>.
-            </p>
+    <div className="min-h-screen md:grid md:grid-cols-[18rem_1fr]">
+      <div className="hidden md:block md:sticky md:top-0 md:h-screen">
+        <Sidebar>
+          <div className="flex items-center justify-between gap-2">
+            <a href="#/" className="font-display text-2xl font-bold">
+              Brutal
+            </a>
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
+          <SiteLinks current={current} />
+        </Sidebar>
+      </div>
+
+      <div className="flex min-w-0 flex-col">
+        <div className="md:hidden">
+          <Navbar variant="primary">
+            <NavbarBrand href="#/">Brutal</NavbarBrand>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Toggler
+                expanded={open}
+                controls="site-nav"
+                aria-label="Toggle navigation"
+                iconAnimation="spin"
+                onClick={() => setOpen((value) => !value)}
+              />
+            </div>
+            <NavbarCollapse id="site-nav" open={open}>
+              <SiteLinks current={current} />
+            </NavbarCollapse>
+          </Navbar>
         </div>
-        <Snippet
-          code={`<header className="bg-main text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
-  <ThemeToggle />
-</header>`}
-        />
-      </header>
-
-      <section id="surface" className="flex flex-col gap-6">
-        <h2 className="font-display text-2xl font-bold">Surface</h2>
-        <p className="max-w-2xl font-sans">
-          Outline faces paint <span className="font-mono">--surface</span> and
-          use the parent text color. An outline button on a main parent uses
-          the secondary fill. The page falls back to the background color.
-        </p>
-
-        <div className="flex flex-col gap-4">
-          <h3 className="font-display text-xl font-bold">Page</h3>
-          <OutlineSet />
-          <Snippet code={outlineSetCode} />
-        </div>
-
-        <Container id="surface-primary" title="Primary parent" fullWidth>
-          <OutlineSet />
-          <Snippet
-            code={`<Container variant="primary">
-  ${outlineSetCode.split("\n").join("\n  ")}
-</Container>`}
-          />
-        </Container>
-
-        <Container id="surface-secondary" title="Secondary parent" variant="secondary" fullWidth>
-          <OutlineSet />
-          <Snippet
-            code={`<Container variant="secondary">
-  ${outlineSetCode.split("\n").join("\n  ")}
-</Container>`}
-          />
-        </Container>
-
-        <div className="flex flex-col gap-4 border-[3px] border-border bg-main p-5 text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
-          <h3 className="font-display text-xl font-bold">Main parent</h3>
-          <OutlineSet />
-          <Snippet
-            code={`<div className="bg-main text-main-foreground [--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]">
-  ${outlineSetCode.split("\n").join("\n  ")}
-</div>`}
-          />
-        </div>
-      </section>
-
-      <Container id="buttons" title="Buttons" fullWidth animate="scroll" rounded>
-        <div className="flex flex-wrap items-center gap-4">
-          <Button onClick={() => setPresses((count) => count + 1)}>
-            Pressed {presses}
-          </Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="outline">Outline</Button>
-          <Button size="sm">Small</Button>
-          <Button size="lg" animate rounded>
-            Large
-          </Button>
-          <Button disabled>Disabled</Button>
-          <Button animate rounded><Send /></Button>
-        </div>
-        <Button fullWidth variant="secondary">
-          Full width
-        </Button>
-        <Snippet
-          code={`<Button>Pressed</Button>
-<Button variant="secondary">Secondary</Button>
-<Button variant="outline">Outline</Button>
-<Button size="sm">Small</Button>
-<Button size="lg" animate rounded>Large</Button>
-<Button disabled>Disabled</Button>
-<Button fullWidth variant="secondary">Full width</Button>`}
-        />
-      </Container>
-
-      <Container id="badges" title="Badges" fullWidth>
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge>Primary</Badge>
-          <Badge variant="secondary" size="md">
-            Secondary
-          </Badge>
-          <Badge animate rounded>
-            Animated
-          </Badge>
-          <Badge variant="success">Success</Badge>
-          <Badge variant="warning">Warning</Badge>
-          <Badge variant="danger">Danger</Badge>
-          <Badge variant="info">Info</Badge>
-        </div>
-        <Snippet
-          code={`<Badge>Primary</Badge>
-<Badge variant="secondary" size="md">Secondary</Badge>
-<Badge animate rounded>Animated</Badge>
-<Badge variant="success">Success</Badge>
-<Badge variant="warning">Warning</Badge>
-<Badge variant="danger">Danger</Badge>
-<Badge variant="info">Info</Badge>`}
-        />
-      </Container>
-
-      <Container id="inputs" title="Inputs" fullWidth>
-        <label
-          className="flex flex-col gap-2 font-mono text-sm font-bold"
-          htmlFor="display-name"
+        <main
+          className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-8"
+          onClickCapture={preventDemoNavigation}
         >
-          Display name
-          <Input
-            id="display-name"
-            name="display-name"
-            value={name}
-            placeholder="Your name"
-            onChange={(event) => setName(event.target.value)}
-          />
-        </label>
-        <p className="font-mono text-sm">
-          Hello, <span className="font-bold">{name || "stranger"}</span>.
-        </p>
-        <div className="grid gap-4 md:grid-cols-3">
-          <Input
-            aria-label="Primary field"
-            variant="primary"
-            size="sm"
-            placeholder="Small"
-          />
-          <Input
-            aria-label="Secondary field"
-            variant="secondary"
-            placeholder="Secondary"
-          />
-          <Input
-            aria-label="Outline field"
-            variant="outline"
-            size="lg"
-            placeholder="Outline"
-            rounded
-          />
-        </div>
-        <Snippet
-          code={`<Input value={name} placeholder="Your name" />
-<Input variant="primary" size="sm" placeholder="Small" />
-<Input variant="secondary" placeholder="Secondary" />
-<Input variant="outline" size="lg" placeholder="Outline" rounded />`}
-        />
-      </Container>
-
-      <Container id="links" title="Links" fullWidth>
-        <div className="flex flex-wrap gap-6">
-          <Link href="#buttons">Back to buttons</Link>
-          <Link href="#buttons" variant="primary">
-            Primary
-          </Link>
-          <Link href="https://github.com" variant="secondary" size="lg">
-            GitHub
-          </Link>
-        </div>
-        <Snippet
-          code={`<Link href="#buttons">Back to buttons</Link>
-<Link href="#buttons" variant="primary">Primary</Link>
-<Link href="https://github.com" variant="secondary" size="lg">GitHub</Link>`}
-        />
-      </Container>
-
-      <Container id="images" title="Image" fullWidth rounded>
-        <div className="max-w-xl">
-          <Image
-            image={{ src: exampleUrl, width: 1200, height: 675 }}
-            title="Library preview"
-            animate="scroll"
-            rounded
-          />
-        </div>
-        <Snippet
-          code={`<Image
-  image={{ src: exampleUrl, width: 1200, height: 675 }}
-  title="Library preview"
-  animate="scroll"
-  rounded
-/>`}
-        />
-      </Container>
-
-      <Container id="cards" title="Cards" fullWidth>
-        <div className="grid gap-8 lg:grid-cols-2">
-          <Card animate="scroll" rounded>
-            <CardImage>
-              <Image
-                image={{ src: exampleUrl, width: 1200, height: 675 }}
-                title="Brutal React UI"
-                className="h-48 aspect-auto"
-              />
-            </CardImage>
-            <CardHeader>
-              <Badge variant="info">Library</Badge>
-            </CardHeader>
-            <CardBody>
-              <h3 className="font-display text-2xl font-bold">
-                Brutal React UI
-              </h3>
-              <p className="mt-2">
-                Thick borders, hard shadows, and a palette you can swap without
-                rewriting components.
-              </p>
-            </CardBody>
-            <CardFooter className="mt-auto flex flex-col gap-4">
-              <ul
-                className="flex flex-wrap gap-2"
-                aria-label="Project technologies"
-              >
-                <li>
-                  <Badge variant="success">React</Badge>
-                </li>
-                <li>
-                  <Badge variant="success">Tailwind</Badge>
-                </li>
-                <li>
-                  <Badge variant="success">TypeScript</Badge>
-                </li>
-              </ul>
-            </CardFooter>
-          </Card>
-          <Card variant="outline">
-            <CardImage>
-              <Image
-                image={{ src: exampleUrl, width: 512, height: 512 }}
-                title="Field Notes"
-                className="h-48 aspect-auto"
-              />
-            </CardImage>
-            <CardHeader>
-              <Badge variant="info">Info</Badge>
-            </CardHeader>
-            <CardBody>
-              <h3 className="font-display text-2xl font-bold">Field Notes</h3>
-              <p className="mt-2">
-                The same card with the outline variant, a second image, and a
-                shorter chip list.
-              </p>
-            </CardBody>
-            <CardFooter className="mt-auto flex flex-col gap-4">
-              <ul
-                className="flex flex-wrap gap-2"
-                aria-label="Project technologies"
-              >
-                <li>
-                  <Badge variant="success">Vite</Badge>
-                </li>
-              </ul>
-            </CardFooter>
-          </Card>
-        </div>
-        <Snippet
-          code={`<Container title="Cards" fullWidth>
-  <Card animate="scroll" rounded>
-    <CardImage>
-      <Image
-        image={{ src: exampleUrl, width: 1200, height: 675 }}
-        title="Brutal React UI"
-        className="h-48 aspect-auto"
-      />
-    </CardImage>
-    <CardHeader>
-      <Badge variant="info">Library</Badge>
-    </CardHeader>
-    <CardBody>
-      <h3>Brutal React UI</h3>
-      <p>
-        Thick borders, hard shadows, and a palette you can swap without
-        rewriting components.
-      </p>
-    </CardBody>
-    <CardFooter>
-      <Badge variant="success">React</Badge>
-      <Badge variant="success">Tailwind</Badge>
-      <Badge variant="success">TypeScript</Badge>
-    </CardFooter>
-  </Card>
-  <Card variant="outline">
-    <CardImage>
-      <Image
-        image={{ src: exampleUrl, width: 512, height: 512 }}
-        title="Field Notes"
-        className="h-48 aspect-auto"
-      />
-    </CardImage>
-    <CardHeader>
-      <Badge variant="info">Info</Badge>
-    </CardHeader>
-    <CardBody>
-      <h3>Field Notes</h3>
-      <p>
-        The same card with the outline variant, a second image, and a
-        shorter chip list.
-      </p>
-    </CardBody>
-    <CardFooter>
-      <Badge variant="success">Vite</Badge>
-    </CardFooter>
-  </Card>
-</Container>`}
-        />
-      </Container>
+          <PageView id={current} />
+        </main>
+      </div>
     </div>
   );
 }

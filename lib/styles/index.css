@@ -10,6 +10,7 @@
 @import "@fontsource/ibm-plex-sans/700.css";
 @import "@fontsource-variable/inter";
 @import "./brutal-animations.css";
+@import "./toggler-animations.css";
 
 /* Class names live in the component source. Scan them when this file is imported from node_modules. */
 @source '../core';
@@ -35,6 +36,10 @@
   --foreground: oklch(0% 0 0);
   --main-foreground: oklch(0% 0 0);
 
+  /* Disabled tokens. Muted gray stays distinct from every component variant. */
+  --disabled: hsl(0, 0%, 78%);
+  --disabled-foreground: hsl(0, 0%, 32%);
+
   /* Main tokens */
   --main: hsl(190, 100%, 47%);
 
@@ -51,21 +56,21 @@
   --shadow: 4px 4px 0px 0px var(--border);
 
   /* Chart tokens */
-  --chart-1: #00C8F0;
-  --chart-2: #FF7A05;
-  --chart-3: #7A83FF;
-  --chart-4: #FF4D50;
-  --chart-5: #FACC00;
+  --chart-1: #00c8f0;
+  --chart-2: #ff7a05;
+  --chart-3: #7a83ff;
+  --chart-4: #ff4d50;
+  --chart-5: #facc00;
   --chart-active-dot: #000;
 
   /* Success tokens */
-  --success: #00C853;
+  --success: #00c853;
   --success-foreground: oklch(0% 0 0);
-  --warning: #FACC00;
+  --warning: #facc00;
   --warning-foreground: oklch(0% 0 0);
-  --danger: #FF4D50;
+  --danger: #ff4d50;
   --danger-foreground: oklch(0% 0 0);
-  --info: #7A83FF;
+  --info: #7a83ff;
   --info-foreground: oklch(0% 0 0);
 
   /* Radius tokens */
@@ -79,7 +84,8 @@
   --shadow-offset-x: 6px;
   --shadow-offset-y: 6px;
   --shadow-color: var(--border);
-  --shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0 0 var(--shadow-color);
+  --shadow: var(--shadow-offset-x) var(--shadow-offset-y) 0 0
+    var(--shadow-color);
 }
 
 /*
@@ -98,6 +104,10 @@
   /* Foreground tokens */
   --foreground: hsl(190, 95%, 90%);
   --main-foreground: oklch(0% 0 0);
+
+  /* Disabled tokens */
+  --disabled: hsl(0, 0%, 28%);
+  --disabled-foreground: hsl(0, 0%, 72%);
 
   /* Main tokens */
   --main: hsl(190, 100%, 47%);
@@ -142,6 +152,8 @@
   --color-secondary-background: var(--secondary-background);
   --color-foreground: var(--foreground);
   --color-main-foreground: var(--main-foreground);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
   --color-border: var(--border);
   --color-overlay: var(--overlay);
   --color-ring: var(--ring);
@@ -182,7 +194,6 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --radius-base: 5px;
-
 
   /* Animation tokens */
   --animate-marquee: marquee 5s linear infinite;

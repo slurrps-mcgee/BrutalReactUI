@@ -97,7 +97,6 @@ export type ContainerProps = HTMLAttributes<HTMLElement> &
     title: string;
     animate?: AnimationTrigger;
     shadow?: boolean;
-    popDirection?: "out" | "in";
     rounded?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -118,7 +117,6 @@ export default function Container({
   fullWidth,
   animate = false,
   shadow = false,
-  popDirection = "out",
   rounded = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -146,7 +144,11 @@ export default function Container({
 
   // Main return
   return (
-    <div ref={ref} className={wrapperClassName} data-pop-direction={popDirection}>
+    <div
+      ref={ref}
+      className={wrapperClassName}
+      data-pop-direction="out"
+    >
       <section
         className={twMerge(
           [
@@ -183,7 +185,9 @@ export default function Container({
           />
         )}
         {/* Section title sits above the drawn stroke. */}
-        <h2 className="relative z-10 font-display text-2xl font-bold">{title}</h2>
+        <h2 className="relative z-10 font-display text-2xl font-bold">
+          {title}
+        </h2>
         {children}
       </section>
     </div>

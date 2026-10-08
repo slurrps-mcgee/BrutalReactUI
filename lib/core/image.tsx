@@ -24,7 +24,6 @@ export type ImageProps = HTMLAttributes<HTMLDivElement> & {
   image: ProjectImage;
   title: string;
   animate?: AnimationTrigger;
-  popDirection?: "out" | "in";
   rounded?: boolean;
   wrapperClassName?: string;
   faceClassName?: string;
@@ -36,7 +35,6 @@ export default function Image({
   title,
   className,
   animate = false,
-  popDirection = "out",
   rounded = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -70,7 +68,7 @@ export default function Image({
     <div
       ref={ref}
       className={wrapperClassName}
-      data-pop-direction={popDirection}
+      data-pop-direction="out"
       {...props}
     >
       <div
@@ -105,7 +103,8 @@ export default function Image({
               "block h-full w-full object-cover object-top",
 
               // Clip the photo to the radius without clipping the drawn stroke.
-              rounded && "absolute inset-0 overflow-hidden rounded-[var(--radius)]",
+              rounded &&
+                "absolute inset-0 overflow-hidden rounded-[var(--radius)]",
               failed && "sr-only",
             ]
               .filter(Boolean)
