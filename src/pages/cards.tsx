@@ -58,12 +58,7 @@ export default function CardsPage() {
             </ul>
           </CardFooter>
         </Card>
-        <Card
-          variant="secondary"
-          size="sm"
-          animate="scroll"
-          rounded
-        >
+        <Card variant="secondary" size="sm" animate="scroll" rounded>
           <CardHeader>
             <Badge variant="warning">Secondary</Badge>
           </CardHeader>

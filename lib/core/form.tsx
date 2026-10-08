@@ -122,11 +122,7 @@ export function Form({
 
   return (
     <FormContext.Provider value={{ submitted }}>
-      <div
-        ref={ref}
-        className={wrapperClassName}
-        data-pop-direction="out"
-      >
+      <div ref={ref} className={wrapperClassName} data-pop-direction="out">
         <form
           noValidate
           className={twMerge(

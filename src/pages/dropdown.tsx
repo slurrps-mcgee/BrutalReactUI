@@ -34,9 +34,7 @@ export default function DropdownPage() {
         </DropdownMenu>
       </Dropdown>
       <Dropdown>
-        <DropdownToggle variant="secondary">
-          Static
-        </DropdownToggle>
+        <DropdownToggle variant="secondary">Static</DropdownToggle>
         <DropdownMenu animate={false} border>
           <DropdownItem href="#/cards">Cards</DropdownItem>
           <DropdownItem href="#/links">Links</DropdownItem>

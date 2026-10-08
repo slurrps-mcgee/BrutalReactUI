@@ -6,7 +6,9 @@ export default function ImagePage() {
     <Container title="Image" fullWidth rounded>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="grid gap-2">
-          <span className="font-mono text-sm font-bold uppercase">Animated</span>
+          <span className="font-mono text-sm font-bold uppercase">
+            Animated
+          </span>
           <Image
             image={{ src: exampleUrl, width: 1200, height: 675 }}
             title="Animated library preview"

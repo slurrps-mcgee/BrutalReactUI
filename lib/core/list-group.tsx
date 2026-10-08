@@ -66,8 +66,7 @@ export default function ListGroup({
   faceClassName,
   ...props
 }: ListGroupProps) {
-  const { ref, shouldAnimate } =
-    useAnimationTrigger<HTMLDivElement>(animate);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
 
   return (
     <ListGroupContext.Provider value={{ variant, size }}>

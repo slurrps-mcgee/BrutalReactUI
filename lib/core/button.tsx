@@ -142,8 +142,7 @@ export default function Button({
 
       // Shadow
       "shadow-[var(--shadow)]",
-      rounded &&
-        "rounded-[var(--radius)]",
+      rounded && "rounded-[var(--radius)]",
 
       // Animation
       shouldAnimate && "animate-brutal-pop",
@@ -157,11 +156,7 @@ export default function Button({
 
   // Main return
   return (
-    <div
-      ref={ref}
-      className={wrapperClassName}
-      data-pop-direction="out"
-    >
+    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
       <button
         type={type}
         className={twMerge(

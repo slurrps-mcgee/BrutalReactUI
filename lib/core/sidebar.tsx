@@ -176,11 +176,7 @@ function SidebarFace({
   );
 
   return (
-    <div
-      ref={ref}
-      className={wrapperClassName}
-      data-pop-direction="out"
-    >
+    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
       <aside
         className={twMerge(
           [

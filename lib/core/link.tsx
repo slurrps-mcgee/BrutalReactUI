@@ -172,7 +172,6 @@ export default function Link({
     [
       // Layout and stacking
       "relative isolate inline-flex w-fit items-center self-center",
-
     ]
       .filter(Boolean)
       .join(" "),
@@ -215,11 +214,5 @@ export default function Link({
     </a>
   );
 
-  return (
-    <span
-      className={wrapperClassName}
-    >
-      {link}
-    </span>
-  );
+  return <span className={wrapperClassName}>{link}</span>;
 }

@@ -22,8 +22,7 @@ const inputGroupStyles = cva(
   {
     variants: {
       orientation: {
-        horizontal:
-          "flex-row [&>*+*]:-ml-[3px]",
+        horizontal: "flex-row [&>*+*]:-ml-[3px]",
         vertical: "flex-col [&>*+*]:-mt-[3px] [&>div]:w-full",
       },
     },

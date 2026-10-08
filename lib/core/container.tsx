@@ -144,11 +144,7 @@ export default function Container({
 
   // Main return
   return (
-    <div
-      ref={ref}
-      className={wrapperClassName}
-      data-pop-direction="out"
-    >
+    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
       <section
         className={twMerge(
           [

@@ -66,10 +66,7 @@ export default function TablePage() {
           </TableFooter>
         </Table>
       </TableResponsive>
-      <TableResponsive
-        shadow={false}
-        aria-label="Static compact pricing table"
-      >
+      <TableResponsive shadow={false} aria-label="Static compact pricing table">
         <Table variant="outline" bordered compact>
           <TableHeader>
             <TableRow>

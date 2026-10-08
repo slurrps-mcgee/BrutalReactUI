@@ -129,11 +129,7 @@ export default function Navbar({
 
   // Main return
   return (
-    <div
-      ref={ref}
-      className={wrapperClassName}
-      data-pop-direction="out"
-    >
+    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
       <nav
         className={twMerge(
           [

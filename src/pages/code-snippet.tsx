@@ -35,10 +35,7 @@ export default function CodeSnippetPage() {
         rounded
       />
 
-      <CodeSnippet
-        code={usageCode}
-        language="tsx"
-      />
+      <CodeSnippet code={usageCode} language="tsx" />
     </Container>
   );
 }

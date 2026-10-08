@@ -50,11 +50,7 @@ export default function NavbarPage() {
 
   return (
     <Container title="Navbar" fullWidth>
-      <Navbar
-        variant="primary"
-        animate="scroll"
-        rounded
-      >
+      <Navbar variant="primary" animate="scroll" rounded>
         <NavbarBrand href="#/">Brutal</NavbarBrand>
         <Toggler
           expanded={open}

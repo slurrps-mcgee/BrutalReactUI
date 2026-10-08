@@ -109,8 +109,7 @@ export function TableResponsive({
   children,
   ...props
 }: TableResponsiveProps) {
-  const { ref, shouldAnimate } =
-    useAnimationTrigger<HTMLDivElement>(animate);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
 
   return (
     <div
@@ -234,7 +233,7 @@ export function TableHead({
     <th
       className={twMerge(
         "text-left font-bold uppercase tracking-wide",
-          bordered && "border-[3px] border-border",
+        bordered && "border-[3px] border-border",
         cellPadding(size, compact),
         className,
       )}

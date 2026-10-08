@@ -92,8 +92,7 @@ export default function Progress({
     : Math.min(safeMax, Math.max(0, Number.isFinite(value) ? value : 0));
   const percentage =
     safeValue === undefined ? undefined : (safeValue / safeMax) * 100;
-  const { ref, shouldAnimate } =
-    useAnimationTrigger<HTMLDivElement>(animate);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
 
   return (
     <div

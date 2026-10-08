@@ -8,11 +8,7 @@ export default function LinksPage() {
         <Link href="#/buttons" variant="primary">
           Primary
         </Link>
-        <Link
-          href="https://github.com"
-          variant="secondary"
-          size="lg"
-        >
+        <Link href="https://github.com" variant="secondary" size="lg">
           GitHub
         </Link>
       </div>

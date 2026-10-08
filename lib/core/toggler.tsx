@@ -123,11 +123,7 @@ export default function Toggler({
 
   // Main return
   return (
-    <div
-      ref={ref}
-      className={wrapperClassName}
-      data-pop-direction="out"
-    >
+    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
       <button
         type={type}
         className={twMerge(

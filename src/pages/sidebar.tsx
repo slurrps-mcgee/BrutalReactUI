@@ -73,7 +73,11 @@ export default function SidebarPage() {
         <p className="font-display text-xl">Static sidebar</p>
         <Nav direction="column">
           <NavItem rounded>
-            <NavLink href="#/sidebar" active icon={<PanelLeft className={icon} />}>
+            <NavLink
+              href="#/sidebar"
+              active
+              icon={<PanelLeft className={icon} />}
+            >
               Sidebar
             </NavLink>
           </NavItem>
