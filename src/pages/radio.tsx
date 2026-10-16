@@ -1,50 +1,111 @@
 import { useState } from "react";
-import { CodeSnippet, Container, Radio } from "../../lib/main";
-
-const code = `<Radio
-  name="plan"
-  value="pro"
-  checked={plan === "pro"}
-  onChange={(event) => setPlan(event.target.value)}
-  label="Pro"
-/>`;
+import { Container, Radio } from "../../lib/main";
+import { radioNotes } from "./component-notes";
+import { ComponentNotes, Example } from "./shared";
 
 export default function RadioPage() {
   const [plan, setPlan] = useState("pro");
 
   return (
     <Container title="Radio" fullWidth>
-      <fieldset className="grid gap-4 sm:grid-cols-3">
-        <legend className="mb-3 font-mono text-sm font-bold">
-          Choose a plan
-        </legend>
-        {["starter", "pro", "enterprise"].map((value, index) => (
-          <Radio
-            key={value}
-            name="plan"
-            value={value}
-            checked={plan === value}
-            onChange={(event) => setPlan(event.target.value)}
-            label={value[0].toUpperCase() + value.slice(1)}
-            size={index === 0 ? "sm" : index === 2 ? "lg" : "md"}
-          />
-        ))}
-        <Radio name="plan" value="legacy" label="Legacy (disabled)" disabled />
-      </fieldset>
-      <p role="status" className="font-mono text-sm">
-        Selected plan: <strong>{plan}</strong>
+      <p className="max-w-2xl font-sans">
+        Radios in one group share a name. Only one can be checked. The visible
+        ring is the face; the input stays the real control.
       </p>
-      <form
-        onSubmit={(event) => event.preventDefault()}
-        className="flex flex-wrap items-center gap-4"
+
+      <Example
+        title="Group"
+        summary="Control the group with one piece of state. checked compares each value."
+        code={`<Radio
+  name="plan"
+  value="pro"
+  checked={plan === "pro"}
+  onChange={(event) => setPlan(event.target.value)}
+  label="Pro"
+/>`}
       >
-        <Radio name="required-tier" value="basic" required label="Basic" />
-        <Radio name="required-tier" value="plus" required label="Plus" />
-        <button type="submit" className="font-mono font-bold underline">
-          Validate required group
-        </button>
-      </form>
-      <CodeSnippet code={code} language="tsx" />
+        <fieldset className="grid gap-4">
+          <legend className="mb-1 font-mono text-sm font-bold">
+            Choose a plan
+          </legend>
+          {["starter", "pro", "enterprise"].map((value) => (
+            <Radio
+              key={value}
+              name="plan"
+              value={value}
+              checked={plan === value}
+              onChange={(event) => setPlan(event.target.value)}
+              label={value[0].toUpperCase() + value.slice(1)}
+            />
+          ))}
+        </fieldset>
+        <p role="status" className="font-mono text-sm">
+          Selected plan: <strong>{plan}</strong>
+        </p>
+      </Example>
+
+      <Example
+        title="Sizes"
+        summary="Small, medium, and large scale the ring and the label."
+        code={`<Radio name="size" value="sm" size="sm" label="Small" />
+<Radio name="size" value="md" size="md" label="Medium" />
+<Radio name="size" value="lg" size="lg" label="Large" rounded />`}
+      >
+        <div className="grid gap-4">
+          <Radio name="size-demo" value="sm" size="sm" label="Small" />
+          <Radio
+            name="size-demo"
+            value="md"
+            size="md"
+            label="Medium"
+            defaultChecked
+          />
+          <Radio name="size-demo" value="lg" size="lg" label="Large" rounded />
+        </div>
+      </Example>
+
+      <Example
+        title="Disabled and required"
+        summary="disabled blocks that option. required on a group takes part in native validation."
+        code={`<Radio name="plan" value="legacy" label="Legacy" disabled />
+<Radio name="tier" value="basic" required label="Basic" />
+<Radio name="tier" value="plus" required label="Plus" />`}
+      >
+        <form
+          onSubmit={(event) => event.preventDefault()}
+          className="grid gap-4"
+        >
+          <Radio
+            name="plan-off"
+            value="legacy"
+            label="Legacy (disabled)"
+            disabled
+          />
+          <div className="flex flex-wrap items-center gap-4">
+            <Radio name="required-tier" value="basic" required label="Basic" />
+            <Radio name="required-tier" value="plus" required label="Plus" />
+            <button type="submit" className="font-mono font-bold underline">
+              Validate required group
+            </button>
+          </div>
+        </form>
+      </Example>
+
+      <Example
+        title="Flat"
+        summary="shadow false keeps a selected option from lifting."
+        code={`<Radio name="flat" value="flat" label="Flat" shadow={false} defaultChecked />`}
+      >
+        <Radio
+          name="flat-demo"
+          value="flat"
+          label="Flat radio"
+          shadow={false}
+          defaultChecked
+        />
+      </Example>
+
+      <ComponentNotes {...radioNotes} />
     </Container>
   );
 }

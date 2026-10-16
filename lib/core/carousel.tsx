@@ -16,7 +16,6 @@ const carouselStyles = cva(
   [
     "relative isolate w-full border-[3px] border-border",
     "bg-[var(--surface)] text-[var(--surface-foreground)]",
-    "shadow-[var(--shadow)]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     "focus-visible:ring-offset-2",
   ].join(" "),
@@ -102,6 +101,11 @@ export type CarouselProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
     pauseOnFocus?: boolean;
     swipe?: boolean;
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    disabled?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
     label?: string;
     viewportClassName?: string;
     trackClassName?: string;
@@ -121,6 +125,11 @@ export default function Carousel({
   pauseOnFocus = true,
   swipe = true,
   rounded = false,
+  shadow = true,
+  border = true,
+  disabled = false,
+  wrapperClassName,
+  faceClassName,
   label = "Carousel",
   className,
   viewportClassName,
@@ -230,10 +239,16 @@ export default function Carousel({
       role="region"
       aria-roledescription="carousel"
       aria-label={label}
+      aria-disabled={disabled || undefined}
       tabIndex={0}
       className={twMerge(
         carouselStyles({ variant, size }),
+        shadow && "shadow-[var(--shadow)]",
+        !border && "border-none",
         rounded && "rounded-[var(--radius)]",
+        disabled && "pointer-events-none opacity-70",
+        wrapperClassName,
+        faceClassName,
         className,
       )}
       onKeyDown={handleKeyDown}

@@ -10,8 +10,6 @@ const checkboxStyles = cva(
     "relative isolate inline-flex shrink-0 items-center justify-center border-[3px] border-border",
     "bg-secondary-background text-foreground",
     "transition-[transform,box-shadow] duration-150 ease-out",
-    "peer-checked:-translate-x-0.5 peer-checked:-translate-y-0.5",
-    "peer-checked:shadow-[3px_3px_0_0_var(--shadow-color)]",
 
     // Focus and disabled state are driven by the native input.
     "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
@@ -40,8 +38,10 @@ export type CheckboxProps = Omit<
   VariantProps<typeof checkboxStyles> & {
     label?: ReactNode;
     rounded?: boolean;
+    shadow?: boolean;
     wrapperClassName?: string;
     controlClassName?: string;
+    faceClassName?: string;
   };
 
 // Main Checkbox component
@@ -51,8 +51,10 @@ export default function Checkbox({
   size,
   label,
   rounded = false,
+  shadow = true,
   wrapperClassName,
   controlClassName,
+  faceClassName,
   disabled,
   ...props
 }: CheckboxProps) {
@@ -84,8 +86,13 @@ export default function Checkbox({
           className={twMerge(
             checkboxStyles({ size }),
             "peer-checked:[&>svg]:scale-100 peer-checked:[&>svg]:opacity-100",
+
+            // Checked box steps onto its shadow. Flat stays put.
+            shadow &&
+              "peer-checked:-translate-x-0.5 peer-checked:-translate-y-0.5 peer-checked:shadow-[3px_3px_0_0_var(--shadow-color)]",
             rounded && "rounded-[var(--radius)]",
             controlClassName,
+            faceClassName,
           )}
         >
           <Check

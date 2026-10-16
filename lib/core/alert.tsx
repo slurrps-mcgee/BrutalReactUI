@@ -27,9 +27,9 @@ const alertStyles = cva(
     // Layout and stacking
     "relative isolate flex w-full items-start gap-3",
 
-    // Border, shadow, and typography
-    "border-[3px] border-border p-4 shadow-[var(--shadow)]",
-    "font-mono text-sm",
+    // Border and typography
+    "border-[3px] border-border",
+    "font-mono",
 
     // Reduced motion
     "transition-[opacity,translate,scale] duration-200",
@@ -81,9 +81,16 @@ const alertStyles = cva(
           "[--surface:var(--info)] [--surface-foreground:var(--info-foreground)] [--outline-button-fill:var(--main)]",
         ].join(" "),
       },
+      // Padding and type size. md matches the previous face.
+      size: {
+        sm: "p-3 text-xs",
+        md: "p-4 text-sm",
+        lg: "p-5 text-base",
+      },
     },
     defaultVariants: {
       variant: "primary",
+      size: "md",
     },
   },
 );
@@ -111,6 +118,11 @@ export type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> &
     timer?: number;
     duration?: number;
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    disabled?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
   };
 
 // Main Alert component
@@ -129,6 +141,12 @@ export default function Alert({
   timer,
   duration = 0,
   rounded = false,
+  shadow = true,
+  border = true,
+  disabled = false,
+  wrapperClassName,
+  faceClassName,
+  size,
   role,
   ...props
 }: AlertProps) {
@@ -163,12 +181,18 @@ export default function Alert({
   return (
     <div
       role={role ?? "alert"}
+      aria-disabled={disabled || undefined}
       className={twMerge(
-        alertStyles({ variant }),
+        alertStyles({ variant, size }),
         visible
           ? "translate-x-0 scale-100 opacity-100"
           : "translate-x-3 scale-95 opacity-0",
+        shadow && "shadow-[var(--shadow)]",
+        !border && "border-none",
         rounded && "rounded-[var(--radius)]",
+        disabled && "pointer-events-none opacity-70",
+        wrapperClassName,
+        faceClassName,
         className,
       )}
       {...props}

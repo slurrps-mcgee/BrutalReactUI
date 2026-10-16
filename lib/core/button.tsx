@@ -79,7 +79,7 @@ const buttonStyles = cva(
 const fillStyles = cva(
   [
     // Fill layer positioning. Slightly larger than the clip so subpixels still meet the stroke.
-    "pointer-events-none absolute -inset-px origin-left",
+    "pointer-events-none absolute inset-0 origin-left",
 
     // Fill reveal on hover and keyboard focus
     "scale-x-0 transition-transform duration-300 ease-out",
@@ -108,6 +108,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonStyles> & {
     animate?: AnimationTrigger;
     rounded?: boolean;
+    shadow?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
     fillClassName?: string;
@@ -122,6 +123,7 @@ export default function Button({
   fullWidth,
   animate = false,
   rounded = false,
+  shadow = true,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   fillClassName,
@@ -130,6 +132,7 @@ export default function Button({
 }: ButtonProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   // Wrapper classes
   const wrapperClassName = twMerge(
@@ -140,8 +143,8 @@ export default function Button({
       // Full width
       fullWidth ? "flex w-full" : "inline-flex w-fit",
 
-      // Shadow
-      "shadow-[var(--shadow)]",
+      // Shadow. A pop needs the offset, so animation turns it on.
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -164,7 +167,7 @@ export default function Button({
             buttonStyles({ variant, size, fullWidth }),
 
             // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            shouldAnimate ? "border-transparent" : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
@@ -200,9 +203,9 @@ export default function Button({
           aria-hidden="true"
           className={twMerge(
             [
-              // Clip the slide to the stroke so it does not paint past the border.
-              "pointer-events-none absolute -inset-[1px] z-0 overflow-hidden",
-              rounded && "rounded-[calc(var(--radius)+1px)]",
+              // Clip the slide inside the 3px stroke, including the rounded corners.
+              "pointer-events-none absolute inset-0 z-0 overflow-hidden",
+              rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
             ]
               .filter(Boolean)
               .join(" "),
@@ -211,7 +214,7 @@ export default function Button({
           <span
             className={twMerge(
               fillStyles({ variant }),
-              rounded && "rounded-[calc(var(--radius)+2px)]",
+              rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
               fillClassName,
             )}
           />

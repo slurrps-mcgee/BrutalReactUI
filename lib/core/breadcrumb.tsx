@@ -38,6 +38,8 @@ const BreadcrumbContext = createContext<BreadcrumbStyleProps>({
 export type BreadcrumbProps = HTMLAttributes<HTMLElement> &
   BreadcrumbStyleProps & {
     label?: string;
+    rounded?: boolean;
+    disabled?: boolean;
   };
 
 export default function Breadcrumb({
@@ -45,13 +47,21 @@ export default function Breadcrumb({
   variant,
   size,
   label = "Breadcrumb",
+  rounded = false,
+  disabled = false,
   ...props
 }: BreadcrumbProps) {
   return (
     <BreadcrumbContext.Provider value={{ variant, size }}>
       <nav
         aria-label={label}
-        className={twMerge(breadcrumbStyles({ variant, size }), className)}
+        aria-disabled={disabled || undefined}
+        className={twMerge(
+          breadcrumbStyles({ variant, size }),
+          rounded && "rounded-[var(--radius)]",
+          disabled && "pointer-events-none opacity-70",
+          className,
+        )}
         {...props}
       />
     </BreadcrumbContext.Provider>
@@ -87,7 +97,7 @@ const linkStyles = cva(
   [
     "inline-flex items-center border-b-2 border-current",
     "transition-colors duration-200",
-    "hover:text-main focus-visible:outline-none focus-visible:ring-2",
+    "focus-visible:outline-none focus-visible:ring-2",
     "focus-visible:ring-ring focus-visible:ring-offset-2",
     "aria-disabled:pointer-events-none aria-disabled:border-transparent",
     "aria-disabled:text-disabled-foreground",
@@ -109,12 +119,14 @@ const linkStyles = cva(
 export type BreadcrumbLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   active?: boolean;
   disabled?: boolean;
+  border?: boolean;
 };
 
 export function BreadcrumbLink({
   href,
   active = false,
   disabled = false,
+  border = true,
   className,
   children,
   ...props
@@ -129,6 +141,10 @@ export function BreadcrumbLink({
       className={twMerge(
         breadcrumbStyles({ variant, size }),
         linkStyles({ active }),
+        variant === "primary" &&
+          "hover:text-chart-2 focus-visible:text-chart-2",
+        variant !== "primary" && "hover:text-main focus-visible:text-main",
+        !border && "border-none",
         className,
       )}
       {...props}

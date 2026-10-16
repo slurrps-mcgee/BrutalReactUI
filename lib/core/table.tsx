@@ -14,27 +14,33 @@ import {
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
-const tableStyles = cva("w-full border-collapse font-mono text-foreground", {
-  variants: {
-    variant: {
-      primary:
-        "[--table-head:var(--main)] [--table-head-fg:var(--main-foreground)] [--table-stripe:var(--secondary-background)]",
-      secondary:
-        "[--table-head:var(--chart-2)] [--table-head-fg:var(--main-foreground)] [--table-stripe:var(--secondary-background)]",
-      outline:
-        "[--table-head:var(--surface)] [--table-head-fg:var(--surface-foreground)] [--table-stripe:var(--secondary-background)]",
+const tableStyles = cva(
+  [
+    // Layout and typography. The frame, not this element, draws the outer stroke.
+    "w-full border-collapse font-mono text-foreground",
+  ].join(" "),
+  {
+    variants: {
+      variant: {
+        primary:
+          "[--table-head:var(--main)] [--table-head-fg:var(--main-foreground)] [--table-stripe:color-mix(in_oklch,var(--foreground)_12%,var(--secondary-background))]",
+        secondary:
+          "[--table-head:var(--chart-2)] [--table-head-fg:var(--main-foreground)] [--table-stripe:color-mix(in_oklch,var(--foreground)_12%,var(--secondary-background))]",
+        outline:
+          "[--table-head:var(--surface)] [--table-head-fg:var(--surface-foreground)] [--table-stripe:color-mix(in_oklch,var(--foreground)_12%,var(--secondary-background))]",
+      },
+      size: {
+        sm: "text-xs",
+        md: "text-sm",
+        lg: "text-base",
+      },
     },
-    size: {
-      sm: "text-xs",
-      md: "text-sm",
-      lg: "text-base",
+    defaultVariants: {
+      variant: "outline",
+      size: "md",
     },
   },
-  defaultVariants: {
-    variant: "outline",
-    size: "md",
-  },
-});
+);
 
 type TableStyleProps = VariantProps<typeof tableStyles>;
 type TableOptions = {
@@ -80,10 +86,9 @@ export default function Table({
       value={{ bordered, striped, hoverable, compact, stickyHeader, size }}
     >
       <table
+        data-bordered={bordered ? "" : undefined}
         className={twMerge(
-          tableStyles({ variant, size }),
-          bordered && "border-[3px] border-border",
-          className,
+          [tableStyles({ variant, size }), className].filter(Boolean).join(" "),
         )}
         {...props}
       />
@@ -94,7 +99,9 @@ export default function Table({
 export type TableResponsiveProps = HTMLAttributes<HTMLDivElement> & {
   rounded?: boolean;
   shadow?: boolean;
+  border?: boolean;
   animate?: AnimationTrigger;
+  disabled?: boolean;
   wrapperClassName?: string;
   faceClassName?: string;
 };
@@ -103,49 +110,93 @@ export function TableResponsive({
   className,
   rounded = false,
   shadow = true,
+  border = true,
   animate = false,
+  disabled = false,
   wrapperClassName,
   faceClassName,
   children,
   ...props
 }: TableResponsiveProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   return (
     <div
       ref={ref}
       className={twMerge(
-        "brutal-table-wrapper group/table-wrapper relative isolate w-full",
-        shadow && "shadow-[var(--shadow)]",
-        rounded && "rounded-[var(--radius)]",
-        shouldAnimate && "animate-brutal-pop",
+        [
+          // Layout and stacking. No overflow, so the shadow is not a scrollport.
+          "brutal-table-wrapper group/table-wrapper relative isolate w-full",
+
+          // Shadow
+          showShadow && "shadow-[var(--shadow)]",
+          disabled && "pointer-events-none opacity-70",
+          rounded && "rounded-[var(--radius)]",
+
+          // Animation
+          shouldAnimate && "animate-brutal-pop",
+        ]
+          .filter(Boolean)
+          .join(" "),
         wrapperClassName,
       )}
       data-pop-direction="out"
     >
       <div
-        tabIndex={0}
-        role="region"
-        aria-label="Scrollable table"
         className={twMerge(
-          "relative w-full overflow-x-auto border-[3px]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          "focus-visible:ring-offset-2",
-          shouldAnimate ? "border-none brutal-pop-face" : "border-border",
-          rounded && "rounded-[var(--radius)]",
-          faceClassName,
-          className,
+          [
+            // Layout and border. The stroke stays on this face.
+            // A bordered table already draws that grid, so the frame does not add a second stroke.
+            "relative w-full border-[3px]",
+            "has-[table[data-bordered]]:!border-0",
+
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+            rounded && "rounded-[var(--radius)]",
+            rounded && !shouldAnimate && "overflow-hidden",
+            faceClassName,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
-        {...props}
       >
-        {shouldAnimate && (
+        {/* Border */}
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}
             className="z-10"
           />
         )}
-        {children}
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Scrollable table"
+          className={twMerge(
+            [
+              // Scroll. Horizontal only, and only when the table is wider than the frame.
+              "w-full overflow-x-auto overflow-y-hidden",
+
+              // Keyboard focus
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:ring-offset-2",
+              className,
+            ]
+              .filter(Boolean)
+              .join(" "),
+          )}
+          {...props}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -159,9 +210,14 @@ export function TableHeader({
   return (
     <thead
       className={twMerge(
-        "bg-[var(--table-head)] text-[var(--table-head-fg)]",
-        stickyHeader && "sticky top-0 z-20",
-        className,
+        [
+          // Fill and stacking
+          "bg-[var(--table-head)] text-[var(--table-head-fg)]",
+          stickyHeader && "sticky top-0 z-20",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     />
@@ -176,8 +232,14 @@ export function TableBody({
   return (
     <tbody
       className={twMerge(
-        striped && "[&_tr:nth-child(even)]:bg-[var(--table-stripe)]",
-        className,
+        [
+          // Odd rows stay on the secondary surface. Even rows take a darker mix.
+          "bg-secondary-background",
+          striped && "[&_tr:nth-child(even)>*]:bg-[var(--table-stripe)]",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     />
@@ -191,8 +253,13 @@ export function TableFooter({
   return (
     <tfoot
       className={twMerge(
-        "border-t-[3px] border-border bg-secondary-background font-bold",
-        className,
+        [
+          // Fill and type. Row rules already close the body above this.
+          "bg-secondary-background font-bold",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     />
@@ -203,14 +270,21 @@ export function TableRow({
   className,
   ...props
 }: HTMLAttributes<HTMLTableRowElement>) {
-  const { hoverable } = useContext(TableContext);
+  const { bordered, hoverable } = useContext(TableContext);
   return (
     <tr
       className={twMerge(
-        "border-b-[3px] border-border last:border-b-0",
-        "transition-colors duration-150 motion-reduce:transition-none",
-        hoverable && "hover:bg-main/20",
-        className,
+        [
+          // Every row keeps a bottom rule, including the last.
+          !bordered && "border-b-[3px] border-border",
+
+          // Interaction and reduced motion
+          "transition-colors duration-150 motion-reduce:transition-none",
+          hoverable && "hover:bg-main/20",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     />
@@ -232,10 +306,17 @@ export function TableHead({
   return (
     <th
       className={twMerge(
-        "text-left font-bold uppercase tracking-wide",
-        bordered && "border-[3px] border-border",
-        cellPadding(size, compact),
-        className,
+        [
+          // Typography
+          "text-left font-bold uppercase tracking-wide",
+
+          // Full grid. Collapse shares each edge, so every row and column is ruled.
+          bordered && "border-[3px] border-border",
+          cellPadding(size, compact),
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     />
@@ -250,9 +331,14 @@ export function TableCell({
   return (
     <td
       className={twMerge(
-        bordered && "border-[3px] border-border",
-        cellPadding(size, compact),
-        className,
+        [
+          // Full grid. Collapse shares each edge, so every row and column is ruled.
+          bordered && "border-[3px] border-border",
+          cellPadding(size, compact),
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     />
@@ -263,11 +349,19 @@ export function TableCaption({
   className,
   ...props
 }: HTMLAttributes<HTMLTableCaptionElement>) {
+  const { bordered } = useContext(TableContext);
   return (
     <caption
       className={twMerge(
-        "caption-bottom px-4 py-3 text-left text-sm text-foreground/70",
-        className,
+        [
+          // Layout and typography. Side and bottom rules continue the cell grid.
+          // The row above already supplies the top rule.
+          "caption-bottom bg-secondary-background px-4 py-3 text-left text-sm text-foreground",
+          bordered && "border-x-[3px] border-b-[3px] border-border",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     />

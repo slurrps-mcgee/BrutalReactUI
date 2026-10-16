@@ -16,10 +16,7 @@ const cardStyles = cva(
     // Border and typography. Color matches the drawn stroke.
     "border-[3px] bg-secondary-background text-foreground",
 
-    // Press interaction
-    "transition-transform duration-150",
-    "hover:translate-x-[var(--shadow-offset-x)]",
-    "hover:translate-y-[var(--shadow-offset-y)]",
+    // Press interaction is added only while the shadow is on.
 
     // Disabled state and reduced motion
     "motion-reduce:transition-none",
@@ -65,6 +62,9 @@ export type CardProps = HTMLAttributes<HTMLElement> &
   VariantProps<typeof cardStyles> & {
     animate?: AnimationTrigger;
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
     children?: ReactNode;
@@ -78,12 +78,16 @@ export default function Card({
   size,
   animate = false,
   rounded = false,
+  shadow = true,
+  border = true,
+  disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   ...props
 }: CardProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   // Wrapper classes
   const wrapperClassName = twMerge(
@@ -91,8 +95,8 @@ export default function Card({
       // Layout and stacking
       "relative isolate h-full w-full",
 
-      // Shadow
-      "shadow-[var(--shadow)]",
+      // Shadow. A pop needs the offset, so animation turns it on.
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -111,22 +115,32 @@ export default function Card({
           [
             cardStyles({ variant, size }),
 
-            // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
+
+            // Press into the shadow. A flat card stays put.
+            shadow &&
+              "transition-transform duration-150 hover:translate-x-[var(--shadow-offset-x)] hover:translate-y-[var(--shadow-offset-y)] motion-reduce:transition-none",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
             rounded && "rounded-[var(--radius)]",
+            disabled && "pointer-events-none opacity-70",
             faceClassName,
             className,
           ]
             .filter(Boolean)
             .join(" "),
         )}
+        aria-disabled={disabled || undefined}
         {...props}
       >
         {/* Border */}
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}

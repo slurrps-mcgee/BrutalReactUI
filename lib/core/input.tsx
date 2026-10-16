@@ -9,12 +9,7 @@ const inputStyles = cva(
     // Layout and stacking
     "relative z-10 w-full border-[3px] border-border font-mono",
 
-    // The field sits on the shadow plate, then lifts off on focus.
-    "transition-transform duration-150",
-    "translate-x-[var(--shadow-offset-x)]",
-    "translate-y-[var(--shadow-offset-y)]",
-    "focus:translate-x-0",
-    "focus:translate-y-0",
+    // Focus ring. The offset lift is added only while the shadow plate is on.
     "focus:z-20 focus-visible:outline-none",
 
     // Disabled state
@@ -71,6 +66,7 @@ export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> &
     wrapperClassName?: string;
     faceClassName?: string;
     rounded?: boolean;
+    shadow?: boolean;
     valid?: boolean;
     invalid?: boolean;
   };
@@ -83,6 +79,7 @@ export default function Input({
   variant,
   size,
   rounded = false,
+  shadow = true,
   valid: validProp,
   invalid: invalidProp,
   id: idProp,
@@ -108,24 +105,30 @@ export default function Input({
   return (
     <div className={wrapperClassName}>
       <div className="relative isolate w-full">
-        <div
-          aria-hidden="true"
-          className={twMerge(
-            [
-              // Offset plate. The field covers it at rest and lifts off on focus.
-              "pointer-events-none absolute inset-0 z-0 bg-[var(--shadow-color)]",
-              "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-              rounded && "rounded-[var(--radius)]",
-            ]
-              .filter(Boolean)
-              .join(" "),
-          )}
-        />
+        {shadow && (
+          <div
+            aria-hidden="true"
+            className={twMerge(
+              [
+                // Offset plate. The field covers it at rest and lifts off on focus.
+                "pointer-events-none absolute inset-0 z-0 bg-[var(--shadow-color)]",
+                "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
+                rounded && "rounded-[var(--radius)]",
+              ]
+                .filter(Boolean)
+                .join(" "),
+            )}
+          />
+        )}
         <input
           id={idProp ?? field?.controlId}
           className={twMerge(
             inputStyles({ variant, size, validity }),
             rounded && "rounded-[var(--radius)]",
+
+            // Sit on the plate, then lift off on focus. A flat field stays put.
+            shadow &&
+              "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)] transition-transform duration-150 focus:translate-x-0 focus:translate-y-0 motion-reduce:transition-none",
             faceClassName,
             className,
           )}

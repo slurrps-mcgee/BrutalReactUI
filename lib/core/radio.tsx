@@ -9,8 +9,6 @@ const radioStyles = cva(
     "relative isolate inline-flex shrink-0 items-center justify-center rounded-full border-[3px] border-border",
     "bg-secondary-background text-foreground",
     "transition-[transform,box-shadow] duration-150 ease-out",
-    "peer-checked:-translate-x-px peer-checked:-translate-y-px",
-    "peer-checked:shadow-[3px_3px_0_0_var(--shadow-color)]",
 
     // Focus and disabled state are driven by the native input.
     "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
@@ -39,8 +37,11 @@ export type RadioProps = Omit<
 > &
   VariantProps<typeof radioStyles> & {
     label?: ReactNode;
+    shadow?: boolean;
     wrapperClassName?: string;
     controlClassName?: string;
+    faceClassName?: string;
+    rounded?: boolean;
   };
 
 // Main Radio component
@@ -49,8 +50,11 @@ export default function Radio({
   className,
   size,
   label,
+  shadow = true,
   wrapperClassName,
   controlClassName,
+  faceClassName,
+  rounded = false,
   disabled,
   ...props
 }: RadioProps) {
@@ -77,7 +81,18 @@ export default function Radio({
           disabled={disabled}
           {...props}
         />
-        <span className={twMerge(radioStyles({ size }), controlClassName)}>
+        <span
+          className={twMerge(
+            radioStyles({ size }),
+
+            // Checked circle steps onto its shadow. Flat stays put.
+            shadow &&
+              "peer-checked:-translate-x-px peer-checked:-translate-y-px peer-checked:shadow-[3px_3px_0_0_var(--shadow-color)]",
+            rounded && "rounded-[var(--radius)]",
+            controlClassName,
+            faceClassName,
+          )}
+        >
           <span
             aria-hidden="true"
             className={[

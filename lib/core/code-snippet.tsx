@@ -61,9 +61,13 @@ export type CodeSnippetProps = HTMLAttributes<HTMLDivElement> &
     copyLabel?: string;
     copiedLabel?: string;
     showLanguage?: boolean;
+    wrap?: boolean;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
+    disabled?: boolean;
     wrapperClassName?: string;
+    faceClassName?: string;
   };
 
 // Main CodeSnippet component
@@ -78,14 +82,19 @@ export default function CodeSnippet({
   copyLabel = "Copy",
   copiedLabel = "Copied",
   showLanguage = true,
+  wrap = false,
   rounded = false,
   shadow = true,
+  border = true,
+  disabled = false,
   wrapperClassName,
+  faceClassName,
   ...props
 }: CodeSnippetProps) {
   const [copied, setCopied] = useState(false);
   const { toast, available: hasToastProvider } = useToast();
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   useEffect(() => {
     if (!copied) return;
@@ -121,7 +130,8 @@ export default function CodeSnippet({
       ref={ref}
       className={twMerge(
         "relative isolate w-full",
-        shadow && "shadow-[var(--shadow)]",
+        showShadow && "shadow-[var(--shadow)]",
+        disabled && "pointer-events-none opacity-70",
         rounded && "rounded-[var(--radius)]",
         shouldAnimate && "animate-brutal-pop",
         wrapperClassName,
@@ -131,16 +141,22 @@ export default function CodeSnippet({
       <div
         className={twMerge(
           codeSnippetStyles({ variant, size }),
-          shouldAnimate ? "brutal-pop-face border-none" : "border-border",
+          shouldAnimate && "brutal-pop-face",
+          !border
+            ? "border-none"
+            : shouldAnimate
+              ? "border-transparent"
+              : "border-border",
           rounded && "rounded-[var(--radius)]",
+          faceClassName,
           className,
         )}
         {...props}
       >
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
-            strokeWidth={4}
+            strokeWidth={3}
             radius={rounded ? "var(--radius)" : undefined}
             className="z-20"
           />
@@ -198,11 +214,18 @@ export default function CodeSnippet({
               tabIndex={0}
               className={twMerge(
                 prismClassName,
-                "m-0 max-w-full cursor-copy overflow-auto bg-secondary-background p-4 text-left text-foreground",
+                "m-0 max-w-full cursor-copy bg-secondary-background p-4 text-left text-foreground",
+                wrap
+                  ? "overflow-x-hidden whitespace-pre-wrap break-words"
+                  : "overflow-auto",
                 "[&_.token]:brightness-90 dark:[&_.token]:brightness-100",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
               )}
-              style={{ ...style, backgroundColor: undefined }}
+              style={{
+                ...style,
+                backgroundColor: undefined,
+                textShadow: "none",
+              }}
               onClick={copyCode}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
@@ -213,23 +236,41 @@ export default function CodeSnippet({
             >
               <code>
                 {tokens.map((line, lineIndex) => {
-                  const { key: _lineKey, ...lineProps } = getLineProps({
+                  const {
+                    key: _lineKey,
+                    style: lineStyle,
+                    ...lineProps
+                  } = getLineProps({
                     line,
                     key: lineIndex,
                   });
                   void _lineKey;
+                  const { textShadow: _lineShadow, ...lineRest } =
+                    lineStyle ?? {};
+                  void _lineShadow;
 
                   return (
-                    <span key={lineIndex} {...lineProps}>
+                    <span key={lineIndex} {...lineProps} style={lineRest}>
                       {line.map((token, tokenIndex) => {
-                        const { key: _tokenKey, ...tokenProps } = getTokenProps(
-                          {
-                            token,
-                            key: tokenIndex,
-                          },
-                        );
+                        const {
+                          key: _tokenKey,
+                          style: tokenStyle,
+                          ...tokenProps
+                        } = getTokenProps({
+                          token,
+                          key: tokenIndex,
+                        });
                         void _tokenKey;
-                        return <span key={tokenIndex} {...tokenProps} />;
+                        const { textShadow: _textShadow, ...tokenRest } =
+                          tokenStyle ?? {};
+                        void _textShadow;
+                        return (
+                          <span
+                            key={tokenIndex}
+                            {...tokenProps}
+                            style={tokenRest}
+                          />
+                        );
                       })}
                       {lineIndex < tokens.length - 1 ? "\n" : null}
                     </span>

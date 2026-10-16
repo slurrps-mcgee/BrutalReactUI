@@ -11,8 +11,8 @@ import {
 // Sidebar styles
 const sidebarStyles = cva(
   [
-    // Layout and stacking
-    "relative z-10 isolate flex max-h-dvh w-full flex-col gap-4 overflow-y-auto",
+    // Layout and stacking. The face does not scroll, so a flyout can leave the rail.
+    "relative z-10 isolate flex h-full min-h-0 w-full flex-col overflow-visible",
 
     // Border and typography
     "border-[3px] font-mono font-bold",
@@ -46,9 +46,9 @@ const sidebarStyles = cva(
       },
       // Padding and type size
       size: {
-        sm: "p-2 text-xs",
-        md: "p-4 text-sm",
-        lg: "p-6 text-base",
+        sm: "p-3 text-xs",
+        md: "p-5 text-sm",
+        lg: "p-8 text-base",
       },
       // Icon rail. Labels hide through NavCollapseProvider.
       collapsed: {
@@ -74,6 +74,7 @@ export type SidebarProps = HTMLAttributes<HTMLElement> &
     animate?: AnimationTrigger;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
     disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -93,6 +94,7 @@ export default function Sidebar({
   animate = false,
   rounded = false,
   shadow = true,
+  border = true,
   disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -107,6 +109,7 @@ export default function Sidebar({
       animate={animate}
       rounded={rounded}
       shadow={shadow}
+      border={border}
       disabled={disabled}
       wrapperClassName={wrapperClassNameProp}
       faceClassName={faceClassName}
@@ -128,6 +131,7 @@ export default function Sidebar({
       size={size}
       rounded={rounded}
       shadow={shadow}
+      border={border}
     >
       <NavCollapseProvider collapsed={false}>{children}</NavCollapseProvider>
     </Offcanvas>
@@ -145,6 +149,7 @@ function SidebarFace({
   animate = false,
   rounded = false,
   shadow = true,
+  border = true,
   disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -152,19 +157,21 @@ function SidebarFace({
 }: SidebarFaceProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   // Wrapper classes
   const wrapperClassName = twMerge(
     [
-      // Layout and stacking
-      "relative isolate flex max-h-dvh",
-      collapsed && "z-40",
+      // Layout and stacking. A collapsed rail sits above the page so its flyout shows.
+      "relative isolate flex h-full max-h-dvh",
+      collapsed && "z-50",
+
       // Width eases between the icon rail and the full column.
       "transition-[width] duration-300 ease-out",
       collapsed ? "w-20" : "w-full",
 
-      // Shadow. Optional so a column can sit flat.
-      shadow && "shadow-[var(--shadow)]",
+      // Shadow. A pop needs the offset, so animation turns it on.
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -182,8 +189,12 @@ function SidebarFace({
           [
             sidebarStyles({ variant, size, collapsed }),
 
-            // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
@@ -198,14 +209,28 @@ function SidebarFace({
         {...props}
       >
         {/* Border */}
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}
             className="z-10"
           />
         )}
-        {children}
+        <div
+          className={twMerge(
+            [
+              // Layout. Scrolls a long column. A collapsed rail stays visible so the flyout is not clipped.
+              "flex min-h-0 w-full flex-1 flex-col gap-4",
+              collapsed
+                ? "items-center overflow-visible"
+                : "overflow-x-hidden overflow-y-auto pe-3",
+            ]
+              .filter(Boolean)
+              .join(" "),
+          )}
+        >
+          {children}
+        </div>
       </aside>
     </div>
   );
@@ -218,6 +243,7 @@ export type OffcanvasProps = HTMLAttributes<HTMLElement> &
     onClose?: () => void;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
     children?: ReactNode;
   };
 
@@ -230,6 +256,7 @@ export function Offcanvas({
   size,
   rounded = false,
   shadow = true,
+  border = true,
   children,
   ...props
 }: OffcanvasProps) {
@@ -246,16 +273,13 @@ export function Offcanvas({
       <aside
         className={twMerge(
           [
-            // Layout and stacking. Sits above the backdrop.
-            "relative flex h-dvh max-h-dvh w-72 flex-col gap-4 overflow-y-auto",
-
             sidebarStyles({ variant, size }),
 
-            // Width stays a panel. The style variant also sets w-full.
-            "w-72",
+            // Layout and stacking. Sits above the backdrop. The face itself does not scroll.
+            "h-dvh max-h-dvh w-72",
 
             // Border and optional shadow
-            "border-border",
+            border ? "border-border" : "border-none",
             shadow && "shadow-[var(--shadow)]",
             rounded && "rounded-[var(--radius)]",
             className,
@@ -265,7 +289,14 @@ export function Offcanvas({
         )}
         {...props}
       >
-        {children}
+        <div
+          className={[
+            // Scroll the panel. The flyout is not used while the panel is expanded.
+            "flex min-h-0 w-full flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pe-3",
+          ].join(" ")}
+        >
+          {children}
+        </div>
       </aside>
     </div>
   );

@@ -1,12 +1,13 @@
 import {
   Button,
-  CodeSnippet,
   Container,
   ToastProvider,
   ToastViewport,
   useToast,
   type ToastPosition,
 } from "../../lib/main";
+import { toastNotes } from "./component-notes";
+import { ComponentNotes, Example } from "./shared";
 
 const positions: ToastPosition[] = [
   "top-left",
@@ -15,27 +16,7 @@ const positions: ToastPosition[] = [
   "bottom-right",
 ];
 
-const toastCode = `<ToastProvider timer={8000}>
-  <SaveButton />
-  <ToastViewport position="bottom-right" />
-</ToastProvider>
-
-function SaveButton() {
-  const { toast, dismiss } = useToast();
-
-  return (
-    <>
-      <Button onClick={() => toast({
-        title: "Saved",
-        description: "Your changes are safe.",
-        variant: "success",
-      })}>
-        Show toast
-      </Button>
-      <Button onClick={() => dismiss()}>Dismiss all</Button>
-    </>
-  );
-}`;
+const variants = ["success", "warning", "danger", "info"] as const;
 
 function PositionDemo({ position }: { position: ToastPosition }) {
   const { toast, dismiss } = useToast();
@@ -67,23 +48,111 @@ function PositionDemo({ position }: { position: ToastPosition }) {
   );
 }
 
+function FlatDemo() {
+  const { toast } = useToast();
+
+  return (
+    <>
+      <Button
+        className="self-start"
+        onClick={() =>
+          toast({
+            title: "Flat",
+            description: "No offset.",
+            shadow: false,
+          })
+        }
+      >
+        Show flat toast
+      </Button>
+      <ToastViewport position="bottom-left" />
+    </>
+  );
+}
+
+function VariantDemo() {
+  const { toast } = useToast();
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      {variants.map((variant) => (
+        <Button
+          key={variant}
+          size="sm"
+          variant="outline"
+          onClick={() =>
+            toast({
+              variant,
+              title: variant,
+              description: `A ${variant} toast.`,
+            })
+          }
+        >
+          {variant}
+        </Button>
+      ))}
+      <ToastViewport position="bottom-right" />
+    </div>
+  );
+}
+
 export default function ToastPage() {
   return (
     <Container title="Toast" fullWidth animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
-        Each demo owns its notification queue. Open several, dismiss one with
-        its close control, or clear a corner with Dismiss all.
+        Toasts report an action that already happened. Each provider owns its
+        own queue.
       </p>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {positions.map((position) => (
-          <ToastProvider key={position} timer={8000}>
-            <PositionDemo position={position} />
-          </ToastProvider>
-        ))}
-      </div>
+      <Example
+        title="Positions"
+        summary="ToastViewport position chooses the corner. Dismiss one toast from its close control, or clear the corner with Dismiss all."
+        code={`<ToastProvider timer={8000}>
+  <Button onClick={() => toast({
+    title: "Saved",
+    description: "Your changes are safe.",
+    variant: "success",
+  })}>
+    Show toast
+  </Button>
+  <Button onClick={() => dismiss()}>Dismiss all</Button>
+  <ToastViewport position="bottom-right" />
+</ToastProvider>`}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          {positions.map((position) => (
+            <ToastProvider key={position} timer={8000}>
+              <PositionDemo position={position} />
+            </ToastProvider>
+          ))}
+        </div>
+      </Example>
 
-      <CodeSnippet code={toastCode} language="tsx" rounded />
+      <Example
+        title="Variants"
+        summary="variant sets the toast color. The timer on the provider dismisses it."
+        code={`toast({
+  variant: "warning",
+  title: "Check",
+  description: "Review this before you continue.",
+})`}
+      >
+        <ToastProvider timer={8000}>
+          <VariantDemo />
+        </ToastProvider>
+      </Example>
+
+      <Example
+        title="Flat"
+        summary="shadow false removes the offset from that toast."
+        code={`toast({ title: "Flat", description: "No offset.", shadow: false })`}
+      >
+        <ToastProvider>
+          <FlatDemo />
+        </ToastProvider>
+      </Example>
+
+      <ComponentNotes {...toastNotes} />
     </Container>
   );
 }

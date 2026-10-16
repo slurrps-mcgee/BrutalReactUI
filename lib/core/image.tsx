@@ -25,6 +25,10 @@ export type ImageProps = HTMLAttributes<HTMLDivElement> & {
   title: string;
   animate?: AnimationTrigger;
   rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  disabled?: boolean;
+  size?: "sm" | "md" | "lg";
   wrapperClassName?: string;
   faceClassName?: string;
 };
@@ -36,12 +40,17 @@ export default function Image({
   className,
   animate = false,
   rounded = false,
+  shadow = true,
+  border = true,
+  disabled = false,
+  size = "md",
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   ...props
 }: ImageProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const failed = failedSrc === image.src;
 
@@ -51,8 +60,8 @@ export default function Image({
       // Layout and stacking
       "relative isolate block w-full",
 
-      // Shadow
-      "shadow-[var(--shadow)]",
+      // Shadow. A pop needs the offset, so animation turns it on.
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -76,12 +85,19 @@ export default function Image({
           [
             imageStyles,
 
-            // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
             rounded && "rounded-[var(--radius)]",
+            size === "sm" && "text-xs",
+            size === "lg" && "text-base",
+            disabled && "pointer-events-none opacity-70",
             faceClassName,
             className,
           ]
@@ -113,7 +129,7 @@ export default function Image({
         />
 
         {/* Border */}
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}

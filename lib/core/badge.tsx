@@ -84,6 +84,8 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof badgeStyles> & {
     animate?: AnimationTrigger;
     rounded?: boolean;
+    border?: boolean;
+    disabled?: boolean;
     faceClassName?: string;
   };
 
@@ -95,6 +97,8 @@ export default function Badge({
   size,
   animate = false,
   rounded = false,
+  border = true,
+  disabled = false,
   faceClassName,
   ...props
 }: BadgeProps) {
@@ -105,13 +109,19 @@ export default function Badge({
   return (
     <span
       ref={ref}
+      aria-disabled={disabled || undefined}
       className={twMerge(
         [
           badgeStyles({ variant, size }),
 
-          // Resting stroke, or none while the SVG draws it.
-          shouldAnimate ? "border-none" : "border-border",
+          // Resting stroke, or none while the SVG draws it. border false drops both.
+          !border
+            ? "border-none"
+            : shouldAnimate
+              ? "border-transparent"
+              : "border-border",
           rounded && "rounded-[var(--radius)]",
+          disabled && "pointer-events-none opacity-70",
           faceClassName,
           className,
         ]
@@ -121,7 +131,7 @@ export default function Badge({
       {...props}
     >
       {/* Border */}
-      {shouldAnimate && (
+      {shouldAnimate && border && (
         <DrawBorder
           animate
           strokeWidth={2}

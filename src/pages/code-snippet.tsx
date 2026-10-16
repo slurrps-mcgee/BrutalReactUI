@@ -1,4 +1,6 @@
 import { CodeSnippet, Container } from "../../lib/main";
+import { codeSnippetNotes } from "./component-notes";
+import { ComponentNotes, Example } from "./shared";
 
 const exactCode = `function WelcomeCard() {
   const greeting = "Hello";
@@ -11,31 +13,63 @@ const exactCode = `function WelcomeCard() {
   );
 }`;
 
-const usageCode = `<CodeSnippet
-  code={source}
-  language="tsx"
-  variant="secondary"
-  showLanguage
-  rounded
-/>`;
-
 export default function CodeSnippetPage() {
   return (
     <Container title="Code Snippet" fullWidth animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
-        Syntax highlighting preserves the source exactly as supplied, and the
-        copy control writes that same string to the clipboard.
+        Code snippets show source with highlighting. The copy control writes the
+        same string that is on the page.
       </p>
 
-      <CodeSnippet
-        code={exactCode}
-        language="tsx"
-        variant="secondary"
-        animate="scroll"
-        rounded
-      />
+      <Example
+        title="TypeScript"
+        summary="language picks the highlighter. Spaces and line breaks stay as written."
+        code={`<CodeSnippet code={source} language="tsx" showLanguage rounded />`}
+      >
+        <CodeSnippet code={exactCode} language="tsx" showLanguage rounded />
+      </Example>
 
-      <CodeSnippet code={usageCode} language="tsx" />
+      <Example
+        title="Variants"
+        summary="secondary and outline change the block face. animate draws the frame on scroll."
+        code={`<CodeSnippet
+  code="const ready = true;"
+  language="ts"
+  variant="secondary"
+  animate="scroll"
+/>
+<CodeSnippet code="const count = 1;" language="ts" variant="info" />`}
+      >
+        <CodeSnippet
+          code="const ready = true;"
+          language="ts"
+          variant="secondary"
+          animate="scroll"
+          showLanguage
+        />
+        <CodeSnippet
+          code="const count = 1;"
+          language="ts"
+          variant="info"
+          showLanguage
+        />
+      </Example>
+
+      <Example
+        title="Wrap and flat"
+        summary="wrap breaks long lines instead of scrolling sideways. shadow false removes the offset."
+        code={`<CodeSnippet code={source} language="tsx" wrap shadow={false} />`}
+      >
+        <CodeSnippet
+          code={exactCode}
+          language="tsx"
+          wrap
+          shadow={false}
+          showLanguage
+        />
+      </Example>
+
+      <ComponentNotes {...codeSnippetNotes} />
     </Container>
   );
 }

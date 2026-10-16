@@ -63,7 +63,9 @@ export type ProgressProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> &
     label?: string;
     showValue?: boolean;
     shadow?: boolean;
+    border?: boolean;
     animate?: AnimationTrigger;
+    disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
     indicatorClassName?: string;
@@ -74,8 +76,10 @@ export default function Progress({
   max = 100,
   label = "Progress",
   showValue = false,
-  shadow = false,
+  shadow = true,
+  border = true,
   animate = false,
+  disabled = false,
   wrapperClassName,
   faceClassName,
   className,
@@ -93,13 +97,15 @@ export default function Progress({
   const percentage =
     safeValue === undefined ? undefined : (safeValue / safeMax) * 100;
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   return (
     <div
       ref={ref}
       className={twMerge(
         "relative isolate w-full",
-        shadow && "shadow-[var(--shadow)]",
+        showShadow && "shadow-[var(--shadow)]",
+        disabled && "pointer-events-none opacity-70",
         rounded && "rounded-[var(--radius)]",
         shouldAnimate && "animate-brutal-pop",
         wrapperClassName,
@@ -117,13 +123,18 @@ export default function Progress({
         }
         className={twMerge(
           progressStyles({ size, rounded }),
-          shouldAnimate ? "border-none brutal-pop-face" : "border-border",
+          shouldAnimate && "brutal-pop-face",
+          !border
+            ? "border-none"
+            : shouldAnimate
+              ? "border-transparent"
+              : "border-border",
           faceClassName,
           className,
         )}
         {...props}
       >
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}

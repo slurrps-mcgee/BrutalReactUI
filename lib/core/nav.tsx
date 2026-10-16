@@ -19,6 +19,9 @@ import { useDismissableLayer } from "../utils/use-dismissable-layer";
 // True while a dropdown sits inside a nav item, so the menu skips its shadow.
 const NavItemContext = createContext(false);
 
+// NavItem rounded has to reach the link fill. The anchor radius alone leaves a square slide.
+const NavRoundedContext = createContext(false);
+
 export function useInNavItem() {
   return useContext(NavItemContext);
 }
@@ -116,15 +119,17 @@ export function NavItem({
 }: NavItemProps) {
   return (
     <NavItemContext.Provider value={true}>
-      <li
-        className={twMerge(
-          "flex flex-col",
-          rounded &&
-            "rounded-[var(--radius)] [&>a]:rounded-[var(--radius)] [&>button]:rounded-[var(--radius)]",
-          className,
-        )}
-        {...props}
-      />
+      <NavRoundedContext.Provider value={rounded}>
+        <li
+          className={twMerge(
+            "flex flex-col",
+            rounded &&
+              "rounded-[var(--radius)] [&>span]:rounded-[var(--radius)] [&_a]:rounded-[var(--radius)] [&>button]:rounded-[var(--radius)]",
+            className,
+          )}
+          {...props}
+        />
+      </NavRoundedContext.Provider>
     </NavItemContext.Provider>
   );
 }
@@ -137,9 +142,6 @@ const navLinkStyles = cva(
 
     // Border and typography
     "border-[3px] border-border font-mono font-bold uppercase tracking-wide",
-
-    // Pop. An active link lifts off the bar.
-    "transition-[translate] duration-200 ease-out",
 
     // Keyboard focus
     "focus-visible:outline-none focus-visible:ring-2",
@@ -235,9 +237,11 @@ function hoverInk(
 function HoverFill({
   variant,
   rounded,
+  fillClassName,
 }: {
   variant: "primary" | "secondary" | "outline" | null | undefined;
   rounded?: boolean;
+  fillClassName?: string;
 }) {
   return (
     <span
@@ -246,7 +250,7 @@ function HoverFill({
         [
           // Start at the inner edge so the fill never covers the 3px stroke.
           "pointer-events-none absolute inset-0 z-0 overflow-hidden",
-          rounded && "rounded-[calc(var(--radius)-3px)]",
+          rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
         ]
           .filter(Boolean)
           .join(" "),
@@ -256,7 +260,8 @@ function HoverFill({
         className={twMerge(
           fillStyles({ variant }),
           "group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100",
-          rounded && "rounded-[calc(var(--radius)-3px)]",
+          fillClassName,
+          rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
         )}
       />
     </span>
@@ -269,7 +274,11 @@ export type NavLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
     active?: boolean;
     disabled?: boolean;
     rounded?: boolean;
+    shadow?: boolean;
     icon?: ReactNode;
+    wrapperClassName?: string;
+    faceClassName?: string;
+    fillClassName?: string;
   };
 
 // Main NavLink component
@@ -278,74 +287,99 @@ export function NavLink({
   active = false,
   disabled = false,
   rounded = false,
+  shadow = true,
   icon,
   className,
   variant,
   size,
+  wrapperClassName,
+  faceClassName,
+  fillClassName,
   children,
   ...props
 }: NavLinkProps) {
   const collapsed = useNavCollapsed();
-  const popped = active && !disabled;
+  const inheritedRounded = useContext(NavRoundedContext);
+  const isRounded = rounded || inheritedRounded;
+  const popped = active && !disabled && shadow;
 
   return (
-    <a
-      href={disabled ? undefined : href}
-      aria-current={active ? "page" : undefined}
-      aria-disabled={disabled || undefined}
+    <span
       className={twMerge(
         [
-          navLinkStyles({ variant, size, active }),
-
-          // Icon rail keeps the mark and hides the words.
-          collapsed ? "justify-center px-2" : "",
-
-          // Lift the current page off the bar so its shadow shows.
-          popped &&
-            "z-20 shadow-[var(--shadow)] [translate:calc(var(--shadow-offset-x)*-1)_calc(var(--shadow-offset-y)*-1)]",
-          rounded && "rounded-[var(--radius)]",
-          className,
+          // Layout. The shadow stays on this box so the face does not move away from it.
+          "relative isolate flex w-full",
+          popped && "z-20 shadow-[var(--shadow)]",
+          isRounded && "rounded-[var(--radius)]",
+          wrapperClassName,
         ]
           .filter(Boolean)
           .join(" "),
       )}
-      {...props}
     >
-      <span
+      <a
+        href={disabled ? undefined : href}
+        aria-current={active ? "page" : undefined}
+        aria-disabled={disabled || undefined}
         className={twMerge(
-          "relative z-10 inline-flex min-w-0 items-center",
-          collapsed ? "gap-0" : "gap-2",
-          hoverInk(variant),
+          [
+            navLinkStyles({ variant, size, active }),
+
+            // Icon rail keeps the mark and hides the words.
+            collapsed ? "justify-center px-2" : "",
+            isRounded && "overflow-hidden rounded-[var(--radius)]",
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
+        {...props}
       >
-        {icon ? (
-          <span aria-hidden="true" className="shrink-0">
-            {icon}
-          </span>
-        ) : (
-          collapsed && (
-            <span aria-hidden="true" className="shrink-0">
-              {typeof children === "string" ? children.slice(0, 1) : null}
-            </span>
-          )
-        )}
         <span
           className={twMerge(
-            [
-              // Label width. Collapsed rails keep the icon and tuck the words away.
-              "grid transition-[grid-template-columns] duration-300 ease-out",
-              collapsed ? "grid-cols-[0fr]" : "grid-cols-[1fr]",
-              "motion-reduce:transition-none",
-            ]
-              .filter(Boolean)
-              .join(" "),
+            "relative z-10 inline-flex min-w-0 items-center",
+            collapsed ? "gap-0" : "gap-2",
+            hoverInk(variant),
           )}
         >
-          <span className="overflow-hidden whitespace-nowrap">{children}</span>
+          {icon ? (
+            <span aria-hidden="true" className="shrink-0">
+              {icon}
+            </span>
+          ) : (
+            collapsed && (
+              <span aria-hidden="true" className="shrink-0">
+                {typeof children === "string" ? children.slice(0, 1) : null}
+              </span>
+            )
+          )}
+          <span
+            className={twMerge(
+              [
+                // Label width. Collapsed rails keep the icon and tuck the words away.
+                "grid transition-[grid-template-columns] duration-300 ease-out",
+                collapsed ? "grid-cols-[0fr]" : "grid-cols-[1fr]",
+                "motion-reduce:transition-none",
+              ]
+                .filter(Boolean)
+                .join(" "),
+            )}
+          >
+            <span className="overflow-hidden whitespace-nowrap">
+              {children}
+            </span>
+          </span>
         </span>
-      </span>
-      {!disabled && <HoverFill variant={variant} rounded={rounded} />}
-    </a>
+        {!disabled && (
+          <HoverFill
+            variant={variant}
+            rounded={isRounded}
+            fillClassName={fillClassName}
+          />
+        )}
+      </a>
+    </span>
   );
 }
 

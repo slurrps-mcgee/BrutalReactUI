@@ -1,38 +1,67 @@
-import { CodeSnippet, Container, Image } from "../../lib/main";
+import { Container, Image } from "../../lib/main";
 import exampleUrl from "../assets/example.png";
+import { imageNotes } from "./component-notes";
+import { ComponentNotes, Example } from "./shared";
+
+const image = { src: exampleUrl, width: 1200, height: 675 };
 
 export default function ImagePage() {
   return (
     <Container title="Image" fullWidth rounded>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="grid gap-2">
-          <span className="font-mono text-sm font-bold uppercase">
-            Animated
-          </span>
-          <Image
-            image={{ src: exampleUrl, width: 1200, height: 675 }}
-            title="Animated library preview"
-            animate="scroll"
-            rounded
-          />
-        </div>
-        <div className="grid gap-2">
-          <span className="font-mono text-sm font-bold uppercase">Static</span>
-          <Image
-            image={{ src: exampleUrl, width: 1200, height: 675 }}
-            title="Static library preview"
-          />
-        </div>
-      </div>
-      <CodeSnippet
-        language="tsx"
+      <p className="max-w-2xl font-sans">
+        Image frames a picture with a caption. The caption is the accessible
+        name, so title should describe the picture.
+      </p>
+
+      <Example
+        title="Animated"
+        summary="animate draws the frame, then pops it. rounded uses the library radius."
         code={`<Image
-  image={{ src: exampleUrl, width: 1200, height: 675 }}
+  image={{ src, width: 1200, height: 675 }}
   title="Library preview"
   animate="scroll"
   rounded
 />`}
-      />
+      >
+        <Image
+          image={image}
+          title="Animated library preview"
+          animate="scroll"
+          rounded
+          wrapperClassName="max-w-xl"
+        />
+      </Example>
+
+      <Example
+        title="Static"
+        summary="Leave animate off for a frame that is already in place."
+        code={`<Image
+  image={{ src, width: 1200, height: 675 }}
+  title="Static library preview"
+/>`}
+      >
+        <Image
+          image={image}
+          title="Static library preview"
+          wrapperClassName="max-w-xl"
+        />
+      </Example>
+
+      <Example
+        title="Sizes and shadow"
+        summary="size changes the caption type. shadow false drops the offset."
+        code={`<Image image={image} title="Small caption" size="sm" />
+<Image image={image} title="Large caption" size="lg" shadow={false} />
+<Image image={image} title="No stroke" border={false} />`}
+      >
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Image image={image} title="Small caption" size="sm" />
+          <Image image={image} title="Large caption" size="lg" shadow={false} />
+          <Image image={image} title="No stroke" border={false} />
+        </div>
+      </Example>
+
+      <ComponentNotes {...imageNotes} />
     </Container>
   );
 }

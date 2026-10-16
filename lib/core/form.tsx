@@ -77,6 +77,8 @@ export type FormProps = Omit<
     animate?: AnimationTrigger;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
+    disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
   };
@@ -90,6 +92,8 @@ export function Form({
   animate = false,
   rounded = false,
   shadow = true,
+  border = true,
+  disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   onSubmit,
@@ -97,6 +101,7 @@ export function Form({
 }: FormProps) {
   const [submitted, setSubmitted] = useState(false);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     setSubmitted(true);
@@ -111,7 +116,7 @@ export function Form({
   const wrapperClassName = twMerge(
     [
       "relative isolate flex w-full",
-      shadow && "shadow-[var(--shadow)]",
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
       shouldAnimate && "animate-brutal-pop",
     ]
@@ -125,17 +130,24 @@ export function Form({
       <div ref={ref} className={wrapperClassName} data-pop-direction="out">
         <form
           noValidate
+          aria-disabled={disabled || undefined}
           className={twMerge(
             formStyles({ variant, size }),
-            shouldAnimate ? "border-none brutal-pop-face" : "border-border",
+            shouldAnimate && "brutal-pop-face",
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
             rounded && "rounded-[var(--radius)]",
+            disabled && "pointer-events-none opacity-70",
             faceClassName,
             className,
           )}
           onSubmit={handleSubmit}
           {...props}
         >
-          {shouldAnimate && (
+          {shouldAnimate && border && (
             <DrawBorder
               animate
               radius={rounded ? "var(--radius)" : undefined}

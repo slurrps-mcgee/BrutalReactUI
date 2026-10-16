@@ -20,6 +20,8 @@ import Collapse, {
 type AccordionContextValue = {
   disabled: boolean;
   flush: boolean;
+  border: boolean;
+  faceClassName?: string;
   isOpen: (value: string) => boolean;
   registerTrigger: (value: string, trigger: HTMLButtonElement | null) => void;
   toggle: (value: string, open: boolean) => void;
@@ -63,6 +65,8 @@ type AccordionBaseProps = Omit<
   disabled?: boolean;
   flush?: boolean;
   rounded?: boolean;
+  border?: boolean;
+  faceClassName?: string;
   children?: ReactNode;
 };
 
@@ -103,6 +107,8 @@ function AccordionRoot(props: AccordionProps) {
     disabled = false,
     flush = true,
     rounded = false,
+    border = true,
+    faceClassName,
     className,
     children,
     ...domProps
@@ -156,6 +162,8 @@ function AccordionRoot(props: AccordionProps) {
   const context: AccordionContextValue = {
     disabled,
     flush,
+    border,
+    faceClassName,
     isOpen: (value) => selected.has(value),
     registerTrigger: (value, trigger) => {
       if (trigger) triggers.current.set(value, trigger);
@@ -187,7 +195,14 @@ function AccordionRoot(props: AccordionProps) {
             // Layout
             "flex w-full flex-col",
             flush ? "gap-0" : "gap-3",
-            rounded && "overflow-hidden rounded-[var(--radius)]",
+            rounded &&
+              [
+                "overflow-hidden rounded-[var(--radius)]",
+                "[&>*:first-child]:overflow-hidden [&>*:first-child]:rounded-t-[var(--radius)]",
+                "[&>*:first-child>button]:rounded-t-[var(--radius)]",
+                "[&>*:last-child]:overflow-hidden [&>*:last-child]:rounded-b-[var(--radius)]",
+                "[&>*:last-child_[role=region]]:rounded-b-[var(--radius)]",
+              ].join(" "),
             className,
           ]
             .filter(Boolean)
@@ -216,6 +231,8 @@ export function AccordionItem({
   value,
   disabled = false,
   className,
+  border,
+  faceClassName,
   children,
   ...props
 }: AccordionItemProps) {
@@ -228,6 +245,8 @@ export function AccordionItem({
       <Collapse
         open={open}
         disabled={isDisabled}
+        border={border ?? accordion.border}
+        faceClassName={twMerge(accordion.faceClassName, faceClassName)}
         onOpenChange={(nextOpen) => accordion.toggle(value, nextOpen)}
         className={twMerge(
           [

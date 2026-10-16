@@ -16,11 +16,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronUp } from "lucide-react";
 import DrawBorder from "../utils/draw-border";
+import { useNavbarStack } from "./navbar";
 
 type DropdownContextValue = {
   open: boolean;
   setOpen: (open: boolean) => void;
   menuId: string;
+  shadow: boolean;
+  border: boolean;
+  rounded: boolean;
 };
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
@@ -36,10 +40,24 @@ function useDropdown() {
 // Dropdown props
 export type DropdownProps = HTMLAttributes<HTMLDivElement> & {
   children?: ReactNode;
+  disabled?: boolean;
+  rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  wrapperClassName?: string;
 };
 
 // Main Dropdown component
-export function Dropdown({ className, children, ...props }: DropdownProps) {
+export function Dropdown({
+  className,
+  children,
+  disabled = false,
+  rounded = false,
+  shadow = true,
+  border = true,
+  wrapperClassName,
+  ...props
+}: DropdownProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -67,8 +85,20 @@ export function Dropdown({ className, children, ...props }: DropdownProps) {
   }, [open]);
 
   return (
-    <DropdownContext.Provider value={{ open, setOpen, menuId }}>
-      <div ref={ref} className={twMerge("relative", className)} {...props}>
+    <DropdownContext.Provider
+      value={{ open, setOpen, menuId, shadow, border, rounded }}
+    >
+      <div
+        ref={ref}
+        aria-disabled={disabled || undefined}
+        className={twMerge(
+          "relative",
+          disabled && "pointer-events-none opacity-70",
+          wrapperClassName,
+          className,
+        )}
+        {...props}
+      >
         {children}
       </div>
     </DropdownContext.Provider>
@@ -147,7 +177,15 @@ export function DropdownToggle({
   type = "button",
   ...props
 }: DropdownToggleProps) {
-  const { open, setOpen, menuId } = useDropdown();
+  const {
+    open,
+    setOpen,
+    menuId,
+    shadow,
+    border,
+    rounded: groupRounded,
+  } = useDropdown();
+  const isRounded = rounded || groupRounded;
 
   return (
     <button
@@ -156,10 +194,14 @@ export function DropdownToggle({
         [
           toggleStyles({ variant, size }),
 
-          // Lift the toggle off the page while its menu is open.
+          // The shadow sits on the toggle so a rounded face rounds the offset.
+          // Open lifts the toggle. Flat stays put.
+          shadow && "shadow-[var(--shadow)]",
           open &&
-            "z-20 shadow-[var(--shadow)] [translate:calc(var(--shadow-offset-x)*-1)_calc(var(--shadow-offset-y)*-1)]",
-          rounded && "rounded-[var(--radius)]",
+            shadow &&
+            "z-20 [translate:calc(var(--shadow-offset-x)*-1)_calc(var(--shadow-offset-y)*-1)]",
+          !border && "border-none",
+          isRounded && "rounded-[var(--radius)]",
           className,
         ]
           .filter(Boolean)
@@ -421,17 +463,26 @@ export type DropdownMenuProps = HTMLAttributes<HTMLDivElement> & {
 export function DropdownMenu({
   className,
   rounded = false,
-  animate = true,
-  border = true,
+  animate = false,
+  border,
   children,
   ...props
 }: DropdownMenuProps) {
-  const { open, menuId } = useDropdown();
+  const { open, menuId, shadow, border: groupBorder } = useDropdown();
+  const showBorder = border ?? groupBorder;
+  const stack = useNavbarStack();
   const { present, phase, onTransitionEnd, onAnimationEnd } = useMenuPresence(
     open,
     animate,
-    animate && border,
+    animate && showBorder,
   );
+
+  // Keep the navbar above later siblings until the menu has finished closing.
+  useEffect(() => {
+    if (!present || !stack) return;
+    stack.raise();
+    return () => stack.release();
+  }, [present, stack]);
 
   if (!present) return null;
 
@@ -445,10 +496,11 @@ export function DropdownMenu({
           "relative z-20 flex min-w-48 flex-col",
 
           // Border. Drawn while animate is on, otherwise a resting stroke.
+          // The width stays while the stroke draws so the menu does not shrink.
           "border-[3px]",
-          border && animate && "border-none",
-          border && !animate && "border-border",
-          !border && "border-none",
+          showBorder && animate && "border-transparent",
+          showBorder && !animate && "border-border",
+          !showBorder && "border-none",
           "bg-[var(--surface)] text-[var(--surface-foreground)]",
           rounded && "rounded-[var(--radius)]",
           className,
@@ -458,7 +510,7 @@ export function DropdownMenu({
       )}
       {...props}
     >
-      {border && animate && (
+      {showBorder && animate && (
         <DrawBorder
           animate
           radius={rounded ? "var(--radius)" : undefined}
@@ -478,7 +530,7 @@ export function DropdownMenu({
 
           // The shadow appears only after the border finishes, so no edge
           // peeks out while the face is sitting in its starting position.
-          phase === "out" && "shadow-[var(--shadow)]",
+          shadow && phase === "out" && "shadow-[var(--shadow)]",
           rounded && "rounded-[var(--radius)]",
         ]
           .filter(Boolean)
@@ -490,11 +542,16 @@ export function DropdownMenu({
         className={twMerge(
           [
             // Pop out of the shadow on open, and back into it on close.
-            animate && "transition-[translate] duration-200 ease-out",
+            // A flat menu stays put.
+            animate && shadow && "transition-[translate] duration-200 ease-out",
             animate &&
+              shadow &&
               phase === "in" &&
               "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-            animate && phase === "out" && "translate-x-0 translate-y-0",
+            animate &&
+              shadow &&
+              phase === "out" &&
+              "translate-x-0 translate-y-0",
 
             // Reduced motion
             "motion-reduce:transition-none",

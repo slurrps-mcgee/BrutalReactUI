@@ -25,6 +25,8 @@ export type FloatingLabelProps = Omit<
   htmlFor?: string;
   children: ReactElement<FloatingControlProps>;
   labelClassName?: string;
+  rounded?: boolean;
+  disabled?: boolean;
 };
 
 // Main FloatingLabel component
@@ -34,6 +36,8 @@ export default function FloatingLabel({
   children,
   className,
   labelClassName,
+  rounded = false,
+  disabled = false,
   ...props
 }: FloatingLabelProps) {
   const generatedId = useId();
@@ -47,20 +51,33 @@ export default function FloatingLabel({
   const control = cloneElement(child, {
     id,
     placeholder: child.props.placeholder ?? " ",
-    className: twMerge("pt-6 pb-2", child.props.className),
+    className: twMerge(
+      [
+        "py-4",
+        "group-focus-within/floating:pt-6 group-focus-within/floating:pb-2",
+        "group-has-[input:not(:placeholder-shown)]/floating:pt-6",
+        "group-has-[input:not(:placeholder-shown)]/floating:pb-2",
+      ].join(" "),
+      child.props.className,
+    ),
   });
 
   return (
     <div
+      aria-disabled={disabled || undefined}
       className={twMerge(
         [
           "group/floating relative w-full",
           "[&:has(input:not(:placeholder-shown))>label]:top-2",
-          "[&:has(input:not(:placeholder-shown))>label]:translate-y-0",
+          "[&:has(input:not(:placeholder-shown))>label]:h-auto",
+          "[&:has(input:not(:placeholder-shown))>label]:items-start",
           "[&:has(input:not(:placeholder-shown))>label]:text-[0.65rem]",
-          "[&:focus-within>label]:top-2 [&:focus-within>label]:translate-y-0",
+          "[&:focus-within>label]:top-2 [&:focus-within>label]:h-auto",
+          "[&:focus-within>label]:items-start",
           "[&:focus-within>label]:text-[0.65rem]",
         ].join(" "),
+        rounded && "rounded-[var(--radius)]",
+        disabled && "pointer-events-none opacity-70",
         className,
       )}
       {...props}
@@ -70,9 +87,9 @@ export default function FloatingLabel({
         htmlFor={id}
         className={twMerge(
           [
-            "pointer-events-none absolute left-4 top-1/2 z-20 -translate-y-1/2",
+            "pointer-events-none absolute inset-x-4 top-0 z-20 flex h-full items-center",
             "font-mono text-sm font-bold uppercase tracking-wide",
-            "transition-[top,transform,font-size] duration-150",
+            "transition-[top,height,font-size] duration-150",
             "motion-reduce:transition-none",
           ].join(" "),
           labelClassName,

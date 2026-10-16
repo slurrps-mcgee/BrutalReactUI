@@ -97,6 +97,7 @@ export type ContainerProps = HTMLAttributes<HTMLElement> &
     title: string;
     animate?: AnimationTrigger;
     shadow?: boolean;
+    border?: boolean;
     rounded?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -116,13 +117,15 @@ export default function Container({
   gap,
   fullWidth,
   animate = false,
-  shadow = false,
+  shadow = true,
+  border = true,
   rounded = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   ...props
 }: ContainerProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   // Wrapper classes
   const wrapperClassName = twMerge(
@@ -134,7 +137,7 @@ export default function Container({
       fullWidth ? "flex w-full" : "inline-flex w-fit",
 
       // Shadow
-      shadow && "shadow-[var(--shadow)]",
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
     ]
       .filter(Boolean)
@@ -158,8 +161,12 @@ export default function Container({
               fullWidth,
             }),
 
-            // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
@@ -173,7 +180,7 @@ export default function Container({
         {...props}
       >
         {/* Border */}
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}

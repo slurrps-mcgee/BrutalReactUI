@@ -35,9 +35,9 @@ const toastStyles = cva(
     // Layout and stacking
     "pointer-events-auto relative isolate flex w-full items-start gap-3",
 
-    // Border, shadow, and typography
-    "border-[3px] border-border p-4 shadow-[var(--shadow)]",
-    "font-mono text-sm",
+    // Border and typography
+    "border-[3px] border-border",
+    "font-mono",
 
     // Reduced motion
     "transition-[opacity,translate,scale] duration-200",
@@ -53,9 +53,16 @@ const toastStyles = cva(
         danger: "bg-danger text-danger-foreground",
         info: "bg-info text-info-foreground",
       },
+      // Padding and type size. md matches the previous face.
+      size: {
+        sm: "p-3 text-xs",
+        md: "p-4 text-sm",
+        lg: "p-5 text-base",
+      },
     },
     defaultVariants: {
       variant: "primary",
+      size: "md",
     },
   },
 );
@@ -84,6 +91,11 @@ export type ToastProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> &
     onOpenChange?: (open: boolean) => void;
     onDismiss?: () => void;
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    disabled?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
   };
 
 // Main Toast component
@@ -102,6 +114,12 @@ export function Toast({
   onOpenChange,
   onDismiss,
   rounded = false,
+  shadow = true,
+  border = true,
+  disabled = false,
+  wrapperClassName,
+  faceClassName,
+  size,
   role,
   ...props
 }: ToastProps) {
@@ -136,8 +154,14 @@ export function Toast({
   return (
     <div
       role={role ?? (variant === "danger" ? "alert" : "status")}
+      aria-disabled={disabled || undefined}
       className={twMerge(
-        toastStyles({ variant }),
+        toastStyles({ variant, size }),
+        shadow && "shadow-[var(--shadow)]",
+        !border && "border-none",
+        disabled && "pointer-events-none opacity-70",
+        wrapperClassName,
+        faceClassName,
         visible
           ? "translate-x-0 scale-100 opacity-100"
           : "translate-x-3 scale-95 opacity-0",

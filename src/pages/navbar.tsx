@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  CodeSnippet,
   Container,
   Dropdown,
   DropdownItem,
@@ -15,6 +14,8 @@ import {
   Toggler,
   type TogglerAnimation,
 } from "../../lib/main";
+import { navbarNotes } from "./component-notes";
+import { ComponentNotes, Example } from "./shared";
 
 const togglerAnimations: TogglerAnimation[] = [
   "normal",
@@ -50,74 +51,138 @@ export default function NavbarPage() {
 
   return (
     <Container title="Navbar" fullWidth>
-      <Navbar variant="primary" animate="scroll" rounded>
-        <NavbarBrand href="#/">Brutal</NavbarBrand>
-        <Toggler
-          expanded={open}
-          controls="navbar-demo"
-          onClick={() => setOpen((value) => !value)}
-          aria-label="Toggle navigation"
-        />
-        <NavbarCollapse id="navbar-demo" open={open}>
+      <p className="max-w-2xl font-sans">
+        A navbar holds a brand, links, and an optional menu. On a narrow screen
+        the toggler opens the collapse.
+      </p>
+
+      <Example
+        title="Collapsible bar"
+        summary="The toggler controls NavbarCollapse. An open dropdown in the bar paints above the content that follows."
+        code={`<Navbar variant="primary" animate="scroll" rounded>
+  <NavbarBrand href="#/">Brutal</NavbarBrand>
+  <Toggler expanded={open} controls="navbar-demo" onClick={() => setOpen(!open)} />
+  <NavbarCollapse id="navbar-demo" open={open}>
+    <Nav>
+      <NavItem>
+        <NavLink href="#/navbar" active>Active</NavLink>
+      </NavItem>
+      <NavItem>
+        <Dropdown>
+          <DropdownToggle>More</DropdownToggle>
+          <DropdownMenu>
+            <DropdownItem href="#/cards">Cards</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </NavItem>
+    </Nav>
+  </NavbarCollapse>
+</Navbar>`}
+      >
+        <Navbar variant="primary" animate="scroll" rounded>
+          <NavbarBrand href="#/">Brutal</NavbarBrand>
+          <Toggler
+            expanded={open}
+            controls="navbar-demo"
+            onClick={() => setOpen((value) => !value)}
+            aria-label="Toggle navigation"
+          />
+          <NavbarCollapse id="navbar-demo" open={open}>
+            <Nav>
+              <NavItem>
+                <NavLink href="#/navbar" active>
+                  Active
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="#/buttons">Buttons</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="#/badges" disabled>
+                  Disabled
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <Dropdown>
+                  <DropdownToggle>More</DropdownToggle>
+                  <DropdownMenu>
+                    <DropdownItem href="#/cards">Cards</DropdownItem>
+                    <DropdownItem href="#/links">Links</DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </NavItem>
+            </Nav>
+          </NavbarCollapse>
+        </Navbar>
+      </Example>
+
+      <Example
+        title="Static bar"
+        summary="Leave the toggler off when the links always fit. rounded on a nav item rounds that link."
+        code={`<Navbar variant="secondary">
+  <NavbarBrand href="#/">Static navbar</NavbarBrand>
+  <Nav>
+    <NavItem rounded>
+      <NavLink href="#/navbar" active>Active</NavLink>
+    </NavItem>
+    <NavItem rounded>
+      <NavLink href="#/buttons">Buttons</NavLink>
+    </NavItem>
+  </Nav>
+</Navbar>`}
+      >
+        <Navbar variant="secondary">
+          <NavbarBrand href="#/">Static navbar</NavbarBrand>
           <Nav>
-            <NavItem>
+            <NavItem rounded>
               <NavLink href="#/navbar" active>
                 Active
               </NavLink>
             </NavItem>
-            <NavItem>
+            <NavItem rounded>
               <NavLink href="#/buttons">Buttons</NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink href="#/badges" disabled>
-                Disabled
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <Dropdown>
-                <DropdownToggle>More</DropdownToggle>
-                <DropdownMenu>
-                  <DropdownItem href="#/cards">Cards</DropdownItem>
-                  <DropdownItem href="#/links">Links</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </NavItem>
           </Nav>
-        </NavbarCollapse>
-      </Navbar>
-      <Navbar variant="secondary">
-        <NavbarBrand href="#/">Static navbar</NavbarBrand>
-        <Nav>
-          <NavItem rounded>
-            <NavLink href="#/navbar" active>
-              Active
-            </NavLink>
-          </NavItem>
-          <NavItem rounded>
-            <NavLink href="#/buttons">Buttons</NavLink>
-          </NavItem>
-        </Nav>
-      </Navbar>
-      <section className="flex flex-col gap-4">
-        <h3 className="font-display text-xl font-bold">Toggler animations</h3>
+        </Navbar>
+      </Example>
+
+      <Example
+        title="Toggler animations"
+        summary="iconAnimation changes how the icon moves when the toggler opens."
+        code={`<Toggler expanded={expanded} iconAnimation="spin" onClick={() => setExpanded(!expanded)} />`}
+      >
         <div className="flex flex-wrap gap-6">
           {togglerAnimations.map((animation) => (
             <AnimatedToggler key={animation} animation={animation} />
           ))}
         </div>
-      </section>
-      <CodeSnippet
-        language="tsx"
-        code={`<Navbar variant="primary" animate="scroll" rounded>
-  <NavbarBrand href="#/">Brutal</NavbarBrand>
-  <Toggler expanded={open} controls="navbar-demo" />
-  <NavbarCollapse id="navbar-demo" open={open}>
-    <Nav>
-      <NavItem><NavLink href="#/navbar" active>Active</NavLink></NavItem>
-    </Nav>
-  </NavbarCollapse>
+      </Example>
+
+      <Example
+        title="Flat bar"
+        summary="shadow false removes the offset. The menu shows a normal border unless that menu passes animate."
+        code={`<Navbar shadow={false}>
+  <NavbarBrand href="#/">Flat</NavbarBrand>
+  <Dropdown>
+    <DropdownToggle>More</DropdownToggle>
+    <DropdownMenu>
+      <DropdownItem href="#/buttons">Buttons</DropdownItem>
+    </DropdownMenu>
+  </Dropdown>
 </Navbar>`}
-      />
+      >
+        <Navbar shadow={false}>
+          <NavbarBrand href="#/">Flat</NavbarBrand>
+          <Dropdown>
+            <DropdownToggle>More</DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem href="#/buttons">Buttons</DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </Navbar>
+      </Example>
+
+      <ComponentNotes {...navbarNotes} />
     </Container>
   );
 }

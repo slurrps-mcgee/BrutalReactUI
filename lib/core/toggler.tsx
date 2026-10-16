@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { useInNavbar } from "./navbar";
+import { useInNavbar, useNavbarRounded } from "./navbar";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -79,6 +79,8 @@ export type TogglerProps = ButtonHTMLAttributes<HTMLButtonElement> &
     iconAnimation?: TogglerAnimation;
     animate?: AnimationTrigger;
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
   };
@@ -93,6 +95,8 @@ export default function Toggler({
   size,
   animate = false,
   rounded = false,
+  shadow = true,
+  border = true,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   type = "button",
@@ -100,7 +104,10 @@ export default function Toggler({
 }: TogglerProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
   const inNavbar = useInNavbar();
+  const navbarRounded = useNavbarRounded();
+  const isRounded = rounded || navbarRounded;
 
   // Wrapper classes
   const wrapperClassName = twMerge(
@@ -109,9 +116,9 @@ export default function Toggler({
       "relative isolate inline-flex w-fit",
       inNavbar && "lg:hidden",
 
-      // Shadow
-      "shadow-[var(--shadow)]",
-      rounded && "rounded-[var(--radius)]",
+      // Shadow. A pop needs the offset, so animation turns it on.
+      showShadow && "shadow-[var(--shadow)]",
+      isRounded && "rounded-[var(--radius)]",
 
       // Animation
       shouldAnimate && "animate-brutal-pop",
@@ -130,12 +137,16 @@ export default function Toggler({
           [
             togglerStyles({ variant, size }),
 
-            // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
+            isRounded && "rounded-[var(--radius)]",
             faceClassName,
             className,
           ]
@@ -148,10 +159,10 @@ export default function Toggler({
         {...props}
       >
         {/* Border */}
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
-            radius={rounded ? "var(--radius)" : undefined}
+            radius={isRounded ? "var(--radius)" : undefined}
             className="z-10"
           />
         )}

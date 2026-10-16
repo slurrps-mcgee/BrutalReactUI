@@ -48,6 +48,8 @@ export type CollapseProps = HTMLAttributes<HTMLDivElement> & {
   defaultOpen?: boolean;
   disabled?: boolean;
   rounded?: boolean;
+  border?: boolean;
+  faceClassName?: string;
   duration?: number;
   onOpenChange?: (open: boolean) => void;
   onOpenStart?: () => void;
@@ -63,6 +65,8 @@ export default function Collapse({
   defaultOpen = false,
   disabled = false,
   rounded = false,
+  border = true,
+  faceClassName,
   duration = 300,
   onOpenChange,
   onOpenStart,
@@ -126,9 +130,11 @@ export default function Collapse({
         className={twMerge(
           [
             // Layout and surface
-            "w-full border-[3px] border-border",
+            "w-full border-[3px]",
+            border ? "border-border" : "border-none",
             "bg-[var(--surface)] text-[var(--surface-foreground)]",
             rounded && "overflow-hidden rounded-[var(--radius)]",
+            faceClassName,
 
             // Disabled state
             disabled && "opacity-60",

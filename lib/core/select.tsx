@@ -1,5 +1,7 @@
 import {
+  Children,
   createContext,
+  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -105,10 +107,41 @@ export type SelectProps = Omit<
     placeholder?: ReactNode;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
     triggerClassName?: string;
     menuClassName?: string;
     children?: ReactNode;
   };
+
+function optionLabel(children: ReactNode, value: string, textValue?: string) {
+  if (textValue) return textValue;
+  if (typeof children === "string" || typeof children === "number") {
+    return String(children);
+  }
+  return value;
+}
+
+// Labels stay available after the menu unmounts its options.
+function optionsFromChildren(children: ReactNode) {
+  const found: { value: string; label: string }[] = [];
+  Children.forEach(children, (child) => {
+    if (
+      !isValidElement<SelectOptionProps>(child) ||
+      child.type !== SelectOption
+    ) {
+      return;
+    }
+    const { value, textValue, children: labelNode } = child.props;
+    if (typeof value !== "string") return;
+    found.push({
+      value,
+      label: optionLabel(labelNode, value, textValue),
+    });
+  });
+  return found;
+}
 
 // Main Select component
 export function Select({
@@ -127,6 +160,9 @@ export function Select({
   placeholder = "Select an option",
   rounded = false,
   shadow = true,
+  border = true,
+  wrapperClassName,
+  faceClassName,
   variant,
   size,
   triggerClassName,
@@ -179,7 +215,10 @@ export function Select({
       : 1;
   });
   const enabledOptions = orderedOptions.filter((option) => !option.disabled);
-  const selected = orderedOptions.find((option) => option.value === value);
+  const declared = optionsFromChildren(children);
+  const selected =
+    orderedOptions.find((option) => option.value === value) ??
+    declared.find((option) => option.value === value);
   const effectiveActiveValue = enabledOptions.some(
     (option) => option.value === activeValue,
   )
@@ -317,6 +356,7 @@ export function Select({
         className={twMerge(
           "relative h-fit w-full self-start",
           validity === "invalid" && "[--shadow-color:var(--danger)]",
+          wrapperClassName,
           className,
         )}
         {...props}
@@ -337,11 +377,13 @@ export function Select({
             role="combobox"
             className={twMerge(
               selectStyles({ variant, size, validity }),
+              !border && "border-none",
               shadow && open && "shadow-[var(--shadow)]",
               rounded &&
                 (menuPresent
                   ? "rounded-t-[var(--radius)] rounded-b-none"
                   : "rounded-[var(--radius)]"),
+              faceClassName,
               triggerClassName,
             )}
             aria-controls={listboxId}
@@ -376,12 +418,15 @@ export function Select({
             aria-labelledby={triggerId}
             className={twMerge(
               [
-                "absolute left-0 top-full z-30 -mt-[3px] max-h-64 w-full overflow-auto border-[3px] border-border",
+                "absolute left-0 top-full z-30 -mt-[3px] max-h-64 w-full overflow-auto border-[3px]",
+                border ? "border-border" : "border-none",
                 "bg-[var(--surface)] text-[var(--surface-foreground)]",
                 "transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none",
                 menuVisible
                   ? "translate-x-0 translate-y-0 opacity-100"
-                  : "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)] opacity-0",
+                  : shadow
+                    ? "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)] opacity-0"
+                    : "opacity-0",
                 shadow && menuVisible && "shadow-[var(--shadow)]",
                 rounded && "rounded-b-[var(--radius)] rounded-t-none",
               ]

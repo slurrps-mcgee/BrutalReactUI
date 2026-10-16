@@ -39,6 +39,8 @@ const PaginationContext = createContext<PaginationStyleProps>({
 export type PaginationProps = HTMLAttributes<HTMLElement> &
   PaginationStyleProps & {
     label?: string;
+    rounded?: boolean;
+    disabled?: boolean;
   };
 
 export default function Pagination({
@@ -46,13 +48,21 @@ export default function Pagination({
   variant,
   size,
   label = "Pagination",
+  rounded = false,
+  disabled = false,
   ...props
 }: PaginationProps) {
   return (
     <PaginationContext.Provider value={{ variant, size }}>
       <nav
         aria-label={label}
-        className={twMerge(paginationStyles({ variant, size }), className)}
+        aria-disabled={disabled || undefined}
+        className={twMerge(
+          paginationStyles({ variant, size }),
+          rounded && "rounded-[var(--radius)]",
+          disabled && "pointer-events-none opacity-70",
+          className,
+        )}
         {...props}
       />
     </PaginationContext.Provider>
@@ -112,6 +122,10 @@ export type PaginationLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   active?: boolean;
   disabled?: boolean;
   rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  wrapperClassName?: string;
+  faceClassName?: string;
 };
 
 export function PaginationLink({
@@ -119,11 +133,15 @@ export function PaginationLink({
   active = false,
   disabled = false,
   rounded = false,
+  shadow = true,
+  border = true,
+  wrapperClassName,
+  faceClassName,
   className,
   ...props
 }: PaginationLinkProps) {
   const { variant, size } = useContext(PaginationContext);
-  return (
+  const face = (
     <a
       href={disabled ? undefined : href}
       aria-current={active ? "page" : undefined}
@@ -131,11 +149,28 @@ export function PaginationLink({
       className={twMerge(
         paginationStyles({ variant, size }),
         pageLinkStyles({ active }),
+        !border && "border-none",
         rounded && "rounded-[var(--radius)]",
+        faceClassName,
         className,
       )}
       {...props}
     />
+  );
+
+  if (!shadow && !wrapperClassName) return face;
+
+  return (
+    <span
+      className={twMerge(
+        "relative isolate inline-flex",
+        shadow && !disabled && "shadow-[var(--shadow)]",
+        rounded && "rounded-[var(--radius)]",
+        wrapperClassName,
+      )}
+    >
+      {face}
+    </span>
   );
 }
 
@@ -152,10 +187,14 @@ export function PaginationPrevious({
   disabled = false,
   active = false,
   rounded = false,
+  shadow = true,
+  border = true,
+  wrapperClassName,
+  faceClassName,
   ...props
 }: PaginationDirectionProps) {
   const { variant, size } = useContext(PaginationContext);
-  return (
+  const face = (
     <a
       href={disabled ? undefined : href}
       aria-label={label}
@@ -164,7 +203,9 @@ export function PaginationPrevious({
       className={twMerge(
         paginationStyles({ variant, size }),
         pageLinkStyles({ active, wide: true }),
+        !border && "border-none",
         rounded && "rounded-[var(--radius)]",
+        faceClassName,
         className,
       )}
       {...props}
@@ -172,6 +213,21 @@ export function PaginationPrevious({
       <ChevronLeft aria-hidden="true" className="size-4" />
       {children ?? "Previous"}
     </a>
+  );
+
+  if (!shadow && !wrapperClassName) return face;
+
+  return (
+    <span
+      className={twMerge(
+        "relative isolate inline-flex",
+        shadow && !disabled && "shadow-[var(--shadow)]",
+        rounded && "rounded-[var(--radius)]",
+        wrapperClassName,
+      )}
+    >
+      {face}
+    </span>
   );
 }
 
@@ -183,10 +239,14 @@ export function PaginationNext({
   disabled = false,
   active = false,
   rounded = false,
+  shadow = true,
+  border = true,
+  wrapperClassName,
+  faceClassName,
   ...props
 }: PaginationDirectionProps) {
   const { variant, size } = useContext(PaginationContext);
-  return (
+  const face = (
     <a
       href={disabled ? undefined : href}
       aria-label={label}
@@ -195,7 +255,9 @@ export function PaginationNext({
       className={twMerge(
         paginationStyles({ variant, size }),
         pageLinkStyles({ active, wide: true }),
+        !border && "border-none",
         rounded && "rounded-[var(--radius)]",
+        faceClassName,
         className,
       )}
       {...props}
@@ -203,6 +265,21 @@ export function PaginationNext({
       {children ?? "Next"}
       <ChevronRight aria-hidden="true" className="size-4" />
     </a>
+  );
+
+  if (!shadow && !wrapperClassName) return face;
+
+  return (
+    <span
+      className={twMerge(
+        "relative isolate inline-flex",
+        shadow && !disabled && "shadow-[var(--shadow)]",
+        rounded && "rounded-[var(--radius)]",
+        wrapperClassName,
+      )}
+    >
+      {face}
+    </span>
   );
 }
 

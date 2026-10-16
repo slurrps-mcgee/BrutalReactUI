@@ -17,6 +17,7 @@ import { createPortal } from "react-dom";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { X } from "lucide-react";
+import Button from "./button";
 import DrawBorder from "../utils/draw-border";
 import { useControllableState } from "../utils/use-controllable-state";
 import { useOverlay } from "../utils/use-overlay";
@@ -101,6 +102,8 @@ export type ModalProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
     scrollable?: boolean;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
+    disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
     children?: ReactNode;
@@ -113,11 +116,13 @@ export default function Modal({
   onOpenChange,
   closeOnEscape = true,
   closeOnBackdrop = true,
-  animate = true,
+  animate = false,
   centered = true,
   scrollable = true,
   rounded = false,
   shadow = true,
+  border = true,
+  disabled = false,
   className,
   wrapperClassName,
   faceClassName,
@@ -240,7 +245,9 @@ export default function Modal({
               size === "sm" && "max-w-sm",
               (!size || size === "md") && "max-w-lg",
               size === "lg" && "max-w-2xl",
-              shadow && phase !== "draw" && "shadow-[var(--shadow)]",
+              (shadow || animate) &&
+                phase !== "draw" &&
+                "shadow-[var(--shadow)]",
               rounded && "rounded-[var(--radius)]",
               wrapperClassName,
             ]
@@ -249,18 +256,12 @@ export default function Modal({
           )}
           onAnimationEnd={onAnimationEnd}
         >
-          {drawing && (
-            <DrawBorder
-              animate
-              radius={rounded ? "var(--radius)" : undefined}
-              className="z-30"
-            />
-          )}
           <div
             ref={contentRef}
             {...props}
             role="dialog"
             aria-modal="true"
+            aria-disabled={disabled || undefined}
             aria-label={ariaLabel}
             aria-labelledby={ariaLabel ? undefined : titleId}
             tabIndex={-1}
@@ -269,15 +270,21 @@ export default function Modal({
                 modalStyles({ variant, size }),
                 !scrollable && "max-h-none overflow-visible",
 
-                // Resting stroke, or none while the SVG draws it
-                drawing ? "border-none" : "border-border",
+                // Resting stroke, or none while the SVG draws it.
+                // The drawn stroke sits just outside the face, so the face must not clip it.
+                !border
+                  ? "overflow-visible border-none"
+                  : drawing
+                    ? "overflow-visible border-transparent"
+                    : "border-border",
 
-                // Pop from the shadow after the stroke completes
+                // Pop from the shadow after the stroke completes.
                 "transition-[translate] duration-200 ease-out",
                 faceInShadow &&
                   "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
                 !faceInShadow && "translate-x-0 translate-y-0",
                 rounded && "rounded-[var(--radius)]",
+                disabled && "pointer-events-none opacity-70",
                 faceClassName,
                 className,
               ]
@@ -286,16 +293,15 @@ export default function Modal({
             )}
             onTransitionEnd={onTransitionEnd}
           >
-            <div
-              className={twMerge(
-                [
-                  // Content appears only after the face has popped out
-                  "relative z-10 flex min-h-0 flex-1 flex-col transition-opacity duration-150",
-                  phase === "reveal" ? "opacity-100" : "opacity-0",
-                  "motion-reduce:transition-none",
-                ].join(" "),
-              )}
-            >
+            {/* Border. On the face so the stroke stays with the panel while it pops. */}
+            {drawing && border && (
+              <DrawBorder
+                animate
+                radius={rounded ? "var(--radius)" : undefined}
+                className="z-30"
+              />
+            )}
+            <div className="relative z-10 flex min-h-0 flex-1 flex-col">
               {children}
             </div>
           </div>
@@ -373,37 +379,26 @@ export function ModalClose({
   children,
   type = "button",
   onClick,
-  "aria-label": ariaLabel = "Close dialog",
+  "aria-label": ariaLabel,
   ...props
 }: ModalCloseProps) {
   const { close } = useModal();
+  const iconOnly = children == null;
 
   return (
-    <button
+    <Button
+      {...props}
       type={type}
-      aria-label={ariaLabel}
-      className={twMerge(
-        [
-          // Compact brutal close control
-          "inline-flex shrink-0 items-center justify-center border-[3px] border-border bg-main p-1 text-main-foreground",
-          "shadow-[var(--shadow)] transition-transform duration-150",
-          "hover:translate-x-[var(--shadow-offset-x)] hover:translate-y-[var(--shadow-offset-y)] hover:shadow-none",
-
-          // Keyboard focus and reduced motion
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-          "motion-reduce:transition-none",
-          className,
-        ]
-          .filter(Boolean)
-          .join(" "),
-      )}
+      variant="primary"
+      size={iconOnly ? "sm" : "md"}
+      aria-label={ariaLabel ?? (iconOnly ? "Close dialog" : undefined)}
+      className={className}
       onClick={(event) => {
         onClick?.(event);
         if (!event.defaultPrevented) close();
       }}
-      {...props}
     >
       {children ?? <X aria-hidden="true" className="size-4" />}
-    </button>
+    </Button>
   );
 }

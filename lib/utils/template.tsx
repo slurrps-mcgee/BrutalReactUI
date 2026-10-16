@@ -95,17 +95,24 @@ type ComponentProps = HTMLAttributes<HTMLDivElement> &
     children?: ReactNode;
     animate?: AnimationTrigger;
     rounded?: boolean;
+    shadow?: boolean;
+    disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
+    fillClassName?: string;
   };
 
 /**
  * Reference shape for core components. Do not import this into the app.
  * Order: styles, props, component, shouldAnimate, wrapperClassName.
  * className and faceClassName merge onto the face, className last.
- * wrapperClassName merges onto the shadow wrapper.
- * DrawBorder mounts only when shouldAnimate is true. Otherwise the face uses border-border.
+ * wrapperClassName merges onto the shadow wrapper. Skip the wrapper when the component has no shadow.
+ * faceClassName is only for a bordered face. fillClassName is only for a hover fill.
+ * shadow draws the hard offset. A truthy animate forces it on, because the pop moves by that offset.
  * Badge has no shadow. Its animate prop only draws the border.
+ * rounded and disabled belong on every component. disabled mutes the face and sets the native disabled state on a control.
+ * variant and size belong on a component that already paints them. size is sm, md, or lg, and md keeps the current look.
+ * DrawBorder mounts only when shouldAnimate is true. Otherwise the face uses border-border.
  * The pop face must be the wrapper's direct child: .animate-brutal-pop > .brutal-pop-face.
  * Layout props (direction, align, justify, gap, fullWidth) belong on layout components such as Container.
  */
@@ -121,11 +128,15 @@ export default function Component({
   fullWidth,
   animate = false,
   rounded = false,
+  shadow = true,
+  disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
+  fillClassName,
   ...props
 }: ComponentProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
   const wrapperClassName = twMerge(
     [
       // Layout and stacking
@@ -134,8 +145,8 @@ export default function Component({
       // Full width
       fullWidth ? "flex w-full" : "inline-flex w-fit",
 
-      // Shadow
-      "shadow-[var(--shadow)]",
+      // Shadow. Animation needs the offset, so a pop turns it on.
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -162,17 +173,21 @@ export default function Component({
             }),
 
             // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            shouldAnimate ? "border-transparent" : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
             rounded && "rounded-[var(--radius)]",
+
+            // Disabled state
+            disabled && "pointer-events-none opacity-70",
             faceClassName,
             className,
           ]
             .filter(Boolean)
             .join(" "),
         )}
+        aria-disabled={disabled || undefined}
         {...props}
       >
         {shouldAnimate && (
@@ -182,6 +197,13 @@ export default function Component({
             className="z-10"
           />
         )}
+        <span
+          aria-hidden="true"
+          className={twMerge(
+            "pointer-events-none absolute inset-0",
+            fillClassName,
+          )}
+        />
         <span className="relative z-10">{children}</span>
       </div>
     </div>

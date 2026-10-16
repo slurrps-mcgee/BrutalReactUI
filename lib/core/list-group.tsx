@@ -15,8 +15,16 @@ import {
 
 const listGroupStyles = cva(
   [
-    "relative flex w-full list-none flex-col overflow-hidden",
+    // Layout. The stroke is drawn on this face, so it must not clip it.
+    "relative flex w-full list-none flex-col overflow-visible",
+
+    // Border and typography
     "border-[3px] border-border",
+
+    // Dividers. The control inside a contents row is the box that can paint.
+    "[&>li:not(:last-child)]:border-b-[3px] [&>li:not(:last-child)]:border-border",
+    "[&>li.contents:not(:last-child)>*]:border-b-[3px]",
+    "[&>li.contents:not(:last-child)>*]:border-border",
   ].join(" "),
   {
     variants: {
@@ -40,6 +48,17 @@ const listGroupStyles = cva(
   },
 );
 
+// Item fills sit inside the 3px stroke so a rounded corner is one curve, not two.
+function itemRadius(rounded: boolean) {
+  if (!rounded) return "";
+  return [
+    "[&>li:first-of-type]:rounded-t-[max(0px,calc(var(--radius)-3px))]",
+    "[&>li.contents:first-of-type>*]:rounded-t-[max(0px,calc(var(--radius)-3px))]",
+    "[&>li:last-child]:rounded-b-[max(0px,calc(var(--radius)-3px))]",
+    "[&>li.contents:last-child>*]:rounded-b-[max(0px,calc(var(--radius)-3px))]",
+  ].join(" ");
+}
+
 type ListGroupStyleProps = VariantProps<typeof listGroupStyles>;
 const ListGroupContext = createContext<ListGroupStyleProps>({
   variant: "outline",
@@ -51,6 +70,7 @@ export type ListGroupProps = HTMLAttributes<HTMLUListElement> &
     animate?: AnimationTrigger;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
   };
@@ -62,42 +82,76 @@ export default function ListGroup({
   animate = false,
   rounded = false,
   shadow = true,
+  border = true,
   wrapperClassName,
   faceClassName,
+  children,
   ...props
 }: ListGroupProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
 
   return (
     <ListGroupContext.Provider value={{ variant, size }}>
       <div
         ref={ref}
         className={twMerge(
-          "relative isolate w-full",
-          shadow && "shadow-[var(--shadow)]",
-          rounded && "rounded-[var(--radius)]",
-          shouldAnimate && "animate-brutal-pop",
+          [
+            // Layout and stacking. The face grows with a stretched parent so the shadow meets the stroke.
+            "relative isolate flex w-full flex-col",
+
+            // Shadow
+            showShadow && "shadow-[var(--shadow)]",
+            rounded && "rounded-[var(--radius)]",
+
+            // Animation
+            shouldAnimate && "animate-brutal-pop",
+          ]
+            .filter(Boolean)
+            .join(" "),
           wrapperClassName,
         )}
         data-pop-direction="out"
       >
-        {shouldAnimate && (
-          <DrawBorder
-            animate
-            radius={rounded ? "var(--radius)" : undefined}
-            className="z-10"
-          />
-        )}
         <ul
           className={twMerge(
-            listGroupStyles({ variant, size }),
-            shouldAnimate ? "border-none brutal-pop-face" : "border-border",
-            rounded && "rounded-[var(--radius)]",
-            faceClassName,
-            className,
+            [
+              listGroupStyles({ variant, size }),
+              itemRadius(rounded),
+              rounded && !shouldAnimate && "overflow-hidden",
+
+              // Fill the shadow box when a grid or flex parent stretches the wrapper.
+              "flex-1",
+
+              // Resting stroke, or none while the SVG draws it. border false drops both.
+              !border
+                ? "border-none"
+                : shouldAnimate
+                  ? "border-transparent"
+                  : "border-border",
+              !border && "[&>li]:border-none [&>li.contents>*]:border-none",
+
+              // Pop target. Must be the wrapper's direct child.
+              shouldAnimate && "brutal-pop-face",
+              rounded && "rounded-[var(--radius)]",
+              faceClassName,
+              className,
+            ]
+              .filter(Boolean)
+              .join(" "),
           )}
           {...props}
-        />
+        >
+          {/* Border. Inside the face so the stroke travels with the pop. */}
+          {shouldAnimate && border && (
+            <DrawBorder
+              animate
+              radius={rounded ? "var(--radius)" : undefined}
+              className="z-10"
+            />
+          )}
+          {children}
+        </ul>
       </div>
     </ListGroupContext.Provider>
   );
@@ -105,11 +159,20 @@ export default function ListGroup({
 
 const itemStyles = cva(
   [
-    "relative flex w-full items-center gap-3 border-b-[3px] border-border",
-    "font-mono font-bold uppercase tracking-wide last:border-b-0",
+    // Layout. The row border is painted by the list so the last row can drop it.
+    "relative flex w-full items-center gap-3",
+
+    // Typography
+    "font-mono font-bold uppercase tracking-wide",
+
+    // Interaction
     "transition-colors duration-200",
+
+    // Keyboard focus
     "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2",
     "focus-visible:ring-inset focus-visible:ring-ring",
+
+    // Disabled state and reduced motion
     "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
     "aria-disabled:pointer-events-none aria-disabled:bg-disabled aria-disabled:text-disabled-foreground",
     "motion-reduce:transition-none",

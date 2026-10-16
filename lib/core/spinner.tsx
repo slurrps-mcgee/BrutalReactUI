@@ -34,6 +34,8 @@ const spinnerStyles = cva(
 export type SpinnerProps = HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof spinnerStyles> & {
     label?: string;
+    rounded?: boolean;
+    disabled?: boolean;
   };
 
 export default function Spinner({
@@ -41,6 +43,8 @@ export default function Spinner({
   variant,
   size,
   label = "Loading",
+  rounded = false,
+  disabled = false,
   ...props
 }: SpinnerProps) {
   return (
@@ -48,7 +52,13 @@ export default function Spinner({
       role="status"
       aria-live="polite"
       aria-label={label}
-      className={twMerge("inline-flex items-center", className)}
+      aria-disabled={disabled || undefined}
+      className={twMerge(
+        "inline-flex items-center",
+        rounded && "rounded-[var(--radius)]",
+        disabled && "pointer-events-none opacity-70",
+        className,
+      )}
       {...props}
     >
       <span aria-hidden="true" className={spinnerStyles({ variant, size })} />

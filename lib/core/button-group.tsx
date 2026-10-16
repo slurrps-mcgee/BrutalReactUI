@@ -53,6 +53,10 @@ export type ButtonGroupProps = Omit<
   onValueChange?: (value: string | string[]) => void;
   disabled?: boolean;
   rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  wrapperClassName?: string;
+  faceClassName?: string;
   children?: ReactNode;
 };
 
@@ -65,6 +69,10 @@ function ButtonGroupRoot({
   onValueChange,
   disabled = false,
   rounded = false,
+  shadow = true,
+  border = true,
+  wrapperClassName,
+  faceClassName,
   className,
   children,
   ...props
@@ -175,9 +183,12 @@ function ButtonGroupRoot({
             "inline-flex w-fit",
             orientation === "horizontal" ? "flex-row" : "flex-col",
 
-            // Shared brutal shadow
-            "shadow-[var(--shadow)]",
+            // Shared brutal shadow. Stays on this root.
+            shadow && "shadow-[var(--shadow)]",
+            !border && "[&_button]:border-none",
             rounded && "rounded-[var(--radius)]",
+            wrapperClassName,
+            faceClassName,
             className,
           ]
             .filter(Boolean)

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  CodeSnippet,
   Container,
   Form,
   FormFeedback,
@@ -9,20 +8,29 @@ import {
   Select,
   SelectOption,
 } from "../../lib/main";
-
-const code = `<Select value={value} onValueChange={setValue} required>
-  <SelectOption value="design">Design</SelectOption>
-  <SelectOption value="engineering">Engineering</SelectOption>
-  <SelectOption value="support" disabled>Support</SelectOption>
-</Select>`;
+import { selectNotes } from "./component-notes";
+import { ComponentNotes, Example } from "./shared";
 
 export default function SelectPage() {
   const [team, setTeam] = useState("engineering");
 
   return (
     <Container title="Select" fullWidth>
-      <div className="grid gap-5 md:grid-cols-2">
-        <FormField valid={Boolean(team)}>
+      <p className="max-w-2xl font-sans">
+        Select is a listbox. The trigger shows the chosen label, and the
+        placeholder until a value is chosen.
+      </p>
+
+      <Example
+        title="Controlled"
+        summary="value and onValueChange keep the choice. The closed trigger keeps the label."
+        code={`<Select value={team} onValueChange={setTeam} required>
+  <SelectOption value="design">Design</SelectOption>
+  <SelectOption value="engineering">Engineering</SelectOption>
+  <SelectOption value="support" disabled>Support</SelectOption>
+</Select>`}
+      >
+        <FormField valid={Boolean(team)} className="max-w-sm">
           <FormLabel required>Team</FormLabel>
           <Select
             name="team"
@@ -39,32 +47,90 @@ export default function SelectPage() {
           </Select>
           <FormFeedback state="valid">Selected: {team}</FormFeedback>
         </FormField>
-        <Select variant="secondary" size="lg" defaultValue="weekly">
-          <SelectOption value="daily">Daily</SelectOption>
-          <SelectOption value="weekly">Weekly</SelectOption>
-          <SelectOption value="monthly">Monthly</SelectOption>
-        </Select>
-        <Select variant="primary" size="sm" defaultValue="active" rounded>
-          <SelectOption value="active">Active</SelectOption>
-          <SelectOption value="paused">Paused</SelectOption>
-        </Select>
-        <Form>
-          <FormField>
-            <FormLabel required>Required choice</FormLabel>
-            <Select name="required-choice" required>
-              <SelectOption value="one">Option one</SelectOption>
-              <SelectOption value="two">Option two</SelectOption>
-            </Select>
-          </FormField>
-          <button type="submit" className="font-mono font-bold underline">
-            Check required selection
-          </button>
-        </Form>
-        <Select disabled placeholder="Disabled select">
-          <SelectOption value="disabled">Disabled</SelectOption>
-        </Select>
-      </div>
-      <CodeSnippet code={code} language="tsx" />
+      </Example>
+
+      <Example
+        title="Sizes and variants"
+        summary="defaultValue sets the first choice. size and variant change the trigger."
+        code={`<Select variant="secondary" size="lg" defaultValue="weekly">
+  <SelectOption value="daily">Daily</SelectOption>
+  <SelectOption value="weekly">Weekly</SelectOption>
+</Select>
+<Select variant="primary" size="sm" defaultValue="active">
+  <SelectOption value="active">Active</SelectOption>
+  <SelectOption value="paused">Paused</SelectOption>
+</Select>`}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <Select variant="secondary" size="lg" defaultValue="weekly">
+            <SelectOption value="daily">Daily</SelectOption>
+            <SelectOption value="weekly">Weekly</SelectOption>
+            <SelectOption value="monthly">Monthly</SelectOption>
+          </Select>
+          <Select variant="primary" size="sm" defaultValue="active" rounded>
+            <SelectOption value="active">Active</SelectOption>
+            <SelectOption value="paused">Paused</SelectOption>
+          </Select>
+        </div>
+      </Example>
+
+      <Example
+        title="Required and disabled"
+        summary="A required select with no value fails native validation. disabled blocks the trigger."
+        code={`<Select name="required-choice" required>
+  <SelectOption value="one">Option one</SelectOption>
+  <SelectOption value="two">Option two</SelectOption>
+</Select>
+<Select disabled placeholder="Disabled select">
+  <SelectOption value="disabled">Disabled</SelectOption>
+</Select>`}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <Form onSubmit={(event) => event.preventDefault()}>
+            <FormField>
+              <FormLabel required>Required choice</FormLabel>
+              <Select name="required-choice" required>
+                <SelectOption value="one">Option one</SelectOption>
+                <SelectOption value="two">Option two</SelectOption>
+              </Select>
+            </FormField>
+            <button type="submit" className="font-mono font-bold underline">
+              Check required selection
+            </button>
+          </Form>
+          <Select disabled placeholder="Disabled select">
+            <SelectOption value="disabled">Disabled</SelectOption>
+          </Select>
+        </div>
+      </Example>
+
+      <Example
+        title="Flat and borderless"
+        summary="shadow false removes the offset. border false removes the trigger and menu strokes."
+        code={`<Select shadow={false} defaultValue="one">
+  <SelectOption value="one">Flat</SelectOption>
+</Select>
+<Select border={false} defaultValue="one">
+  <SelectOption value="one">No stroke</SelectOption>
+</Select>`}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <Select shadow={false} defaultValue="one" aria-label="Flat select">
+            <SelectOption value="one">Flat</SelectOption>
+            <SelectOption value="two">Second</SelectOption>
+          </Select>
+          <Select
+            border={false}
+            defaultValue="one"
+            aria-label="Borderless select"
+          >
+            <SelectOption value="one">No stroke</SelectOption>
+            <SelectOption value="two">Second</SelectOption>
+          </Select>
+        </div>
+      </Example>
+
+      <ComponentNotes {...selectNotes} />
     </Container>
   );
 }

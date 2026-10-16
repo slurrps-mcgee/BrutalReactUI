@@ -152,6 +152,7 @@ export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
     wrapperClassName?: string;
     faceClassName?: string;
     fillClassName?: string;
+    disabled?: boolean;
   };
 
 // Main Link component
@@ -164,6 +165,7 @@ export default function Link({
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   fillClassName,
+  disabled = false,
   ...props
 }: LinkProps) {
   // Wrapper classes
@@ -181,12 +183,14 @@ export default function Link({
   // Main return
   const link = (
     <a
-      href={href}
+      href={disabled ? undefined : href}
+      aria-disabled={disabled || undefined}
       className={twMerge(
         [
           linkStyles({ variant, size }),
 
           // Pop target. Must be the wrapper's direct child.
+          disabled && "pointer-events-none opacity-70",
           faceClassName,
           className,
         ]

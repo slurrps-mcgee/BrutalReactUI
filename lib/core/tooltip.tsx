@@ -39,6 +39,8 @@ function useTooltip() {
 export type TooltipProps = HTMLAttributes<HTMLSpanElement> & {
   delay?: number;
   children?: ReactNode;
+  disabled?: boolean;
+  rounded?: boolean;
 };
 
 // Main Tooltip component
@@ -46,6 +48,8 @@ export default function Tooltip({
   delay = 400,
   className,
   children,
+  disabled = false,
+  rounded = false,
   onMouseEnter,
   onMouseLeave,
   ...props
@@ -107,7 +111,13 @@ export default function Tooltip({
       value={{ open, tooltipId, show, hide, setFocused }}
     >
       <span
-        className={twMerge("relative inline-flex", className)}
+        aria-disabled={disabled || undefined}
+        className={twMerge(
+          "relative inline-flex",
+          rounded && "rounded-[var(--radius)]",
+          disabled && "pointer-events-none opacity-70",
+          className,
+        )}
         onMouseEnter={(event) => {
           onMouseEnter?.(event);
           if (!event.defaultPrevented) show();
@@ -239,6 +249,9 @@ export type TooltipContentProps = HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof tooltipStyles> & {
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
   };
 
 // Tooltip content
@@ -249,6 +262,9 @@ export function TooltipContent({
   placement,
   rounded = false,
   shadow = true,
+  border = true,
+  wrapperClassName,
+  faceClassName,
   children,
   ...props
 }: TooltipContentProps) {
@@ -276,7 +292,10 @@ export function TooltipContent({
 
           // Optional shape and depth
           shadow && "shadow-[var(--shadow)]",
+          !border && "border-none",
           rounded && "rounded-[var(--radius)]",
+          wrapperClassName,
+          faceClassName,
 
           // Keep the tooltip noninteractive while it enters and leaves
           visible ? "opacity-100" : `opacity-0 ${hiddenOffset}`,

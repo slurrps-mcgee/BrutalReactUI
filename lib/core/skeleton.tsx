@@ -34,6 +34,7 @@ export type SkeletonProps = HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof skeletonStyles> & {
     label?: string;
     rounded?: boolean;
+    disabled?: boolean;
   };
 
 export default function Skeleton({
@@ -42,15 +43,18 @@ export default function Skeleton({
   animation,
   label = "Loading",
   rounded = false,
+  disabled = false,
   ...props
 }: SkeletonProps) {
   return (
     <div
       role="status"
       aria-label={label}
+      aria-disabled={disabled || undefined}
       className={twMerge(
         skeletonStyles({ variant, animation }),
         rounded && variant !== "circular" && "rounded-[var(--radius)]",
+        disabled && "pointer-events-none opacity-70",
         className,
       )}
       {...props}

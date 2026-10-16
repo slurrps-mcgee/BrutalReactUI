@@ -7,8 +7,6 @@ const inputGroupStyles = cva(
   [
     // Children share one visual row or column.
     "relative z-10 flex w-full items-stretch transition-transform duration-150 [&>*]:min-w-0",
-    "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-    "group-focus-within/input-group:translate-x-0 group-focus-within/input-group:translate-y-0",
     "motion-reduce:transition-none",
 
     // Nested control wrappers join one shared plate instead of keeping their
@@ -37,7 +35,10 @@ export type InputGroupProps = HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof inputGroupStyles> & {
     label?: string;
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
     wrapperClassName?: string;
+    faceClassName?: string;
     children?: ReactNode;
   };
 
@@ -47,7 +48,10 @@ export function InputGroup({
   orientation,
   label,
   rounded = false,
+  shadow = true,
+  border = true,
   wrapperClassName,
+  faceClassName,
   children,
   ...props
 }: InputGroupProps) {
@@ -59,20 +63,47 @@ export function InputGroup({
         wrapperClassName,
       )}
     >
-      <div
-        aria-hidden="true"
-        className={twMerge(
-          "pointer-events-none absolute inset-0 bg-[var(--shadow-color)]",
-          "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-          rounded && "rounded-[var(--radius)]",
-        )}
-      />
+      {shadow && (
+        <div
+          aria-hidden="true"
+          className={twMerge(
+            "pointer-events-none absolute inset-0 bg-[var(--shadow-color)]",
+            "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
+            rounded && "rounded-[var(--radius)]",
+          )}
+        />
+      )}
       <div
         role="group"
         aria-label={label}
         className={twMerge(
           inputGroupStyles({ orientation }),
+
+          // Sit on the plate, then lift off on focus. A flat group stays put.
+          shadow &&
+            "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)] group-focus-within/input-group:translate-x-0 group-focus-within/input-group:translate-y-0",
+          !border &&
+            "[&_button]:border-none [&_input]:border-none [&>span]:border-none",
           rounded && "overflow-hidden rounded-[var(--radius)]",
+          rounded &&
+            (orientation === "vertical"
+              ? [
+                  "[&>*:first-child]:rounded-t-[var(--radius)]",
+                  "[&>*:last-child]:rounded-b-[var(--radius)]",
+                  "[&>*:first-child_button]:rounded-t-[var(--radius)]",
+                  "[&>*:last-child_button]:rounded-b-[var(--radius)]",
+                  "[&>*:first-child_input]:rounded-t-[var(--radius)]",
+                  "[&>*:last-child_input]:rounded-b-[var(--radius)]",
+                ].join(" ")
+              : [
+                  "[&>*:first-child]:rounded-l-[var(--radius)]",
+                  "[&>*:last-child]:rounded-r-[var(--radius)]",
+                  "[&>*:first-child_button]:rounded-l-[var(--radius)]",
+                  "[&>*:last-child_button]:rounded-r-[var(--radius)]",
+                  "[&>*:first-child_input]:rounded-l-[var(--radius)]",
+                  "[&>*:last-child_input]:rounded-r-[var(--radius)]",
+                ].join(" ")),
+          faceClassName,
           className,
         )}
         {...props}

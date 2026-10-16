@@ -1,6 +1,13 @@
 /* eslint-disable react-refresh/only-export-components -- the public navbar context hook ships with its components */
 import type { HTMLAttributes, ReactNode } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
@@ -29,6 +36,25 @@ const NavbarContext = createContext(false);
 
 export function useInNavbar() {
   return useContext(NavbarContext);
+}
+
+// A rounded bar shares its radius with the togglers inside it.
+const NavbarRoundedContext = createContext(false);
+
+export function useNavbarRounded() {
+  return useContext(NavbarRoundedContext);
+}
+
+// Lets an open menu lift this bar above later siblings.
+type NavbarStack = {
+  raise: () => void;
+  release: () => void;
+};
+
+const NavbarStackContext = createContext<NavbarStack | null>(null);
+
+export function useNavbarStack() {
+  return useContext(NavbarStackContext);
 }
 
 // Navbar styles
@@ -86,6 +112,7 @@ export type NavbarProps = HTMLAttributes<HTMLElement> &
     animate?: AnimationTrigger;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
     disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -101,6 +128,7 @@ export default function Navbar({
   animate = false,
   rounded = false,
   shadow = true,
+  border = true,
   disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -108,15 +136,24 @@ export default function Navbar({
 }: NavbarProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
+  const [raised, setRaised] = useState(0);
+  const raise = useCallback(() => setRaised((count) => count + 1), []);
+  const release = useCallback(
+    () => setRaised((count) => Math.max(0, count - 1)),
+    [],
+  );
+  const stack = useMemo(() => ({ raise, release }), [raise, release]);
 
   // Wrapper classes
   const wrapperClassName = twMerge(
     [
-      // Layout and stacking
+      // Layout and stacking. An open menu covers components that follow the bar.
       "relative isolate flex w-full",
+      raised > 0 && "z-50",
 
       // Shadow. Optional so a bar can sit flat.
-      shadow && "shadow-[var(--shadow)]",
+      showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -135,8 +172,12 @@ export default function Navbar({
           [
             navbarStyles({ variant, size }),
 
-            // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-none" : "border-border",
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
@@ -151,14 +192,20 @@ export default function Navbar({
         {...props}
       >
         {/* Border */}
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}
             className="z-10"
           />
         )}
-        <NavbarContext.Provider value={true}>{children}</NavbarContext.Provider>
+        <NavbarContext.Provider value={true}>
+          <NavbarRoundedContext.Provider value={rounded}>
+            <NavbarStackContext.Provider value={stack}>
+              {children}
+            </NavbarStackContext.Provider>
+          </NavbarRoundedContext.Provider>
+        </NavbarContext.Provider>
       </nav>
     </div>
   );
