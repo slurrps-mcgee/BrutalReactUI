@@ -153,6 +153,34 @@ The chain is:
 
 `@custom-variant dark` matches `[data-theme='dark']`, so `dark:` utilities follow the dark theme.
 
+These are the shipped colors, resolved to hex. Set the same names after the import to replace them.
+
+| Token                    | Light       | Dark        |
+| ------------------------ | ----------- | ----------- |
+| `--background`           | `#cdf6fe`   | `#0f2024`   |
+| `--secondary-background` | `#ffffff`   | `#1d3034`   |
+| `--foreground`           | `#000000`   | `#cdf6fe`   |
+| `--main`                 | `#00c8f0`   | `#00c8f0`   |
+| `--main-foreground`      | `#000000`   | `#000000`   |
+| `--border`               | `#000000`   | `#cdf6fe`   |
+| `--ring`                 | `#000000`   | `#00c8f0`   |
+| `--overlay`              | `#000000cc` | `#000000cc` |
+| `--disabled`             | `#c7c7c7`   | `#474747`   |
+| `--disabled-foreground`  | `#525252`   | `#b8b8b8`   |
+| `--success`              | `#00c853`   | `#00c853`   |
+| `--success-foreground`   | `#000000`   | `#000000`   |
+| `--warning`              | `#facc00`   | `#facc00`   |
+| `--warning-foreground`   | `#000000`   | `#000000`   |
+| `--danger`               | `#ff4d50`   | `#ff4d50`   |
+| `--danger-foreground`    | `#000000`   | `#000000`   |
+| `--info`                 | `#7a83ff`   | `#7a83ff`   |
+| `--info-foreground`      | `#000000`   | `#000000`   |
+| `--chart-1`              | `#00c8f0`   | `#00c8f0`   |
+| `--chart-2`              | `#ff7a05`   | `#ff7a05`   |
+| `--chart-3`              | `#7a83ff`   | `#7a83ff`   |
+| `--chart-4`              | `#ff4d50`   | `#ff4d50`   |
+| `--chart-5`              | `#facc00`   | `#facc00`   |
+
 Fonts:
 
 | Token          | Family         |
