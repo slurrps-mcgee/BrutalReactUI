@@ -15,6 +15,7 @@ export default function RangePage() {
       </p>
 
       <Example
+        imports="Range"
         title="Value"
         summary="Control the slider with value and onChange. min and max set the ends."
         code={`<Range
@@ -41,6 +42,7 @@ export default function RangePage() {
       </Example>
 
       <Example
+        imports="Range"
         title="Steps and custom output"
         summary="step snaps the thumb. output replaces the printed value."
         code={`<Range
@@ -64,6 +66,7 @@ export default function RangePage() {
       </Example>
 
       <Example
+        imports="Range"
         title="Uncontrolled and disabled"
         summary="defaultValue sets the start when the field owns its state. disabled blocks the thumb."
         code={`<Range label="Default value" defaultValue={65} showValue />

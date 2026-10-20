@@ -17,6 +17,7 @@ export default function AccordionPage() {
       </p>
 
       <Example
+        imports="Accordion, AccordionItem, AccordionTrigger, AccordionContent"
         title="Multiple"
         summary="defaultValue lists the panels that start open. A disabled item cannot be opened."
         code={`<Accordion type="multiple" defaultValue={["keyboard"]} rounded>
@@ -53,6 +54,7 @@ export default function AccordionPage() {
       </Example>
 
       <Example
+        imports="Accordion, AccordionItem, AccordionTrigger, AccordionContent"
         title="Single"
         summary="Opening a panel closes the one that was open. Selecting the open trigger closes it."
         code={`<Accordion type="single" defaultValue="single">
@@ -84,6 +86,7 @@ export default function AccordionPage() {
       </Example>
 
       <Example
+        imports="Accordion, AccordionItem, AccordionTrigger, AccordionContent"
         title="Rounded"
         summary="rounded curves the first trigger and the last panel, not only the outer clip."
         code={`<Accordion type="single" rounded border={false}>

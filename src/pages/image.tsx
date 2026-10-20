@@ -14,6 +14,7 @@ export default function ImagePage() {
       </p>
 
       <Example
+        imports="Image"
         title="Animated"
         summary="animate draws the frame, then pops it. rounded uses the library radius."
         code={`<Image
@@ -33,6 +34,7 @@ export default function ImagePage() {
       </Example>
 
       <Example
+        imports="Image"
         title="Static"
         summary="Leave animate off for a frame that is already in place."
         code={`<Image
@@ -48,6 +50,7 @@ export default function ImagePage() {
       </Example>
 
       <Example
+        imports="Image"
         title="Sizes and shadow"
         summary="size changes the caption type. shadow false drops the offset."
         code={`<Image image={image} title="Small caption" size="sm" />

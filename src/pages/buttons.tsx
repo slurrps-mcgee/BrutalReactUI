@@ -15,6 +15,7 @@ export default function ButtonsPage() {
       </p>
 
       <Example
+        imports="Button"
         title="Variants"
         summary="Primary is the default. Secondary and outline are the other faces."
         code={`<Button>Primary</Button>
@@ -31,6 +32,7 @@ export default function ButtonsPage() {
       </Example>
 
       <Example
+        imports="Button"
         title="Sizes"
         summary="Small, medium, and large change the padding and the type size. Medium is the default."
         code={`<Button size="sm">Small</Button>
@@ -45,6 +47,7 @@ export default function ButtonsPage() {
       </Example>
 
       <Example
+        imports="Button"
         title="Disabled"
         summary="A disabled button keeps its label readable and ignores clicks."
         code={`<Button disabled>Disabled</Button>
@@ -62,6 +65,7 @@ export default function ButtonsPage() {
       </Example>
 
       <Example
+        imports="Button"
         title="Full width"
         summary="fullWidth stretches the wrapper to the parent."
         code={`<Button fullWidth variant="secondary">Full width</Button>`}
@@ -72,9 +76,12 @@ export default function ButtonsPage() {
       </Example>
 
       <Example
+        imports="Button"
         title="Icons and animation"
         summary="Pass animate to draw the border and pop the face. rounded uses the library radius. An icon can stand alone."
-        code={`<Button animate rounded>Save</Button>
+        code={`import { Send } from "lucide-react";
+
+<Button animate rounded>Save</Button>
 <Button animate rounded aria-label="Send">
   <Send />
 </Button>`}

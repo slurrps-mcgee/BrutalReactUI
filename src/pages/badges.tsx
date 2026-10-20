@@ -20,6 +20,7 @@ export default function BadgesPage() {
       </p>
 
       <Example
+        imports="Badge"
         title="Variants"
         summary="Primary is the default. Status colors cover success, warning, danger, and info."
         code={`<Badge>Primary</Badge>
@@ -39,6 +40,7 @@ export default function BadgesPage() {
       </Example>
 
       <Example
+        imports="Badge"
         title="Sizes"
         summary="Small is the default. Medium and large add padding."
         code={`<Badge size="sm">Small</Badge>
@@ -53,6 +55,7 @@ export default function BadgesPage() {
       </Example>
 
       <Example
+        imports="Badge"
         title="Rounded and animation"
         summary="rounded uses the library radius. animate draws the border, then pops the face. There is still no shadow."
         code={`<Badge rounded>Rounded</Badge>

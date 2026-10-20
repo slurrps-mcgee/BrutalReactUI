@@ -14,6 +14,7 @@ export default function RadioPage() {
       </p>
 
       <Example
+        imports="Radio"
         title="Group"
         summary="Control the group with one piece of state. checked compares each value."
         code={`<Radio
@@ -45,6 +46,7 @@ export default function RadioPage() {
       </Example>
 
       <Example
+        imports="Radio"
         title="Sizes"
         summary="Small, medium, and large scale the ring and the label."
         code={`<Radio name="size" value="sm" size="sm" label="Small" />
@@ -65,6 +67,7 @@ export default function RadioPage() {
       </Example>
 
       <Example
+        imports="Radio"
         title="Disabled and required"
         summary="disabled blocks that option. required on a group takes part in native validation."
         code={`<Radio name="plan" value="legacy" label="Legacy" disabled />
@@ -92,6 +95,7 @@ export default function RadioPage() {
       </Example>
 
       <Example
+        imports="Radio"
         title="Flat"
         summary="shadow false keeps a selected option from lifting."
         code={`<Radio name="flat" value="flat" label="Flat" shadow={false} defaultChecked />`}

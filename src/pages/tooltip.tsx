@@ -19,6 +19,7 @@ export default function TooltipPage() {
       </p>
 
       <Example
+        imports="Tooltip, TooltipTrigger, Button, TooltipContent"
         title="Placements"
         summary="placement puts the tip above, beside, or below the trigger."
         code={`<Tooltip delay={150}>
@@ -53,6 +54,7 @@ export default function TooltipPage() {
       </Example>
 
       <Example
+        imports="Tooltip, TooltipTrigger, Button, TooltipContent"
         title="Delay"
         summary="delay waits a number of milliseconds before the tip opens."
         code={`<Tooltip delay={600}>
@@ -73,6 +75,7 @@ export default function TooltipPage() {
       </Example>
 
       <Example
+        imports="Tooltip, TooltipTrigger, Button, TooltipContent"
         title="Flat"
         summary="shadow false removes the offset. The trigger highlight keeps a full stroke."
         code={`<Tooltip>

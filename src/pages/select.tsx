@@ -22,6 +22,7 @@ export default function SelectPage() {
       </p>
 
       <Example
+        imports="Select, SelectOption"
         title="Controlled"
         summary="value and onValueChange keep the choice. The closed trigger keeps the label."
         code={`<Select value={team} onValueChange={setTeam} required>
@@ -50,6 +51,7 @@ export default function SelectPage() {
       </Example>
 
       <Example
+        imports="Select, SelectOption"
         title="Sizes and variants"
         summary="defaultValue sets the first choice. size and variant change the trigger."
         code={`<Select variant="secondary" size="lg" defaultValue="weekly">
@@ -75,6 +77,7 @@ export default function SelectPage() {
       </Example>
 
       <Example
+        imports="Select, SelectOption"
         title="Required and disabled"
         summary="A required select with no value fails native validation. disabled blocks the trigger."
         code={`<Select name="required-choice" required>
@@ -105,6 +108,7 @@ export default function SelectPage() {
       </Example>
 
       <Example
+        imports="Select, SelectOption"
         title="Flat and borderless"
         summary="shadow false removes the offset. border false removes the trigger and menu strokes."
         code={`<Select shadow={false} defaultValue="one">

@@ -14,6 +14,7 @@ export default function ProgressPage() {
       </p>
 
       <Example
+        imports="Progress"
         title="Determinate"
         summary="value is a number from 0 to 100. showValue prints it beside the label."
         code={`<Progress
@@ -54,6 +55,7 @@ export default function ProgressPage() {
       </Example>
 
       <Example
+        imports="Progress"
         title="Variants and sizes"
         summary="The variant colors the bar. Small, medium, and large set its height."
         code={`<Progress value={25} size="sm" variant="primary" label="Primary 25%" />
@@ -73,6 +75,7 @@ export default function ProgressPage() {
       </Example>
 
       <Example
+        imports="Progress"
         title="Indeterminate"
         summary="Leave value off while the length of the task is unknown."
         code={`<Progress variant="info" label="Loading" />`}
@@ -81,6 +84,7 @@ export default function ProgressPage() {
       </Example>
 
       <Example
+        imports="Progress"
         title="Flat and borderless"
         summary="shadow is on by default. shadow false removes the offset. border false removes the track stroke."
         code={`<Progress value={40} shadow={false} label="Flat 40%" />

@@ -27,6 +27,7 @@ export default function PaginationPage() {
       </p>
 
       <Example
+        imports="Pagination, PaginationList, PaginationItem, PaginationPrevious, PaginationLink, PaginationEllipsis, PaginationNext"
         title="Working pages"
         summary="Prevent the link navigation and store the page in state. The live text follows the current page."
         code={`<Pagination label="Demo pages">
@@ -87,6 +88,7 @@ export default function PaginationPage() {
       </Example>
 
       <Example
+        imports="Pagination, PaginationList, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext"
         title="Sizes and variants"
         summary="variant sets the face. size sm tightens the links."
         code={`<Pagination label="Square demo pages" variant="secondary" size="sm">
@@ -124,6 +126,7 @@ export default function PaginationPage() {
       </Example>
 
       <Example
+        imports="PaginationLink"
         title="Flat and borderless"
         summary="shadow is on by default. shadow false removes it. border false removes the stroke."
         code={`<PaginationLink href="#flat" shadow={false}>1</PaginationLink>

@@ -20,6 +20,7 @@ export default function CarouselPage() {
       </p>
 
       <Example
+        imports="Carousel, CarouselSlide"
         title="Controlled"
         summary="index and onIndexChange keep the current slide. loop false stops at the ends."
         code={`<Carousel
@@ -56,6 +57,7 @@ export default function CarouselPage() {
       </Example>
 
       <Example
+        imports="Carousel, CarouselSlide"
         title="Without indicators"
         summary="indicators false hides the dots. size sm shortens the frame."
         code={`<Carousel label="Compact carousel" size="sm" indicators={false}>
@@ -83,6 +85,7 @@ export default function CarouselPage() {
       </Example>
 
       <Example
+        imports="Carousel, CarouselSlide"
         title="Outline and flat"
         summary="outline uses the parent surface. shadow false removes the offset. border false removes the frame stroke."
         code={`<Carousel label="Outline carousel" variant="outline" shadow={false}>

@@ -2,15 +2,21 @@ import type { ReactNode } from "react";
 import { Button, CodeSnippet, Input } from "../../lib/main";
 import type { ComponentNote } from "./component-notes";
 
+function withImports(imports: string, code: string) {
+  return `import { ${imports} } from "brutal-react-ui";\n\n${code}`;
+}
+
 export function Example({
   title,
   summary,
   code,
+  imports,
   children,
 }: {
   title: string;
   summary: string;
   code: string;
+  imports: string;
   children: ReactNode;
 }) {
   return (
@@ -22,7 +28,7 @@ export function Example({
       <div className="flex flex-col gap-4 border-[3px] border-border bg-[var(--surface)] p-5">
         {children}
       </div>
-      <CodeSnippet code={code} language="tsx" />
+      <CodeSnippet code={withImports(imports, code)} language="tsx" />
     </section>
   );
 }
@@ -41,9 +47,6 @@ export function OutlineSet() {
     </div>
   );
 }
-
-export const outlineSetCode = `<Button variant="outline">Outline</Button>
-<Input variant="outline" placeholder="Outline" />`;
 
 const passthrough =
   "className and the native element props still pass through.";

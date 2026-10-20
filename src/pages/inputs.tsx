@@ -14,6 +14,7 @@ export default function InputsPage() {
       </p>
 
       <Example
+        imports="Input"
         title="Controlled"
         summary="Read value and write it back from onChange, the same as a native input."
         code={`<Input
@@ -41,6 +42,7 @@ export default function InputsPage() {
       </Example>
 
       <Example
+        imports="Input"
         title="Variants and sizes"
         summary="Primary, secondary, and outline set the face. Small, medium, and large set the height."
         code={`<Input variant="primary" size="sm" placeholder="Small" />
@@ -70,6 +72,7 @@ export default function InputsPage() {
       </Example>
 
       <Example
+        imports="Input"
         title="Validity and disabled"
         summary="valid and invalid recolor the shadow plate. disabled blocks the field."
         code={`<Input valid placeholder="Valid" />

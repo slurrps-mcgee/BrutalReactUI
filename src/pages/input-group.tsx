@@ -20,6 +20,7 @@ export default function InputGroupPage() {
       </p>
 
       <Example
+        imports="InputGroup, InputGroupText, Input, Button"
         title="Text and button"
         summary="InputGroupText sits beside the field. A button can fill or submit the value."
         code={`<InputGroup label="Website address" rounded>
@@ -47,6 +48,7 @@ export default function InputGroupPage() {
       </Example>
 
       <Example
+        imports="InputGroup, InputGroupText, Input"
         title="Addons on both sides"
         summary="Text before and after the field share one border."
         code={`<InputGroup label="Price in US dollars">
@@ -63,6 +65,7 @@ export default function InputGroupPage() {
       </Example>
 
       <Example
+        imports="InputGroup, Input, InputGroupText"
         title="Vertical and disabled"
         summary="orientation vertical stacks the fields. A disabled field blocks the group."
         code={`<InputGroup label="Contact" orientation="vertical">
@@ -92,6 +95,7 @@ export default function InputGroupPage() {
       </Example>
 
       <Example
+        imports="InputGroup, InputGroupText, Input, Button"
         title="Flat and borderless"
         summary="shadow false removes the offset. border false removes the strokes. rounded also rounds the end buttons."
         code={`<InputGroup label="Flat" shadow={false} rounded>

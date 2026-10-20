@@ -15,6 +15,7 @@ export default function CheckboxPage() {
       </p>
 
       <Example
+        imports="Checkbox"
         title="Checked state"
         summary="Use checked and onChange for a controlled box. The status line follows the values."
         code={`<Checkbox
@@ -47,6 +48,7 @@ export default function CheckboxPage() {
       </Example>
 
       <Example
+        imports="Checkbox"
         title="Sizes"
         summary="Small, medium, and large scale the box and the label."
         code={`<Checkbox size="sm" label="Small" />
@@ -61,6 +63,7 @@ export default function CheckboxPage() {
       </Example>
 
       <Example
+        imports="Checkbox"
         title="Disabled and required"
         summary="disabled blocks the box. required takes part in native form validation."
         code={`<Checkbox label="Unavailable" disabled />
@@ -79,6 +82,7 @@ export default function CheckboxPage() {
       </Example>
 
       <Example
+        imports="Checkbox"
         title="Flat"
         summary="shadow false keeps the box from lifting when it is checked."
         code={`<Checkbox label="Flat" shadow={false} defaultChecked />`}

@@ -22,6 +22,7 @@ export default function FormPage() {
       </p>
 
       <Example
+        imports="Form, FormField, FormLabel, Input, FormFeedback, Button"
         title="Validation"
         summary="required fields block submit until they are filled. valid and invalid paint a field on purpose."
         code={`<Form onSubmit={(event) => event.preventDefault()}>
@@ -84,6 +85,7 @@ export default function FormPage() {
       </Example>
 
       <Example
+        imports="Form, FormField, FormLabel, Input, Button"
         title="Static form"
         summary="Leave animate off for a form that is already in place. variant and size change the frame."
         code={`<Form variant="secondary" size="sm">
@@ -111,6 +113,7 @@ export default function FormPage() {
       </Example>
 
       <Example
+        imports="Form, FormField, FormLabel, Input"
         title="Flat and borderless"
         summary="shadow false removes the offset. border false removes the frame stroke."
         code={`<Form shadow={false}>

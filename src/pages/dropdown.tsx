@@ -17,6 +17,7 @@ export default function DropdownPage() {
       </p>
 
       <Example
+        imports="Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Animated menu"
         summary="animate draws the menu border, then pops it open. The toggle lifts and turns its caret while the menu is open."
         code={`<Dropdown shadow>
@@ -41,6 +42,7 @@ export default function DropdownPage() {
       </Example>
 
       <Example
+        imports="Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Static menu"
         summary="animate false opens the menu without the draw or the pop."
         code={`<Dropdown>
@@ -61,6 +63,7 @@ export default function DropdownPage() {
       </Example>
 
       <Example
+        imports="Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Disabled and borderless"
         summary="disabled blocks the toggle. border false removes the toggle stroke and the menu stroke."
         code={`<Dropdown disabled>
@@ -94,6 +97,7 @@ export default function DropdownPage() {
       </Example>
 
       <Example
+        imports="Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Flat"
         summary="shadow false keeps the toggle and the menu from lifting."
         code={`<Dropdown shadow={false}>

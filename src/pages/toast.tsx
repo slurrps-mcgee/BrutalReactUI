@@ -105,18 +105,28 @@ export default function ToastPage() {
       </p>
 
       <Example
+        imports="Button, ToastViewport, ToastProvider, useToast"
         title="Positions"
         summary="ToastViewport position chooses the corner. Dismiss one toast from its close control, or clear the corner with Dismiss all."
-        code={`<ToastProvider timer={8000}>
-  <Button onClick={() => toast({
-    title: "Saved",
-    description: "Your changes are safe.",
-    variant: "success",
-  })}>
-    Show toast
-  </Button>
-  <Button onClick={() => dismiss()}>Dismiss all</Button>
-  <ToastViewport position="bottom-right" />
+        code={`function Demo() {
+  const { toast, dismiss } = useToast();
+  return (
+    <>
+      <Button onClick={() => toast({
+        title: "Saved",
+        description: "Your changes are safe.",
+        variant: "success",
+      })}>
+        Show toast
+      </Button>
+      <Button onClick={() => dismiss()}>Dismiss all</Button>
+      <ToastViewport position="bottom-right" />
+    </>
+  );
+}
+
+<ToastProvider timer={8000}>
+  <Demo />
 </ToastProvider>`}
       >
         <div className="grid gap-4 sm:grid-cols-2">
@@ -129,13 +139,16 @@ export default function ToastPage() {
       </Example>
 
       <Example
+        imports="useToast"
         title="Variants"
         summary="variant sets the toast color. The timer on the provider dismisses it."
-        code={`toast({
+        code={`const { toast } = useToast();
+
+toast({
   variant: "warning",
   title: "Check",
   description: "Review this before you continue.",
-})`}
+});`}
       >
         <ToastProvider timer={8000}>
           <VariantDemo />
@@ -143,9 +156,12 @@ export default function ToastPage() {
       </Example>
 
       <Example
+        imports="useToast"
         title="Flat"
         summary="shadow false removes the offset from that toast."
-        code={`toast({ title: "Flat", description: "No offset.", shadow: false })`}
+        code={`const { toast } = useToast();
+
+toast({ title: "Flat", description: "No offset.", shadow: false });`}
       >
         <ToastProvider>
           <FlatDemo />

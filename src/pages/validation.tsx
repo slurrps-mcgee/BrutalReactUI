@@ -26,6 +26,7 @@ export default function ValidationPage() {
       </p>
 
       <Example
+        imports="FormField, FormLabel, Input, FormFeedback"
         title="While typing"
         summary="Compare the value yourself and pass valid or invalid to the field. Each state has its own feedback."
         code={`<FormField invalid={username.length > 0 && username.length < 3} valid={username.length >= 3}>
@@ -60,6 +61,7 @@ export default function ValidationPage() {
       </Example>
 
       <Example
+        imports="Input, FormFeedback"
         title="On submit"
         summary="onInvalid fires when the browser rejects the field. Clear the flag once the value becomes valid."
         code={`<Input

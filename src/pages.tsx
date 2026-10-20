@@ -8,6 +8,7 @@ import CardsPage from "./pages/cards";
 import CarouselPage from "./pages/carousel";
 import CheckboxPage from "./pages/checkbox";
 import CodeSnippetPage from "./pages/code-snippet";
+import ColorsPage from "./pages/colors";
 import CollapsePage from "./pages/collapse";
 import DropdownPage from "./pages/dropdown";
 import FloatingLabelPage from "./pages/floating-label";
@@ -29,6 +30,7 @@ import SidebarPage from "./pages/sidebar";
 import SkeletonPage from "./pages/skeleton";
 import SpinnerPage from "./pages/spinner";
 import TablePage from "./pages/table";
+import ThemesPage from "./pages/themes";
 import ToastPage from "./pages/toast";
 import TooltipPage from "./pages/tooltip";
 import ValidationPage from "./pages/validation";
@@ -44,6 +46,7 @@ const pageMap = {
   carousel: CarouselPage,
   checkbox: CheckboxPage,
   "code-snippet": CodeSnippetPage,
+  colors: ColorsPage,
   collapse: CollapsePage,
   dropdown: DropdownPage,
   "floating-label": FloatingLabelPage,
@@ -65,6 +68,7 @@ const pageMap = {
   skeleton: SkeletonPage,
   spinner: SpinnerPage,
   table: TablePage,
+  themes: ThemesPage,
   toast: ToastPage,
   tooltip: TooltipPage,
   validation: ValidationPage,

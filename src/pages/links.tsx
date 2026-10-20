@@ -11,6 +11,7 @@ export default function LinksPage() {
       </p>
 
       <Example
+        imports="Link"
         title="Variants"
         summary="Default uses the page ink. Primary and secondary swap the resting and hover colors."
         code={`<Link href="#/buttons">Default</Link>
@@ -29,6 +30,7 @@ export default function LinksPage() {
       </Example>
 
       <Example
+        imports="Link"
         title="Sizes"
         summary="Medium is the default type size."
         code={`<Link href="#/buttons" size="sm">Small</Link>
@@ -49,6 +51,7 @@ export default function LinksPage() {
       </Example>
 
       <Example
+        imports="Link"
         title="Disabled and external"
         summary="disabled removes the destination. An https address opens in a new tab."
         code={`<Link href="#/buttons" disabled>Disabled</Link>

@@ -11,7 +11,7 @@ import {
 const cardStyles = cva(
   [
     // Layout and stacking
-    "relative z-10 isolate flex h-full w-full flex-col",
+    "relative z-10 isolate flex h-full w-full flex-col [--card-radius:0px]",
 
     // Border and typography. Color matches the drawn stroke.
     "border-[3px] bg-secondary-background text-foreground",
@@ -43,11 +43,11 @@ const cardStyles = cva(
           "bg-[var(--surface)] text-[var(--surface-foreground)]",
         ].join(" "),
       },
-      // Padding, gap, and type size
+      // Padding, gap, and type size. --card-padding lets CardImage bleed to the stroke.
       size: {
-        sm: "gap-3 p-4 text-sm",
-        md: "gap-4 p-6 text-base",
-        lg: "gap-6 p-8 text-lg",
+        sm: "gap-3 p-4 text-sm [--card-padding:1rem]",
+        md: "gap-4 p-6 text-base [--card-padding:1.5rem]",
+        lg: "gap-6 p-8 text-lg [--card-padding:2rem]",
       },
     },
     defaultVariants: {
@@ -128,7 +128,7 @@ export default function Card({
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
+            rounded && "rounded-[var(--radius)] [--card-radius:var(--radius)]",
             disabled && "pointer-events-none opacity-70",
             faceClassName,
             className,
@@ -139,7 +139,8 @@ export default function Card({
         aria-disabled={disabled || undefined}
         {...props}
       >
-        {/* Border */}
+        {children}
+        {/* Border. Rendered after the slots so a leading CardImage stays the first child. */}
         {shouldAnimate && border && (
           <DrawBorder
             animate
@@ -147,7 +148,6 @@ export default function Card({
             className="z-30"
           />
         )}
-        {children}
       </article>
     </div>
   );
@@ -184,7 +184,16 @@ export function CardImage({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={["w-full", className].filter(Boolean).join(" ")}
+      className={twMerge(
+        [
+          // Cancel the face padding so the picture meets the card stroke.
+          "w-[calc(100%+2*var(--card-padding))]",
+          "-mx-[var(--card-padding)] first:-mt-[var(--card-padding)]",
+          "overflow-hidden",
+          "first:rounded-t-[max(0px,calc(var(--card-radius)-3px))]",
+        ].join(" "),
+        className,
+      )}
       {...props}
     />
   );

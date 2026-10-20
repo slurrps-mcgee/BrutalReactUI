@@ -57,6 +57,7 @@ export default function NavbarPage() {
       </p>
 
       <Example
+        imports="Navbar, NavbarBrand, Toggler, NavbarCollapse, Nav, NavItem, NavLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Collapsible bar"
         summary="The toggler controls NavbarCollapse. An open dropdown in the bar paints above the content that follows."
         code={`<Navbar variant="primary" animate="scroll" rounded>
@@ -117,6 +118,7 @@ export default function NavbarPage() {
       </Example>
 
       <Example
+        imports="Navbar, NavbarBrand, Nav, NavItem, NavLink"
         title="Static bar"
         summary="Leave the toggler off when the links always fit. rounded on a nav item rounds that link."
         code={`<Navbar variant="secondary">
@@ -147,6 +149,7 @@ export default function NavbarPage() {
       </Example>
 
       <Example
+        imports="Toggler"
         title="Toggler animations"
         summary="iconAnimation changes how the icon moves when the toggler opens."
         code={`<Toggler expanded={expanded} iconAnimation="spin" onClick={() => setExpanded(!expanded)} />`}
@@ -159,6 +162,7 @@ export default function NavbarPage() {
       </Example>
 
       <Example
+        imports="Navbar, NavbarBrand, Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Flat bar"
         summary="shadow false removes the offset. The menu shows a normal border unless that menu passes animate."
         code={`<Navbar shadow={false}>

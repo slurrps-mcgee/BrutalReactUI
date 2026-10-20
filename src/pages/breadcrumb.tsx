@@ -45,6 +45,7 @@ export default function BreadcrumbPageDemo() {
       </p>
 
       <Example
+        imports="Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage"
         title="Basic"
         summary="Wrap the list in Breadcrumb. Separate items with BreadcrumbSeparator."
         code={`<Breadcrumb>
@@ -63,6 +64,7 @@ export default function BreadcrumbPageDemo() {
       </Example>
 
       <Example
+        imports="Breadcrumb"
         title="Variants"
         summary="Primary, secondary, and outline change the trail face."
         code={`<Breadcrumb variant="primary" />
@@ -77,6 +79,7 @@ export default function BreadcrumbPageDemo() {
       </Example>
 
       <Example
+        imports="BreadcrumbSeparator, BreadcrumbLink"
         title="Custom separator and disabled"
         summary="Children of BreadcrumbSeparator replace the default mark. disabled removes a link."
         code={`<BreadcrumbSeparator>/</BreadcrumbSeparator>

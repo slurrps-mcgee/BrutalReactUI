@@ -55,9 +55,15 @@ function pageId(hash: string) {
 }
 
 function preventDemoNavigation(event: MouseEvent<HTMLElement>) {
-  if ((event.target as Element).closest("a")) {
-    event.preventDefault();
-  }
+  const anchor = (event.target as Element).closest("a");
+  if (!anchor) return;
+
+  if (anchor.hasAttribute("data-docs-link")) return;
+
+  const href = anchor.getAttribute("href") ?? "";
+  if (/^https?:\/\//.test(href)) return;
+
+  event.preventDefault();
 }
 
 function SiteLinks({ current }: { current: string }) {
@@ -66,6 +72,16 @@ function SiteLinks({ current }: { current: string }) {
       <NavItem>
         <NavLink href="#/" active={current === "home"}>
           Home
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink href="#/colors" active={current === "colors"}>
+          Colors
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink href="#/themes" active={current === "themes"}>
+          Themes
         </NavLink>
       </NavItem>
       <NavGroup label="Library" defaultOpen>

@@ -20,6 +20,7 @@ export default function SpinnerPage() {
       </p>
 
       <Example
+        imports="Spinner"
         title="Variants"
         summary="Each variant sets the stroke color. current inherits the parent text color."
         code={`<Spinner variant="primary" label="Loading" />
@@ -38,6 +39,7 @@ export default function SpinnerPage() {
       </Example>
 
       <Example
+        imports="Spinner"
         title="Sizes"
         summary="Small, medium, and large set the diameter."
         code={`<Spinner size="sm" label="Small" />
@@ -52,6 +54,7 @@ export default function SpinnerPage() {
       </Example>
 
       <Example
+        imports="Button, Spinner"
         title="Inside a button"
         summary="current matches the button label while the action is in progress."
         code={`<Button disabled>

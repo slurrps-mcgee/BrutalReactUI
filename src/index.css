@@ -1,36 +1,16 @@
 @import "../lib/styles/index.css";
 
 /*
- * Add a theme by copying the :root[data-theme='dark'] block in lib/styles/index.css.
- * Override these color names and color-scheme only.
- * Then add the theme name to themeNames in lib/utils/theme-context.tsx.
- *
- * Example:
- *
- * :root[data-theme='ocean'] {
- *   color-scheme: dark;
- *   --background: #06283D;
- *   --secondary-background: #1363DF;
- *   --foreground: #DFF6FF;
- *   --main-foreground: #06283D;
- *   --main: #47B5FF;
- *   --border: #000000;
- *   --ring: #47B5FF;
- *   --overlay: oklch(0% 0 0 / 0.8);
- *   --shadow: 4px 4px 0px 0px var(--border);
- *   --chart-1: #00C8F0;
- *   --chart-2: #FF7A05;
- *   --chart-3: #7A83FF;
- *   --chart-4: #FF4D50;
- *   --chart-5: #FACC00;
- *   --chart-active-dot: #DFF6FF;
- *   --success: #00C853;
- *   --success-foreground: #06283D;
- *   --warning: #FACC00;
- *   --warning-foreground: #06283D;
- *   --danger: #FF4D50;
- *   --danger-foreground: #06283D;
- *   --info: #7A83FF;
- *   --info-foreground: #06283D;
- * }
+ * Showcase preview for the Themes page. ThemeProvider sets data-theme on html,
+ * so an app only needs the :root selector. The attribute selector lets the
+ * page preview the theme on one card.
  */
+:root[data-theme="ocean"],
+[data-theme="ocean"] {
+  color-scheme: dark;
+  --background: #06283d;
+  --main: #47b5ff;
+  --main-foreground: #06283d;
+  --foreground: #dff6ff;
+  --border: #dff6ff;
+}

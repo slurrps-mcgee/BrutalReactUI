@@ -25,6 +25,7 @@ export default function AlertPage() {
       </p>
 
       <Example
+        imports="Alert"
         title="Variants"
         summary="Each variant sets the face color and the default icon."
         code={`<Alert variant="success" title="Saved">Your edits are stored.</Alert>
@@ -41,6 +42,7 @@ export default function AlertPage() {
       </Example>
 
       <Example
+        imports="Alert"
         title="Dismissible"
         summary="Control open when the page needs to bring the alert back. The close control calls onOpenChange."
         code={`<Alert
@@ -73,6 +75,7 @@ export default function AlertPage() {
       </Example>
 
       <Example
+        imports="Alert, Button"
         title="Timer and actions"
         summary="duration dismisses the alert after a number of milliseconds. actions holds buttons or links beside the message."
         code={`<Alert
@@ -116,6 +119,7 @@ export default function AlertPage() {
       </Example>
 
       <Example
+        imports="Alert"
         title="Flat and borderless"
         summary="shadow false removes the offset. border false removes the stroke."
         code={`<Alert shadow={false} title="Flat">No offset.</Alert>

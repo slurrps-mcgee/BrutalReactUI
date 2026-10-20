@@ -11,6 +11,7 @@ export default function SkeletonPage() {
       </p>
 
       <Example
+        imports="Skeleton"
         title="Text and avatar"
         summary="circular is a disc. text is a short line. Set the size with className."
         code={`<Skeleton variant="circular" className="size-14" label="Loading avatar" />
@@ -42,6 +43,7 @@ export default function SkeletonPage() {
       </Example>
 
       <Example
+        imports="Skeleton"
         title="Blocks"
         summary="rectangular fills a region. wave moves a highlight across it. none holds still."
         code={`<Skeleton variant="rectangular" animation="wave" rounded className="min-h-40" />

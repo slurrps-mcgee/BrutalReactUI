@@ -20,6 +20,7 @@ export default function ListGroupPage() {
       </p>
 
       <Example
+        imports="ListGroup, ListGroupButton"
         title="Actionable items"
         summary="ListGroupButton sets active on the chosen row. disabled blocks a row."
         code={`<ListGroup variant="outline" rounded wrapperClassName="max-w-md" aria-label="Mailbox folders">
@@ -50,6 +51,7 @@ export default function ListGroupPage() {
       </Example>
 
       <Example
+        imports="ListGroup, ListGroupItem, ListGroupLink"
         title="Links and static rows"
         summary="ListGroupItem is plain text. ListGroupLink navigates. size changes the row padding."
         code={`<ListGroup variant="secondary" size="lg" wrapperClassName="max-w-md">
@@ -71,6 +73,7 @@ export default function ListGroupPage() {
       </Example>
 
       <Example
+        imports="ListGroup, ListGroupItem"
         title="Animation"
         summary="animate draws the outer stroke, then pops the list. The rows stay flush with each other."
         code={`<ListGroup animate="scroll" rounded wrapperClassName="max-w-md">
@@ -86,6 +89,7 @@ export default function ListGroupPage() {
       </Example>
 
       <Example
+        imports="ListGroup, ListGroupItem"
         title="Flat and borderless"
         summary="shadow false removes the offset. border false removes the outer stroke and the row rules."
         code={`<ListGroup shadow={false} wrapperClassName="max-w-md">

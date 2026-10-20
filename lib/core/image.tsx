@@ -9,8 +9,8 @@ import {
 
 // Image styles
 const imageStyles = [
-  // Layout and stacking
-  "relative z-10 aspect-video w-full",
+  // Layout and stacking. The face stays overflow-visible so the drawn stroke is not cut off.
+  "relative z-10 aspect-video w-full overflow-visible",
 
   // Border and fill
   "border-[3px] bg-secondary-background",
@@ -105,35 +105,33 @@ export default function Image({
             .join(" "),
         )}
       >
-        <img
-          src={image.src}
-          alt={`Screenshot of ${title}`}
-          width={image.width}
-          height={image.height}
-          loading="lazy"
-          decoding="async"
-          onError={() => setFailedSrc(image.src)}
+        <div
           className={twMerge(
-            [
-              // Crop from the top so previews keep the header in frame.
-              "block h-full w-full object-cover object-top",
-
-              // Clip the photo to the radius without clipping the drawn stroke.
-              rounded &&
-                "absolute inset-0 overflow-hidden rounded-[var(--radius)]",
-              failed && "sr-only",
-            ]
-              .filter(Boolean)
-              .join(" "),
+            "absolute inset-0 overflow-hidden",
+            rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
           )}
-        />
+        >
+          <img
+            src={image.src}
+            alt={`Screenshot of ${title}`}
+            width={image.width}
+            height={image.height}
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailedSrc(image.src)}
+            className={twMerge(
+              "block h-full w-full object-cover object-top",
+              failed && "sr-only",
+            )}
+          />
+        </div>
 
         {/* Border */}
         {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}
-            className="z-10"
+            className="z-20"
           />
         )}
       </div>

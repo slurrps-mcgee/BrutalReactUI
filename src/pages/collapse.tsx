@@ -19,6 +19,7 @@ export default function CollapsePage() {
       </p>
 
       <Example
+        imports="Collapse, CollapseTrigger, CollapseContent"
         title="Controlled"
         summary="open and onOpenChange keep the expanded state in the page."
         code={`<Collapse open={open} onOpenChange={setOpen} rounded>
@@ -41,6 +42,7 @@ export default function CollapsePage() {
       </Example>
 
       <Example
+        imports="Collapse, CollapseTrigger, CollapseContent"
         title="Uncontrolled"
         summary="defaultOpen starts the panel open. The collapse owns the state after that."
         code={`<Collapse defaultOpen={false}>
@@ -57,6 +59,7 @@ export default function CollapsePage() {
       </Example>
 
       <Example
+        imports="Collapse, CollapseTrigger, CollapseContent"
         title="Disabled"
         summary="disabled blocks the trigger and keeps the panel closed."
         code={`<Collapse disabled>
@@ -71,6 +74,7 @@ export default function CollapsePage() {
       </Example>
 
       <Example
+        imports="Collapse, CollapseTrigger, CollapseContent"
         title="Rounded and borderless"
         summary="rounded uses the library radius. border false removes the stroke."
         code={`<Collapse rounded>

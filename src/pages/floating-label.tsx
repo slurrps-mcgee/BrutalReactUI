@@ -14,6 +14,7 @@ export default function FloatingLabelPage() {
       </p>
 
       <Example
+        imports="FloatingLabel, Input"
         title="Required fields"
         summary="Put the Input inside FloatingLabel. required still uses native validation."
         code={`<FloatingLabel label="Email address">
@@ -48,6 +49,7 @@ export default function FloatingLabelPage() {
       </Example>
 
       <Example
+        imports="FloatingLabel, Input"
         title="Validity"
         summary="valid and invalid on the input recolor the field while the label stays attached."
         code={`<FloatingLabel label="Valid example">
@@ -68,6 +70,7 @@ export default function FloatingLabelPage() {
       </Example>
 
       <Example
+        imports="FloatingLabel, Input"
         title="Disabled"
         summary="A disabled input keeps the label raised and blocks editing."
         code={`<FloatingLabel label="Disabled">

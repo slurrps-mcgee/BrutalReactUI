@@ -22,6 +22,7 @@ export default function CodeSnippetPage() {
       </p>
 
       <Example
+        imports="CodeSnippet"
         title="TypeScript"
         summary="language picks the highlighter. Spaces and line breaks stay as written."
         code={`<CodeSnippet code={source} language="tsx" showLanguage rounded />`}
@@ -30,6 +31,7 @@ export default function CodeSnippetPage() {
       </Example>
 
       <Example
+        imports="CodeSnippet"
         title="Variants"
         summary="secondary and outline change the block face. animate draws the frame on scroll."
         code={`<CodeSnippet
@@ -56,6 +58,7 @@ export default function CodeSnippetPage() {
       </Example>
 
       <Example
+        imports="CodeSnippet"
         title="Wrap and flat"
         summary="wrap breaks long lines instead of scrolling sideways. shadow false removes the offset."
         code={`<CodeSnippet code={source} language="tsx" wrap shadow={false} />`}

@@ -28,6 +28,7 @@ export default function TablePage() {
       </p>
 
       <Example
+        imports="TableResponsive, Table, TableCaption, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter"
         title="Bordered, striped, and hoverable"
         summary="bordered draws one grid. striped tints every other row. hoverable marks the row under the pointer."
         code={`<TableResponsive shadow rounded>
@@ -88,6 +89,7 @@ export default function TablePage() {
       </Example>
 
       <Example
+        imports="Table, TableHeader, TableRow, TableHead, TableBody, TableCell"
         title="Plain rows"
         summary="Leave bordered off when row dividers are enough. size sm tightens the cells."
         code={`<Table size="sm">
@@ -126,6 +128,7 @@ export default function TablePage() {
       </Example>
 
       <Example
+        imports="TableResponsive, Table, TableBody, TableRow, TableCell"
         title="Flat frame"
         summary="TableResponsive shadow false removes the offset. A bordered table keeps one grid, without a second frame stroke."
         code={`<TableResponsive shadow={false}>

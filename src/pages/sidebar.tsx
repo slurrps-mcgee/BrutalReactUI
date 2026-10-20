@@ -26,9 +26,12 @@ export default function SidebarPage() {
       </p>
 
       <Example
+        imports="Sidebar, Nav, NavItem, NavLink, NavGroup"
         title="Collapsible rail"
         summary="collapsed hides the labels. The active link keeps its shadow flush with the face."
-        code={`<Sidebar collapsed={collapsed} animate="scroll" rounded>
+        code={`import { Award, Library, PanelLeft } from "lucide-react";
+
+<Sidebar collapsed={collapsed} animate="scroll" rounded>
   <Nav direction="column">
     <NavItem rounded>
       <NavLink href="#/sidebar" active icon={<PanelLeft />}>
@@ -91,6 +94,7 @@ export default function SidebarPage() {
       </Example>
 
       <Example
+        imports="Sidebar, Nav, NavItem, NavLink"
         title="Static sidebar"
         summary="shadow false leaves a flat rail. variant secondary changes the face."
         code={`<Sidebar variant="secondary" shadow={false}>
@@ -123,6 +127,7 @@ export default function SidebarPage() {
       </Example>
 
       <Example
+        imports="Button, Offcanvas, Nav, NavItem, NavLink"
         title="Offcanvas"
         summary="Offcanvas slides in over the page. onClose runs from the scrim and from Escape."
         code={`<Button onClick={() => setOpen(true)}>Open offcanvas</Button>

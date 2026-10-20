@@ -23,11 +23,17 @@ export default function CardsPage() {
       </p>
 
       <Example
+        imports="Card, CardImage, Image, CardHeader, Badge, CardBody, CardFooter"
         title="With media"
-        summary="CardImage frames a picture. CardHeader, CardBody, and CardFooter stack under it."
+        summary="CardImage bleeds the picture to the card edges. Leave the image border and shadow off so the card stroke is the only frame."
         code={`<Card animate="scroll" rounded wrapperClassName="max-w-md">
   <CardImage>
-    <Image image={image} title="Brutal React UI" />
+    <Image
+      image={image}
+      title="Brutal React UI"
+      shadow={false}
+      border={false}
+    />
   </CardImage>
   <CardHeader>
     <Badge variant="info">Library</Badge>
@@ -47,7 +53,8 @@ export default function CardsPage() {
               image={preview}
               title="Brutal React UI"
               className="aspect-auto h-48"
-              animate
+              shadow={false}
+              border={false}
             />
           </CardImage>
           <CardHeader>
@@ -71,6 +78,7 @@ export default function CardsPage() {
       </Example>
 
       <Example
+        imports="Card"
         title="Variants"
         summary="Primary is the default face. Secondary and outline are the other surfaces."
         code={`<Card variant="primary">Primary</Card>
@@ -109,6 +117,7 @@ export default function CardsPage() {
       </Example>
 
       <Example
+        imports="Card, CardBody"
         title="Rounded animation and no border"
         summary="animate with rounded draws the stroke on the card radius. border false removes that stroke."
         code={`<Card rounded animate>

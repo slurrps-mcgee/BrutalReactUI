@@ -1,6 +1,6 @@
 {
   "name": "brutal-react-ui",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Brutalist React components with a CSS variable theme you can extend.",
   "type": "module",
   "sideEffects": [
@@ -19,11 +19,12 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./styles.css": "./lib/styles/index.css"
+    "./styles.css": "./dist/styles.css"
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --p ./tsconfig-build.json && vite build",
+    "build": "tsc --p ./tsconfig-build.json && vite build && npm run build:css",
+    "build:css": "node scripts/build-css.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",

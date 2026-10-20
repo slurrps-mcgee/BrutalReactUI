@@ -24,6 +24,7 @@ export default function ModalPage() {
       </p>
 
       <Example
+        imports="Button, Modal, ModalHeader, ModalClose, ModalBody, ModalFooter"
         title="Animated dialog"
         summary="animate draws the border and pops the dialog. The body stays visible while that runs. ModalClose is a Button."
         code={`<Button onClick={() => setOpen(true)}>Open modal</Button>
@@ -71,6 +72,7 @@ export default function ModalPage() {
       </Example>
 
       <Example
+        imports="Modal, ModalHeader, ModalClose, ModalBody"
         title="Static dialog"
         summary="animate false opens the dialog without the border draw or the pop."
         code={`<Modal open={open} onOpenChange={setOpen} animate={false} variant="secondary">

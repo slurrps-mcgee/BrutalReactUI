@@ -16,6 +16,7 @@ export default function ButtonGroupPage() {
       </p>
 
       <Example
+        imports="ButtonGroup, ButtonGroupItem"
         title="Single selection"
         summary="selectionMode single keeps one pressed item. value and onValueChange control it."
         code={`<ButtonGroup
@@ -50,6 +51,7 @@ export default function ButtonGroupPage() {
       </Example>
 
       <Example
+        imports="ButtonGroup, ButtonGroupItem"
         title="Vertical"
         summary="orientation vertical stacks the items and joins their top and bottom borders."
         code={`<ButtonGroup
@@ -88,6 +90,7 @@ export default function ButtonGroupPage() {
       </Example>
 
       <Example
+        imports="ButtonGroup, ButtonGroupItem"
         title="Multiple selection"
         summary="selectionMode multiple stores an array. An item toggles in and out of the list."
         code={`<ButtonGroup
@@ -117,6 +120,7 @@ export default function ButtonGroupPage() {
       </Example>
 
       <Example
+        imports="ButtonGroup, ButtonGroupItem"
         title="Flat and borderless"
         summary="shadow false removes the group offset. border false removes the strokes on the items."
         code={`<ButtonGroup shadow={false}>
