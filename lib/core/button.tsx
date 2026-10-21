@@ -3,6 +3,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
+import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
@@ -62,7 +66,7 @@ const buttonStyles = cva(
         lg: "px-7 py-4 text-base",
       },
       // Stretch the face with the wrapper
-      fullWidth: {
+      fluid: {
         true: "w-full",
         false: "",
       },
@@ -70,7 +74,7 @@ const buttonStyles = cva(
     defaultVariants: {
       variant: "primary",
       size: "md",
-      fullWidth: false,
+      fluid: false,
     },
   },
 );
@@ -109,6 +113,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
     animate?: AnimationTrigger;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
     fillClassName?: string;
@@ -120,17 +125,22 @@ export default function Button({
   className,
   variant,
   size,
-  fullWidth,
-  animate = false,
-  rounded = false,
-  shadow = true,
+  fluid,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   fillClassName,
   type = "button",
   ...props
 }: ButtonProps) {
-  // Animation trigger
+  // Parent surface fills any prop this button leaves unset.
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
 
@@ -141,7 +151,7 @@ export default function Button({
       "relative isolate self-center items-center",
 
       // Full width
-      fullWidth ? "flex w-full" : "inline-flex w-fit",
+      fluid ? "flex w-full" : "inline-flex w-fit",
 
       // Shadow. A pop needs the offset, so animation turns it on.
       showShadow && "shadow-[var(--shadow)]",
@@ -159,15 +169,27 @@ export default function Button({
 
   // Main return
   return (
-    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
+    <div
+      ref={ref}
+      className={wrapperClassName}
+      data-pop-direction="out"
+      data-surface-shadow={
+        shadowProp === undefined ? undefined : shadow ? "own" : "off"
+      }
+      data-rounded={roundedProp === false ? "false" : undefined}
+    >
       <button
         type={type}
         className={twMerge(
           [
-            buttonStyles({ variant, size, fullWidth }),
+            buttonStyles({ variant, size, fluid }),
 
-            // Resting stroke, or none while the SVG draws it.
-            shouldAnimate ? "border-transparent" : "border-border",
+            // Resting stroke, or none while the SVG draws it. border false drops both.
+            !border
+              ? "border-none"
+              : shouldAnimate
+                ? "border-transparent"
+                : "border-border",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
@@ -181,7 +203,7 @@ export default function Button({
         {...props}
       >
         {/* Border */}
-        {shouldAnimate && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}

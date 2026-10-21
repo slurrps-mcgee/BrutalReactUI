@@ -12,7 +12,7 @@ export default function CollapsePage() {
   const [open, setOpen] = useState(true);
 
   return (
-    <Container title="Collapse" fullWidth animate="scroll" rounded>
+    <Container title="Collapse" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Collapse shows one panel. Control it with open, or leave it uncontrolled
         with defaultOpen.
@@ -76,14 +76,14 @@ export default function CollapsePage() {
       <Example
         imports="Collapse, CollapseTrigger, CollapseContent"
         title="Rounded and borderless"
-        summary="rounded uses the library radius. border false removes the stroke."
+        summary="rounded and border on Collapse pass to the panel. border on the content puts the top rule back."
         code={`<Collapse rounded>
   <CollapseTrigger>Rounded</CollapseTrigger>
   <CollapseContent>The panel follows the radius.</CollapseContent>
 </Collapse>
 <Collapse border={false}>
   <CollapseTrigger>No stroke</CollapseTrigger>
-  <CollapseContent>The fill stays.</CollapseContent>
+  <CollapseContent border>The top rule stays.</CollapseContent>
 </Collapse>`}
       >
         <Collapse rounded defaultOpen>
@@ -92,7 +92,7 @@ export default function CollapsePage() {
         </Collapse>
         <Collapse border={false} defaultOpen>
           <CollapseTrigger>No stroke</CollapseTrigger>
-          <CollapseContent>The fill stays.</CollapseContent>
+          <CollapseContent border>The top rule stays.</CollapseContent>
         </Collapse>
       </Example>
 

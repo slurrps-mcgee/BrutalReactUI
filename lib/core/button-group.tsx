@@ -13,6 +13,12 @@ import {
 } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
+import DrawBorder from "../utils/draw-border";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  useAnimationTrigger,
+  type AnimationTrigger,
+} from "../utils/use-enter-viewport";
 
 type ButtonGroupContextValue = {
   activeValue: string | null;
@@ -22,6 +28,7 @@ type ButtonGroupContextValue = {
   orientation: "horizontal" | "vertical";
   registerItem: (value: string, item: HTMLButtonElement | null) => void;
   rounded: boolean;
+  border: boolean;
   select: (value: string) => void;
   selectionMode: "none" | "single" | "multiple";
   setActiveValue: (value: string) => void;
@@ -55,6 +62,7 @@ export type ButtonGroupProps = Omit<
   rounded?: boolean;
   shadow?: boolean;
   border?: boolean;
+  animate?: AnimationTrigger;
   wrapperClassName?: string;
   faceClassName?: string;
   children?: ReactNode;
@@ -68,15 +76,22 @@ function ButtonGroupRoot({
   defaultValue,
   onValueChange,
   disabled = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  animate: animateProp,
   wrapperClassName,
   faceClassName,
   className,
   children,
   ...props
 }: ButtonGroupProps) {
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const showShadow = shadow || Boolean(animate);
   const [uncontrolledValue, setUncontrolledValue] = useState<string | string[]>(
     defaultValue ?? (selectionMode === "multiple" ? [] : ""),
   );
@@ -166,6 +181,7 @@ function ButtonGroupRoot({
     orientation,
     registerItem,
     rounded,
+    border,
     select,
     selectionMode,
     setActiveValue,
@@ -174,32 +190,54 @@ function ButtonGroupRoot({
 
   return (
     <ButtonGroupContext.Provider value={context}>
-      <div
-        role="toolbar"
-        aria-orientation={orientation}
-        className={twMerge(
-          [
-            // Layout
-            "inline-flex w-fit",
-            orientation === "horizontal" ? "flex-row" : "flex-col",
-
-            // Shared brutal shadow. Stays on this root.
-            shadow && "shadow-[var(--shadow)]",
-            !border && "[&_button]:border-none",
-            rounded && "rounded-[var(--radius)]",
-            wrapperClassName,
-            faceClassName,
-            className,
-          ]
-            .filter(Boolean)
-            .join(" "),
-        )}
-        data-orientation={orientation}
-        data-selection-mode={selectionMode}
-        {...props}
+      <SurfaceProvider
+        shadow={showShadow}
+        border={border}
+        rounded={rounded}
+        animate={animate}
       >
-        {children}
-      </div>
+        <div
+          ref={ref}
+          className={twMerge(
+            "relative inline-flex w-fit",
+            showShadow && "shadow-[var(--shadow)]",
+            rounded && "rounded-[var(--radius)]",
+            shouldAnimate && "animate-brutal-pop",
+            wrapperClassName,
+          )}
+          data-pop-direction={shouldAnimate ? "out" : undefined}
+        >
+          <div
+            role="toolbar"
+            aria-orientation={orientation}
+            className={twMerge(
+              [
+                // Layout
+                "relative inline-flex w-fit",
+                orientation === "horizontal" ? "flex-row" : "flex-col",
+                rounded && "rounded-[var(--radius)]",
+                shouldAnimate && "brutal-pop-face",
+                faceClassName,
+                className,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            )}
+            data-orientation={orientation}
+            data-selection-mode={selectionMode}
+            {...props}
+          >
+            {shouldAnimate && border && (
+              <DrawBorder
+                animate
+                radius={rounded ? "var(--radius)" : undefined}
+                className="z-10"
+              />
+            )}
+            {children}
+          </div>
+        </div>
+      </SurfaceProvider>
     </ButtonGroupContext.Provider>
   );
 }
@@ -253,6 +291,10 @@ const buttonGroupItemStyles = cva(
 export type ButtonGroupItemProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonGroupItemStyles> & {
     value: string;
+    rounded?: boolean;
+    border?: boolean;
+    shadow?: boolean;
+    animate?: AnimationTrigger;
   };
 
 // Roving-focus button and optional selection item.
@@ -264,6 +306,10 @@ export const ButtonGroupItem = forwardRef<
     value,
     variant,
     size,
+    rounded,
+    border,
+    shadow,
+    animate,
     className,
     disabled,
     onClick,
@@ -328,16 +374,25 @@ export const ButtonGroupItem = forwardRef<
 
           // Collapse adjacent 3px borders
           group.orientation === "horizontal"
-            ? "-ms-[3px] first:ms-0"
-            : "-mt-[3px] first:mt-0",
+            ? "-ms-[3px] first-of-type:ms-0"
+            : "-mt-[3px] first-of-type:mt-0",
 
-          // Optional outer group radius
-          group.rounded &&
+          // Optional outer group radius. An item can replace it.
+          border === false || (border === undefined && !group.border)
+            ? "border-none"
+            : "",
+          shadow && "shadow-[var(--shadow)]",
+          rounded === false && "!rounded-none",
+          rounded === true && "rounded-[var(--radius)]",
+          rounded !== false &&
+            group.rounded &&
             group.orientation === "horizontal" &&
-            "first:rounded-s-[var(--radius)] last:rounded-e-[var(--radius)]",
-          group.rounded &&
+            "first-of-type:rounded-s-[var(--radius)] last-of-type:rounded-e-[var(--radius)]",
+          rounded !== false &&
+            group.rounded &&
             group.orientation === "vertical" &&
-            "first:rounded-t-[var(--radius)] last:rounded-b-[var(--radius)]",
+            "first-of-type:rounded-t-[var(--radius)] last-of-type:rounded-b-[var(--radius)]",
+          animate && "brutal-pop-face",
           className,
         ]
           .filter(Boolean)

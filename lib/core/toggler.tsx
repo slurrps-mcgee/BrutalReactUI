@@ -2,7 +2,8 @@ import type { ButtonHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { useInNavbar, useNavbarRounded } from "./navbar";
+import { useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import { useInNavbar } from "./navbar";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -93,21 +94,23 @@ export default function Toggler({
   className,
   variant,
   size,
-  animate = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   type = "button",
   ...props
 }: TogglerProps) {
-  // Animation trigger
+  // A parent navbar, sidebar, or nav item fills any prop this button leaves unset.
+  const animate = useSurfaceAnimate(animateProp);
+  const isRounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
   const inNavbar = useInNavbar();
-  const navbarRounded = useNavbarRounded();
-  const isRounded = rounded || navbarRounded;
 
   // Wrapper classes
   const wrapperClassName = twMerge(

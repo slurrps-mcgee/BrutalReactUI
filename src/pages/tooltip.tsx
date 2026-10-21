@@ -12,7 +12,7 @@ const placements = ["top", "right", "bottom", "left"] as const;
 
 export default function TooltipPage() {
   return (
-    <Container title="Tooltip" fullWidth animate="scroll" rounded>
+    <Container title="Tooltip" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Tooltips name or explain a control. Hover or focus the trigger. Escape
         dismisses a visible tooltip without moving focus.

@@ -7,7 +7,7 @@ export default function InputsPage() {
   const [name, setName] = useState("Ada");
 
   return (
-    <Container title="Inputs" fullWidth>
+    <Container title="Inputs" fluid>
       <p className="max-w-2xl font-sans">
         Input is a single-line field. valid and invalid paint the face. Inside a
         FormField those flags come from the field when you omit them.

@@ -16,7 +16,13 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronUp } from "lucide-react";
 import DrawBorder from "../utils/draw-border";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
 import { useNavbarStack } from "./navbar";
+import { useNavAnimate } from "./nav";
+import {
+  useAnimationTrigger,
+  type AnimationTrigger,
+} from "../utils/use-enter-viewport";
 
 type DropdownContextValue = {
   open: boolean;
@@ -25,6 +31,8 @@ type DropdownContextValue = {
   shadow: boolean;
   border: boolean;
   rounded: boolean;
+  fluid: boolean;
+  animate: AnimationTrigger | undefined;
 };
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
@@ -44,6 +52,8 @@ export type DropdownProps = HTMLAttributes<HTMLDivElement> & {
   rounded?: boolean;
   shadow?: boolean;
   border?: boolean;
+  fluid?: boolean;
+  animate?: AnimationTrigger;
   wrapperClassName?: string;
 };
 
@@ -52,12 +62,18 @@ export function Dropdown({
   className,
   children,
   disabled = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  fluid = false,
+  animate: animateProp,
   wrapperClassName,
   ...props
 }: DropdownProps) {
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -86,13 +102,29 @@ export function Dropdown({
 
   return (
     <DropdownContext.Provider
-      value={{ open, setOpen, menuId, shadow, border, rounded }}
+      value={{
+        open,
+        setOpen,
+        menuId,
+        shadow,
+        border,
+        rounded,
+        fluid,
+        animate,
+      }}
     >
+      <SurfaceProvider
+        shadow={shadow}
+        border={border}
+        rounded={rounded}
+        animate={animate}
+      >
       <div
         ref={ref}
         aria-disabled={disabled || undefined}
         className={twMerge(
           "relative",
+          fluid ? "flex w-full" : "inline-flex w-fit",
           disabled && "pointer-events-none opacity-70",
           wrapperClassName,
           className,
@@ -101,6 +133,7 @@ export function Dropdown({
       >
         {children}
       </div>
+      </SurfaceProvider>
     </DropdownContext.Provider>
   );
 }
@@ -165,6 +198,10 @@ const toggleStyles = cva(
 export type DropdownToggleProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof toggleStyles> & {
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    animate?: AnimationTrigger;
+    caret?: boolean;
   };
 
 // Main DropdownToggle component
@@ -172,7 +209,11 @@ export function DropdownToggle({
   className,
   variant,
   size,
-  rounded = false,
+  rounded,
+  shadow: shadowProp,
+  border: borderProp,
+  animate: animateProp,
+  caret = true,
   children,
   type = "button",
   ...props
@@ -181,26 +222,34 @@ export function DropdownToggle({
     open,
     setOpen,
     menuId,
-    shadow,
-    border,
+    shadow: groupShadow,
+    border: groupBorder,
     rounded: groupRounded,
+    fluid,
+    animate: groupAnimate,
   } = useDropdown();
-  const isRounded = rounded || groupRounded;
+  const shadow = shadowProp ?? groupShadow;
+  const border = borderProp ?? groupBorder;
+  const isRounded = rounded ?? groupRounded;
+  const navAnimate = useNavAnimate();
+  const animate = animateProp ?? groupAnimate ?? navAnimate ?? false;
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const entrance = Boolean(animate);
 
-  return (
+  const button = (
     <button
       type={type}
       className={twMerge(
         [
           toggleStyles({ variant, size }),
 
-          // The shadow sits on the toggle so a rounded face rounds the offset.
-          // Open lifts the toggle. Flat stays put.
-          shadow && "shadow-[var(--shadow)]",
+          // Opening presses the face into the wrapper shadow. The caret still turns.
+          // Flat stays put. An entrance moves that shadow onto the wrapper.
           open &&
             shadow &&
-            "z-20 [translate:calc(var(--shadow-offset-x)*-1)_calc(var(--shadow-offset-y)*-1)]",
+            "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
           !border && "border-none",
+          shouldAnimate && border && "border-transparent brutal-pop-face",
           isRounded && "rounded-[var(--radius)]",
           className,
         ]
@@ -212,26 +261,58 @@ export function DropdownToggle({
       onClick={() => setOpen(!open)}
       {...props}
     >
+      {shouldAnimate && border && (
+        <DrawBorder
+          animate
+          radius={isRounded ? "var(--radius)" : undefined}
+          className="z-10"
+        />
+      )}
       <span className="relative z-10">{children}</span>
-      <ChevronUp
-        aria-hidden="true"
-        className={twMerge(
-          [
-            // Caret. Points up while closed.
-            "relative z-10 size-4 shrink-0",
+      {caret ? (
+        <ChevronUp
+          aria-hidden="true"
+          className={twMerge(
+            [
+              // Caret. Points up while closed.
+              "relative z-10 size-4 shrink-0",
 
-            // Turn down while the menu is open.
-            "transition-transform duration-200 ease-out",
-            open && "rotate-180",
+              // Turn down while the menu is open.
+              "transition-transform duration-200 ease-out",
+              open && "rotate-180",
 
-            // Reduced motion
-            "motion-reduce:transition-none",
-          ]
-            .filter(Boolean)
-            .join(" "),
-        )}
-      />
+              // Reduced motion
+              "motion-reduce:transition-none",
+            ]
+              .filter(Boolean)
+              .join(" "),
+          )}
+        />
+      ) : null}
     </button>
+  );
+
+  if (!entrance && !shadow) return button;
+
+  return (
+    <div
+      ref={entrance ? ref : undefined}
+      data-pop-direction={shouldAnimate ? "out" : undefined}
+      className={twMerge(
+        [
+          // The shadow stays on this box so the face can press into it.
+          "relative isolate",
+          fluid || entrance ? "flex w-full" : "inline-flex w-fit",
+          shadow && "shadow-[var(--shadow)]",
+          shouldAnimate && "animate-brutal-pop",
+          isRounded && "rounded-[var(--radius)]",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      )}
+    >
+      {button}
+    </div>
   );
 }
 
@@ -324,6 +405,7 @@ export function DropdownItem({
   className,
   variant,
   children,
+  onClick,
   ...props
 }: DropdownItemProps) {
   const { setOpen } = useDropdown();
@@ -352,7 +434,10 @@ export function DropdownItem({
         href={href}
         className={itemClassName}
         aria-current={active ? "page" : undefined}
-        onClick={() => setOpen(false)}
+        onClick={(event) => {
+          onClick?.(event);
+          setOpen(false);
+        }}
         {...props}
       >
         {body}
@@ -366,7 +451,8 @@ export function DropdownItem({
       className={itemClassName}
       disabled={disabled}
       aria-disabled={disabled || undefined}
-      onClick={() => {
+      onClick={(event) => {
+        onClick?.(event);
         if (!disabled) setOpen(false);
       }}
       {...props}
@@ -456,20 +542,35 @@ export type DropdownMenuProps = HTMLAttributes<HTMLDivElement> & {
   rounded?: boolean;
   animate?: boolean;
   border?: boolean;
+  shadow?: boolean;
+  align?: "left" | "right";
 };
 
 // Main DropdownMenu component.
 // animate draws the border, then reveals the shadow and pops the menu out.
 export function DropdownMenu({
   className,
-  rounded = false,
-  animate = false,
+  rounded,
+  animate: animateProp,
   border,
+  shadow: shadowProp,
+  align = "left",
   children,
   ...props
 }: DropdownMenuProps) {
-  const { open, menuId, shadow, border: groupBorder } = useDropdown();
+  const {
+    open,
+    menuId,
+    shadow: groupShadow,
+    border: groupBorder,
+    rounded: groupRounded,
+    fluid,
+    animate: groupAnimate,
+  } = useDropdown();
+  const shadow = shadowProp ?? groupShadow;
   const showBorder = border ?? groupBorder;
+  const isRounded = rounded ?? groupRounded;
+  const animate = animateProp ?? Boolean(groupAnimate);
   const stack = useNavbarStack();
   const { present, phase, onTransitionEnd, onAnimationEnd } = useMenuPresence(
     open,
@@ -502,7 +603,7 @@ export function DropdownMenu({
           showBorder && !animate && "border-border",
           !showBorder && "border-none",
           "bg-[var(--surface)] text-[var(--surface-foreground)]",
-          rounded && "rounded-[var(--radius)]",
+          isRounded && "rounded-[var(--radius)]",
           className,
         ]
           .filter(Boolean)
@@ -513,7 +614,7 @@ export function DropdownMenu({
       {showBorder && animate && (
         <DrawBorder
           animate
-          radius={rounded ? "var(--radius)" : undefined}
+          radius={isRounded ? "var(--radius)" : undefined}
           className="z-10"
         />
       )}
@@ -525,13 +626,15 @@ export function DropdownMenu({
     <div
       className={twMerge(
         [
-          // Drop below the toggle.
-          "absolute left-0 top-full z-30 mt-2",
+          // Drop below the toggle. right keeps a trailing toggle on the page.
+          "absolute top-full z-30 mt-2",
+          align === "right" ? "right-0" : "left-0",
+          fluid && "w-full",
 
           // The shadow appears only after the border finishes, so no edge
           // peeks out while the face is sitting in its starting position.
           shadow && phase === "out" && "shadow-[var(--shadow)]",
-          rounded && "rounded-[var(--radius)]",
+          isRounded && "rounded-[var(--radius)]",
         ]
           .filter(Boolean)
           .join(" "),
@@ -560,7 +663,7 @@ export function DropdownMenu({
             .join(" "),
         )}
         onTransitionEnd={animate ? onTransitionEnd : undefined}
-        onAnimationEnd={animate && border ? onAnimationEnd : undefined}
+        onAnimationEnd={animate && showBorder ? onAnimationEnd : undefined}
       >
         {face}
       </div>

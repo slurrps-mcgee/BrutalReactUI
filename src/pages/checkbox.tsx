@@ -8,7 +8,7 @@ export default function CheckboxPage() {
   const [updates, setUpdates] = useState(true);
 
   return (
-    <Container title="Checkbox" fullWidth>
+    <Container title="Checkbox" fluid>
       <p className="max-w-2xl font-sans">
         Checkbox pairs a real input with a visible box. The label sits beside
         the control.

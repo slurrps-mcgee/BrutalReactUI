@@ -2,6 +2,7 @@ import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import { useSurfaceFlag } from "../utils/surface";
 
 // Checkbox control styles
 const checkboxStyles = cva(
@@ -39,6 +40,7 @@ export type CheckboxProps = Omit<
     label?: ReactNode;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
     wrapperClassName?: string;
     controlClassName?: string;
     faceClassName?: string;
@@ -50,14 +52,18 @@ export default function Checkbox({
   className,
   size,
   label,
-  rounded = false,
-  shadow = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   wrapperClassName,
   controlClassName,
   faceClassName,
   disabled,
   ...props
 }: CheckboxProps) {
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const generatedId = useId();
   const id = idProp ?? generatedId;
 
@@ -90,6 +96,7 @@ export default function Checkbox({
             // Checked box steps onto its shadow. Flat stays put.
             shadow &&
               "peer-checked:-translate-x-0.5 peer-checked:-translate-y-0.5 peer-checked:shadow-[3px_3px_0_0_var(--shadow-color)]",
+            !border && "border-none",
             rounded && "rounded-[var(--radius)]",
             controlClassName,
             faceClassName,

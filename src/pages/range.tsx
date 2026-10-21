@@ -8,7 +8,7 @@ export default function RangePage() {
   const [steps, setSteps] = useState(5000);
 
   return (
-    <Container title="Range" fullWidth>
+    <Container title="Range" fluid>
       <p className="max-w-2xl font-sans">
         Range is a slider. showValue prints the current number. output replaces
         that text when the unit is not the raw value.

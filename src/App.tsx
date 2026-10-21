@@ -25,6 +25,7 @@ const links = [
   { id: "checkbox", label: "Checkbox" },
   { id: "code-snippet", label: "Code Snippet" },
   { id: "collapse", label: "Collapse" },
+  { id: "container", label: "Container" },
   { id: "dropdown", label: "Dropdown" },
   { id: "floating-label", label: "Floating Label" },
   { id: "form", label: "Form" },
@@ -120,7 +121,7 @@ function App() {
             <a href="#/" className="font-display text-2xl font-bold">
               Brutal
             </a>
-            <ThemeToggle />
+            <ThemeToggle align="right" />
           </div>
           <SiteLinks current={current} />
         </Sidebar>
@@ -131,7 +132,7 @@ function App() {
           <Navbar variant="primary">
             <NavbarBrand href="#/">Brutal</NavbarBrand>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
+              <ThemeToggle align="right" />
               <Toggler
                 expanded={open}
                 controls="site-nav"

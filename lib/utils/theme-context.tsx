@@ -1,6 +1,12 @@
 /* Theme names and the hook are part of this module. */
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 /*
  * Built-in themes. Add a name here when you add a matching
@@ -21,6 +27,9 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 function readStoredTheme(themes: readonly string[]): ThemePreference {
   if (typeof window === "undefined") {
@@ -62,9 +71,16 @@ export function ThemeProvider({
   const activeTheme: ThemePreference =
     theme !== "system" && !themes.includes(theme) ? "system" : theme;
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const root = document.documentElement;
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    /*
+     * The boot script sets an inline background so the first paint is not white.
+     * Drop it here. The stylesheet already has the theme variables.
+     */
+    root.style.background = "";
+    root.style.colorScheme = "";
 
     const applyTheme = () => {
       root.setAttribute("data-theme", resolveColorTheme(activeTheme));

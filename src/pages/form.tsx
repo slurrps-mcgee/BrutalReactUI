@@ -15,7 +15,7 @@ export default function FormPage() {
   const [submitted, setSubmitted] = useState(false);
 
   return (
-    <Container title="Form" fullWidth>
+    <Container title="Form" fluid>
       <p className="max-w-2xl font-sans">
         Form groups fields and runs native validation on submit. FormField,
         FormLabel, and FormFeedback name each control and its message.
@@ -24,7 +24,7 @@ export default function FormPage() {
       <Example
         imports="Form, FormField, FormLabel, Input, FormFeedback, Button"
         title="Validation"
-        summary="required fields block submit until they are filled. valid and invalid paint a field on purpose."
+        summary="rounded and animate on the form pass to the fields and the button. required fields block submit until they are filled."
         code={`<Form onSubmit={(event) => event.preventDefault()}>
   <FormField>
     <FormLabel required>Email</FormLabel>
@@ -87,7 +87,7 @@ export default function FormPage() {
       <Example
         imports="Form, FormField, FormLabel, Input, Button"
         title="Static form"
-        summary="Leave animate off for a form that is already in place. variant and size change the frame."
+        summary="Leave animate off for a form that is already in place. rounded on the field rounds that field only."
         code={`<Form variant="secondary" size="sm">
   <FormField>
     <FormLabel>Static form</FormLabel>
@@ -115,17 +115,25 @@ export default function FormPage() {
       <Example
         imports="Form, FormField, FormLabel, Input"
         title="Flat and borderless"
-        summary="shadow false removes the offset. border false removes the frame stroke."
+        summary="shadow false flattens the frame and the fields. shadow on a field puts that offset back. border false clears the strokes, and border on a field restores one."
         code={`<Form shadow={false}>
   <FormField>
     <FormLabel>Flat</FormLabel>
     <Input placeholder="No offset" />
+  </FormField>
+  <FormField>
+    <FormLabel>Keeps the offset</FormLabel>
+    <Input placeholder="Own shadow" shadow />
   </FormField>
 </Form>
 <Form border={false}>
   <FormField>
     <FormLabel>No stroke</FormLabel>
     <Input placeholder="No frame" />
+  </FormField>
+  <FormField>
+    <FormLabel>Keeps a stroke</FormLabel>
+    <Input placeholder="Own border" border />
   </FormField>
 </Form>`}
       >
@@ -134,11 +142,19 @@ export default function FormPage() {
             <FormLabel>Flat form</FormLabel>
             <Input placeholder="No offset" />
           </FormField>
+          <FormField>
+            <FormLabel>Keeps the offset</FormLabel>
+            <Input placeholder="Own shadow" shadow />
+          </FormField>
         </Form>
         <Form border={false} wrapperClassName="max-w-md">
           <FormField>
             <FormLabel>No stroke</FormLabel>
             <Input placeholder="No frame" />
+          </FormField>
+          <FormField>
+            <FormLabel>Keeps a stroke</FormLabel>
+            <Input placeholder="Own border" border />
           </FormField>
         </Form>
       </Example>

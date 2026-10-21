@@ -17,7 +17,10 @@ export {
   type AnimationTrigger,
 } from "./utils/use-enter-viewport";
 export { default as Link, type LinkProps } from "./core/link";
-export { default as ThemeToggle } from "./core/theme-toggle";
+export {
+  default as ThemeToggle,
+  type ThemeToggleProps,
+} from "./core/theme-toggle";
 export {
   default as Toggler,
   type TogglerAnimation,
@@ -212,6 +215,12 @@ export {
 
 export { ThemeProvider, themeNames, useTheme } from "./utils/theme-context";
 export type { ColorTheme, ThemePreference } from "./utils/theme-context";
+export {
+  themeBootColors,
+  themeBootScript,
+  themeStorageKey,
+} from "./theme-boot";
+export type { ThemeBootOptions } from "./theme-boot";
 
 export type {
   Experience,

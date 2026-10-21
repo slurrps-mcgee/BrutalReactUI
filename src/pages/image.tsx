@@ -7,7 +7,7 @@ const image = { src: exampleUrl, width: 1200, height: 675 };
 
 export default function ImagePage() {
   return (
-    <Container title="Image" fullWidth rounded>
+    <Container title="Image" fluid rounded>
       <p className="max-w-2xl font-sans">
         Image frames a picture with a caption. The caption is the accessible
         name, so title should describe the picture.

@@ -18,7 +18,7 @@ export default function AlertPage() {
   const [timerKey, setTimerKey] = useState(0);
 
   return (
-    <Container title="Alert" fullWidth animate="scroll" rounded>
+    <Container title="Alert" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Alerts call attention to a short status. Use a live region when the
         message appears after an action.

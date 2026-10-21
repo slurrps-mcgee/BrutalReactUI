@@ -11,14 +11,19 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { useRevealClip } from "./nav";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import { NavbarMenuProvider, useRevealClip } from "./nav";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
 function useBelowLg() {
-  const [below, setBelow] = useState(false);
+  const [below, setBelow] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 1023px)").matches,
+  );
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 1023px)");
@@ -39,10 +44,8 @@ export function useInNavbar() {
 }
 
 // A rounded bar shares its radius with the togglers inside it.
-const NavbarRoundedContext = createContext(false);
-
 export function useNavbarRounded() {
-  return useContext(NavbarRoundedContext);
+  return useSurfaceFlag(undefined, "rounded", false);
 }
 
 // Lets an open menu lift this bar above later siblings.
@@ -113,6 +116,7 @@ export type NavbarProps = HTMLAttributes<HTMLElement> &
     rounded?: boolean;
     shadow?: boolean;
     border?: boolean;
+    sticky?: boolean;
     disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -125,16 +129,20 @@ export default function Navbar({
   className,
   variant,
   size,
-  animate = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  sticky = false,
   disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   ...props
 }: NavbarProps) {
-  // Animation trigger
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
   const [raised, setRaised] = useState(0);
@@ -150,6 +158,9 @@ export default function Navbar({
     [
       // Layout and stacking. An open menu covers components that follow the bar.
       "relative isolate flex w-full",
+
+      // Stick to the top of the nearest scroll container. An open menu still lifts above it.
+      sticky && "sticky top-0 z-30",
       raised > 0 && "z-50",
 
       // Shadow. Optional so a bar can sit flat.
@@ -200,11 +211,16 @@ export default function Navbar({
           />
         )}
         <NavbarContext.Provider value={true}>
-          <NavbarRoundedContext.Provider value={rounded}>
+          <SurfaceProvider
+            shadow={showShadow}
+            border={border}
+            rounded={rounded}
+            animate={animate}
+          >
             <NavbarStackContext.Provider value={stack}>
               {children}
             </NavbarStackContext.Provider>
-          </NavbarRoundedContext.Provider>
+          </SurfaceProvider>
         </NavbarContext.Provider>
       </nav>
     </div>
@@ -265,10 +281,10 @@ export function NavbarCollapse({
     <div
       className={twMerge(
         [
-          // Height. Closed rows take no space below lg.
-          "relative z-10 grid w-full transition-[grid-template-rows] duration-300 ease-out",
+          // Height. Closed rows take no space below lg. basis-full wraps the menu onto its own row.
+          "relative z-10 grid w-full basis-full transition-[grid-template-rows] duration-300 ease-out",
           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-          "lg:w-auto lg:grid-rows-[1fr]",
+          "lg:w-auto lg:basis-auto lg:grid-rows-[1fr]",
 
           // Reduced motion
           "motion-reduce:transition-none",
@@ -283,15 +299,17 @@ export function NavbarCollapse({
         className={twMerge(
           [
             // Clip while the row is moving, then release so a menu can pop out.
-            "flex min-h-0 w-full flex-col gap-3",
+            // Below lg the list itself switches to a column, one full-width row each.
+            "flex min-h-0 w-full flex-col items-stretch gap-3",
             clip ? "overflow-hidden" : "overflow-visible",
+
             "lg:w-auto lg:flex-row lg:items-center lg:overflow-visible",
           ]
             .filter(Boolean)
             .join(" "),
         )}
       >
-        {children}
+        <NavbarMenuProvider stacked={belowLg}>{children}</NavbarMenuProvider>
       </div>
     </div>
   );

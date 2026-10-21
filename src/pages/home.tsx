@@ -147,7 +147,7 @@ export default function HomePage() {
         </div>
         <Container
           title="Primary parent"
-          fullWidth
+          fluid
           animate="scroll"
           shadow
           rounded
@@ -157,7 +157,7 @@ export default function HomePage() {
         <Container
           title="Secondary parent"
           variant="secondary"
-          fullWidth
+          fluid
           animate="scroll"
           rounded
         >

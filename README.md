@@ -8,10 +8,13 @@ React components with thick borders, hard shadows, and a palette stored in CSS v
 npm install brutal-react-ui
 ```
 
-`react` and `react-dom` are peer dependencies and are already in the app. The fonts, `class-variance-authority`, `lucide-react`, `tailwind-merge`, `prism-react-renderer`, and `tw-animate-css` are installed with the package. The published stylesheet is already compiled, so the app does not install Tailwind or add a Vite plugin.
+`react` and `react-dom` are peer dependencies and are already in the app. The fonts, `class-variance-authority`, `lucide-react`, `tailwind-merge`, `prism-react-renderer`, and `tw-animate-css` are installed with the package. The published stylesheet is already compiled, so the app does not install Tailwind. Import the stylesheet from the file `main` already loads.
+
+```tsx
+import "./index.css";
+```
 
 ```css
-/* src/styles/index.css, the file the app already loads */
 @import "brutal-react-ui/styles.css";
 ```
 
@@ -53,6 +56,7 @@ Wrap the tree in `ThemeProvider`. It writes `data-theme` on `<html>` and remembe
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "brutal-react-ui";
+import "./index.css";
 import App from "./App";
 
 createRoot(document.getElementById("root")!).render(
@@ -65,6 +69,35 @@ createRoot(document.getElementById("root")!).render(
 ```
 
 `ThemeToggle` and `useTheme` must render under `ThemeProvider`.
+
+`ThemeProvider` sets `data-theme` after the first paint. Add the Vite plugin so a dark reload does not flash the light background. It reads `localStorage` key `theme` and sets `data-theme` before paint.
+
+```ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { brutalReactUi } from "brutal-react-ui/vite";
+
+export default defineConfig({
+  plugins: [react(), brutalReactUi()],
+});
+```
+
+An app that does not use Vite pastes `themeBootScript()` into `index.html` as a blocking script at the start of `head`. Pass `colors` when a theme besides light and dark needs its own pre-paint background, for example `brutalReactUi({ colors: { ocean: "#06283d" } })`.
+
+`NavLink` does not read the router. Pass `active` from the current path, and call `navigate` from the click so the bar updates without a reload.
+
+```tsx
+<NavLink
+  href={to}
+  active={pathname === to}
+  onClick={(event) => {
+    event.preventDefault();
+    navigate(to);
+  }}
+>
+  About
+</NavLink>
+```
 
 ### Shared props
 
@@ -84,44 +117,44 @@ Status colors used by alerts, badges, progress, and toasts are `success`, `warni
 
 ### Components
 
-| Component       | Use                                                                                                                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Accordion`     | Stacked panels. `type` is `"single"` or `"multiple"`. Single mode is collapsible. Parts: `AccordionItem`, `AccordionTrigger`, `AccordionContent`.                      |
-| `Alert`         | Inline status. `dismissible` adds a close control. `timer` or `duration`, in milliseconds, fades it out. `0` keeps it open.                                            |
-| `Badge`         | Small label. `animate` draws its border and does not add a shadow.                                                                                                     |
-| `Breadcrumb`    | Trail of links. Parts: `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, `BreadcrumbSeparator`.                                                  |
-| `Button`        | Pressable face. `fullWidth` stretches it. `type` defaults to `"button"`. Pressing moves it into its shadow.                                                            |
-| `ButtonGroup`   | Joined buttons with one shadow. `selectionMode` is `"none"`, `"single"`, or `"multiple"`, and defaults to `"none"`. `orientation` is `"horizontal"` or `"vertical"`.   |
-| `Card`          | Surface that pops outward when `animate` is set. Hover moves it into its shadow. Parts: `CardHeader`, `CardBody`, `CardFooter`, `CardImage`.                           |
-| `Carousel`      | Slide track. `loop`, `autoplay`, `controls`, `indicators`, and `swipe` are optional. Parts: `CarouselSlide`.                                                           |
-| `Checkbox`      | Flat until checked, then it lifts with a short shadow.                                                                                                                 |
-| `CodeSnippet`   | Highlighted source with a copy control. `code` and `language` are required. `showLanguage` defaults to `true`.                                                         |
-| `Collapse`      | One panel. Control it with `open` and `onOpenChange`, or leave it uncontrolled. Parts: `CollapseTrigger`, `CollapseContent`.                                           |
-| `Container`     | Titled section. `shadow` defaults to `false`. `fullWidth` stretches it.                                                                                                |
-| `Dropdown`      | Menu whose border draws, then pops out. Parts: `DropdownToggle`, `DropdownMenu`, `DropdownItem`.                                                                       |
-| `FloatingLabel` | Label that rises while the field is focused or filled. Pass one `Input`.                                                                                               |
-| `Form`          | Validated form. `noValidate` is applied for you. Parts: `FormField`, `FormLabel`, `FormFeedback`. Invalid fields use the danger border and shadow.                     |
-| `Image`         | Framed image. `image` is `{ src, width?, height? }`. `title` becomes `Screenshot of ${title}`.                                                                         |
-| `Input`         | Field that sits in its shadow and lifts on focus. `valid` and `invalid` recolor the border. Invalid also recolors the shadow.                                          |
-| `InputGroup`    | Joined prefix, field, and suffix. The group lifts on focus. Parts: `InputGroupText`.                                                                                   |
-| `Link`          | Text link. `href` is required and `children` is a string. External `http` and `https` URLs open in a new tab.                                                          |
-| `ListGroup`     | Stacked items with one border and shadow. Parts: `ListGroupItem`, `ListGroupButton`, `ListGroupLink`.                                                                  |
-| `Modal`         | Dialog. `animate` draws the border, then reveals the face. Parts: `ModalHeader`, `ModalBody`, `ModalFooter`, `ModalClose`.                                             |
-| `Nav`           | Link list for a bar or sidebar. Parts: `NavItem`, `NavLink`, `NavGroup`. `NavItem` and `NavLink` accept `rounded`.                                                     |
-| `Navbar`        | Top bar. Parts: `NavbarBrand`, `NavbarCollapse`. Pair the collapse with `Toggler`.                                                                                     |
-| `Pagination`    | Page links. Parts: `PaginationList`, `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis`.                                 |
-| `Progress`      | Bar. Omit `value` for an indeterminate state. `shadow` defaults to `false`.                                                                                            |
-| `Radio`         | Round option. The shadow appears only while it is selected.                                                                                                            |
-| `Range`         | Slider. `rounded` rounds the track and thumb. `showValue` prints the current value.                                                                                    |
-| `Select`        | Listbox that pops open with its menu. Parts: `SelectOption`.                                                                                                           |
-| `Sidebar`       | Column that scrolls once it reaches the viewport height. `collapsed` switches it to an icon rail. `Offcanvas` is the overlay panel.                                    |
-| `Skeleton`      | Placeholder. `variant` is `text`, `circular`, or `rectangular`. `animation` is `pulse`, `wave`, or `none`.                                                             |
-| `Spinner`       | Loading mark. `label` is announced to assistive technology.                                                                                                            |
-| `Table`         | Data table. The shadow and animation live on `TableResponsive`, not on each cell. `bordered`, `striped`, `hoverable`, `compact`, and `stickyHeader` belong to `Table`. |
-| `Toast`         | Notification. Wrap the app in `ToastProvider`, render `ToastViewport`, and call `useToast()`. `timer` or `duration` fades each toast.                                  |
-| `Tooltip`       | Hover and focus hint. Parts: `TooltipTrigger`, `TooltipContent`.                                                                                                       |
-| `Toggler`       | Menu button. `iconAnimation` is `normal`, `spin`, `rotate-clockwise`, `rotate-counterclockwise`, `arrow-left`, `arrow-right`, `arrow-up`, or `arrow-down`.             |
-| `ThemeToggle`   | Switches between light and dark. It must render under `ThemeProvider`.                                                                                                 |
+| Component       | Use                                                                                                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Accordion`     | Stacked panels. `type` is `"single"` or `"multiple"`. Single mode is collapsible. Parts: `AccordionItem`, `AccordionTrigger`, `AccordionContent`.                                 |
+| `Alert`         | Inline status. `dismissible` adds a close control. `timer` or `duration`, in milliseconds, fades it out. `0` keeps it open.                                                       |
+| `Badge`         | Small label. `animate` draws its border and does not add a shadow.                                                                                                                |
+| `Breadcrumb`    | Trail of links. Parts: `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, `BreadcrumbSeparator`.                                                             |
+| `Button`        | Pressable face. `fluid` stretches it. `type` defaults to `"button"`. Pressing moves it into its shadow.                                                                       |
+| `ButtonGroup`   | Joined buttons with one shadow. `selectionMode` is `"none"`, `"single"`, or `"multiple"`, and defaults to `"none"`. `orientation` is `"horizontal"` or `"vertical"`.              |
+| `Card`          | Surface that pops outward when `animate` is set. Hover moves it into its shadow. Parts: `CardHeader`, `CardBody`, `CardFooter`, `CardImage`.                                      |
+| `Carousel`      | Slide track. `loop`, `autoplay`, `controls`, `indicators`, and `swipe` are optional. Parts: `CarouselSlide`.                                                                      |
+| `Checkbox`      | Flat until checked, then it lifts with a short shadow.                                                                                                                            |
+| `CodeSnippet`   | Highlighted source with a copy control. `code` and `language` are required. `showLanguage` defaults to `true`.                                                                    |
+| `Collapse`      | One panel. Control it with `open` and `onOpenChange`, or leave it uncontrolled. Parts: `CollapseTrigger`, `CollapseContent`.                                                      |
+| `Container`     | Section frame. The normal width is `max-w-7xl`. `fluid` fills the parent. `rounded` uses the library radius. `shadow` and `border` can be off. `animate` draws the border, then pops the face. |
+| `Dropdown`      | Menu. `shadow`, `border`, `rounded`, and `animate` pass to the toggle and the menu. `fluid` stretches both across the parent. Opening presses the toggle into its shadow. `animate` draws the toggle, then pops the menu out when it opens. `align` on `DropdownMenu` is `left` or `right`. Parts: `DropdownToggle`, `DropdownMenu`, `DropdownItem`. |
+| `FloatingLabel` | Label that rises while the field is focused or filled. Pass one `Input`.                                                                                                          |
+| `Form`          | Validated form. `noValidate` is applied for you. Parts: `FormField`, `FormLabel`, `FormFeedback`. Invalid fields use the danger border and shadow.                                |
+| `Image`         | Framed image. `image` is `{ src, width?, height? }`. `title` becomes `Screenshot of ${title}`.                                                                                    |
+| `Input`         | Field that sits in its shadow and lifts on focus. `valid` and `invalid` recolor the border. Invalid also recolors the shadow.                                                     |
+| `InputGroup`    | Joined prefix, field, and suffix. The group lifts on focus. Parts: `InputGroupText`.                                                                                              |
+| `Link`          | Text link. `href` is required and `children` is a string. External `http` and `https` URLs open in a new tab.                                                                     |
+| `ListGroup`     | Stacked items with one border and shadow. Parts: `ListGroupItem`, `ListGroupButton`, `ListGroupLink`.                                                                             |
+| `Modal`         | Dialog. `animate` draws the border, then reveals the face. Parts: `ModalHeader`, `ModalBody`, `ModalFooter`, `ModalClose`.                                                        |
+| `Nav`           | Link list for a bar or sidebar. Parts: `NavItem`, `NavLink`, `NavGroup`. `animate` on `NavItem` draws that link, and a dropdown in the item, then pops it.                        |
+| `Navbar`        | Top bar. `sticky` keeps it at the top while the page scrolls. `animate` draws the bar and, by default, its links, dropdown toggles, and toggler. An open collapse stacks each item full width below the large breakpoint. `fluid` on a `Dropdown` there spans that row. Parts: `NavbarBrand`, `NavbarCollapse`. Pair the collapse with `Toggler`. |
+| `Pagination`    | Page links. Parts: `PaginationList`, `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis`.                                            |
+| `Progress`      | Bar. Omit `value` for an indeterminate state. `shadow` defaults to `false`.                                                                                                       |
+| `Radio`         | Round option. The shadow appears only while it is selected.                                                                                                                       |
+| `Range`         | Slider. `rounded` rounds the track and thumb. `showValue` prints the current value.                                                                                               |
+| `Select`        | Listbox that pops open with its menu. Parts: `SelectOption`.                                                                                                                      |
+| `Sidebar`       | Column that scrolls once it reaches the viewport height. `collapsed` switches it to an icon rail. `Offcanvas` is the overlay panel.                                               |
+| `Skeleton`      | Placeholder. `variant` is `text`, `circular`, or `rectangular`. `animation` is `pulse`, `wave`, or `none`.                                                                        |
+| `Spinner`       | Loading mark. `label` is announced to assistive technology.                                                                                                                       |
+| `Table`         | Data table. The shadow and animation live on `TableResponsive`, not on each cell. `bordered`, `striped`, `hoverable`, `compact`, and `stickyHeader` belong to `Table`.            |
+| `Toast`         | Notification. Wrap the app in `ToastProvider`, render `ToastViewport`, and call `useToast()`. `timer` or `duration` fades each toast.                                             |
+| `Tooltip`       | Hover and focus hint. Parts: `TooltipTrigger`, `TooltipContent`.                                                                                                                  |
+| `Toggler`       | Menu button. `iconAnimation` is `normal`, `spin`, `rotate-clockwise`, `rotate-counterclockwise`, `arrow-left`, `arrow-right`, `arrow-up`, or `arrow-down`.                        |
+| `ThemeToggle`   | A button that switches light and dark. `animate` draws that control. When `ThemeProvider` themes include another name, it becomes a dropdown of those names. `align` is `left` or `right`. It must render under `ThemeProvider`. |
 
 ```tsx
 <Button variant="secondary" size="lg" rounded animate="scroll">
@@ -214,7 +247,7 @@ npm run build
 npm publish
 ```
 
-`npm run dev` starts the showcase in `src/`. `npm run build` typechecks `lib/`, writes `dist/index.js` (ESM), `dist/index.cjs` (CommonJS), and the `.d.ts` files, then compiles `dist/styles.css`. `prepublishOnly` runs that build before `npm publish`.
+`npm run dev` starts the showcase in `src/`. `npm run build` typechecks `lib/`, writes `dist/index.js` (ESM), `dist/index.cjs` (CommonJS), `dist/vite.js`, and the `.d.ts` files, then compiles `dist/styles.css`. `prepublishOnly` runs that build before `npm publish`. Only `dist` is published.
 
 Published entry points:
 
@@ -223,3 +256,4 @@ Published entry points:
 | `brutal-react-ui` (ESM)      | `dist/index.js`   |
 | `brutal-react-ui` (CommonJS) | `dist/index.cjs`  |
 | `brutal-react-ui/styles.css` | `dist/styles.css` |
+| `brutal-react-ui/vite`       | `dist/vite.js`    |

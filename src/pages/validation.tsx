@@ -19,7 +19,7 @@ export default function ValidationPage() {
   const valid = username.length >= 3;
 
   return (
-    <Container title="Validation" fullWidth animate="scroll" rounded>
+    <Container title="Validation" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Validation paints a field while the person is typing, and again when the
         browser rejects the value on submit.

@@ -12,6 +12,7 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -89,10 +90,10 @@ export function Form({
   className,
   variant,
   size,
-  animate = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -100,6 +101,10 @@ export function Form({
   ...props
 }: FormProps) {
   const [submitted, setSubmitted] = useState(false);
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
 
@@ -154,7 +159,14 @@ export function Form({
               className="z-10"
             />
           )}
-          {children}
+          <SurfaceProvider
+            shadow={showShadow}
+            border={border}
+            rounded={rounded}
+            animate={animate}
+          >
+            {children}
+          </SurfaceProvider>
         </form>
       </div>
     </FormContext.Provider>

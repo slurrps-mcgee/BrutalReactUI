@@ -98,7 +98,7 @@ function VariantDemo() {
 
 export default function ToastPage() {
   return (
-    <Container title="Toast" fullWidth animate="scroll" rounded>
+    <Container title="Toast" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Toasts report an action that already happened. Each provider owns its
         own queue.

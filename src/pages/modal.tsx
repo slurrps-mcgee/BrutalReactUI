@@ -17,7 +17,7 @@ export default function ModalPage() {
   const [status, setStatus] = useState("No release published.");
 
   return (
-    <Container title="Modal" fullWidth animate="scroll" rounded>
+    <Container title="Modal" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         A modal traps focus, closes with Escape, and returns focus to the
         control that opened it. The scrim is the page behind the dialog.
@@ -26,7 +26,7 @@ export default function ModalPage() {
       <Example
         imports="Button, Modal, ModalHeader, ModalClose, ModalBody, ModalFooter"
         title="Animated dialog"
-        summary="animate draws the border and pops the dialog. The body stays visible while that runs. ModalClose is a Button."
+        summary="animate, rounded, shadow, and border on the dialog pass to the buttons. rounded false on Publish keeps that button square."
         code={`<Button onClick={() => setOpen(true)}>Open modal</Button>
 <Modal open={open} onOpenChange={setOpen} animate rounded>
   <ModalHeader>
@@ -36,7 +36,7 @@ export default function ModalPage() {
   <ModalBody>Publish this release now?</ModalBody>
   <ModalFooter>
     <ModalClose>Cancel</ModalClose>
-    <Button onClick={() => setOpen(false)}>Publish</Button>
+    <Button rounded={false} onClick={() => setOpen(false)}>Publish</Button>
   </ModalFooter>
 </Modal>`}
       >
@@ -60,6 +60,7 @@ export default function ModalPage() {
           <ModalFooter>
             <ModalClose>Cancel</ModalClose>
             <Button
+              rounded={false}
               onClick={() => {
                 setStatus("Release published.");
                 setOpen(false);

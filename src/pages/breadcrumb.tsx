@@ -38,7 +38,7 @@ function Trail({
 
 export default function BreadcrumbPageDemo() {
   return (
-    <Container title="Breadcrumb" fullWidth animate="scroll" rounded>
+    <Container title="Breadcrumb" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Breadcrumbs show the path to the current page. The last item is the
         current page and is not a link.

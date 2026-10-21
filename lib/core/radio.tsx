@@ -1,6 +1,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
+import { useSurfaceFlag } from "../utils/surface";
 
 // Radio control styles
 const radioStyles = cva(
@@ -38,6 +39,7 @@ export type RadioProps = Omit<
   VariantProps<typeof radioStyles> & {
     label?: ReactNode;
     shadow?: boolean;
+    border?: boolean;
     wrapperClassName?: string;
     controlClassName?: string;
     faceClassName?: string;
@@ -50,14 +52,18 @@ export default function Radio({
   className,
   size,
   label,
-  shadow = true,
+  shadow: shadowProp,
+  border: borderProp,
   wrapperClassName,
   controlClassName,
   faceClassName,
-  rounded = false,
+  rounded: roundedProp,
   disabled,
   ...props
 }: RadioProps) {
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
   const generatedId = useId();
   const id = idProp ?? generatedId;
 
@@ -88,6 +94,7 @@ export default function Radio({
             // Checked circle steps onto its shadow. Flat stays put.
             shadow &&
               "peer-checked:-translate-x-px peer-checked:-translate-y-px peer-checked:shadow-[3px_3px_0_0_var(--shadow-color)]",
+            !border && "border-none",
             rounded && "rounded-[var(--radius)]",
             controlClassName,
             faceClassName,

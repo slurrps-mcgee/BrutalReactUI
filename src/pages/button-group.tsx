@@ -9,7 +9,7 @@ export default function ButtonGroupPage() {
   const [formats, setFormats] = useState<string[]>(["bold"]);
 
   return (
-    <Container title="Button Group" fullWidth animate="scroll" rounded>
+    <Container title="Button Group" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Button groups join related actions. selectionMode chooses whether the
         group tracks one value, many values, or none.
@@ -122,13 +122,13 @@ export default function ButtonGroupPage() {
       <Example
         imports="ButtonGroup, ButtonGroupItem"
         title="Flat and borderless"
-        summary="shadow false removes the group offset. border false removes the strokes on the items."
+        summary="shadow, border, and rounded on the group pass to the items. border on one item puts that stroke back."
         code={`<ButtonGroup shadow={false}>
   <ButtonGroupItem value="one">One</ButtonGroupItem>
   <ButtonGroupItem value="two">Two</ButtonGroupItem>
 </ButtonGroup>
 <ButtonGroup border={false} rounded>
-  <ButtonGroupItem value="one">One</ButtonGroupItem>
+  <ButtonGroupItem value="one" border>One</ButtonGroupItem>
   <ButtonGroupItem value="two">Two</ButtonGroupItem>
 </ButtonGroup>`}
       >
@@ -137,7 +137,9 @@ export default function ButtonGroupPage() {
           <ButtonGroupItem value="two">Two</ButtonGroupItem>
         </ButtonGroup>
         <ButtonGroup border={false} rounded aria-label="Borderless group">
-          <ButtonGroupItem value="one">One</ButtonGroupItem>
+          <ButtonGroupItem value="one" border>
+            One
+          </ButtonGroupItem>
           <ButtonGroupItem value="two">Two</ButtonGroupItem>
         </ButtonGroup>
       </Example>

@@ -15,7 +15,7 @@ export default function SelectPage() {
   const [team, setTeam] = useState("engineering");
 
   return (
-    <Container title="Select" fullWidth>
+    <Container title="Select" fluid>
       <p className="max-w-2xl font-sans">
         Select is a listbox. The trigger shows the chosen label, and the
         placeholder until a value is chosen.
@@ -110,12 +110,13 @@ export default function SelectPage() {
       <Example
         imports="Select, SelectOption"
         title="Flat and borderless"
-        summary="shadow false removes the offset. border false removes the trigger and menu strokes."
+        summary="shadow and border on Select pass to the trigger and the menu. border on an option puts a stroke on that row."
         code={`<Select shadow={false} defaultValue="one">
   <SelectOption value="one">Flat</SelectOption>
 </Select>
-<Select border={false} defaultValue="one">
-  <SelectOption value="one">No stroke</SelectOption>
+<Select border={false} rounded defaultValue="one">
+  <SelectOption value="one" border>Keeps a stroke</SelectOption>
+  <SelectOption value="two">No stroke</SelectOption>
 </Select>`}
       >
         <div className="grid gap-4 md:grid-cols-2">
@@ -125,11 +126,14 @@ export default function SelectPage() {
           </Select>
           <Select
             border={false}
+            rounded
             defaultValue="one"
             aria-label="Borderless select"
           >
-            <SelectOption value="one">No stroke</SelectOption>
-            <SelectOption value="two">Second</SelectOption>
+            <SelectOption value="one" border>
+              Keeps a stroke
+            </SelectOption>
+            <SelectOption value="two">No stroke</SelectOption>
           </Select>
         </div>
       </Example>

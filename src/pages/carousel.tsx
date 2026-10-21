@@ -13,7 +13,7 @@ export default function CarouselPage() {
   const [index, setIndex] = useState(0);
 
   return (
-    <Container title="Carousel" fullWidth animate="scroll" rounded>
+    <Container title="Carousel" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         A carousel cycles slides. Arrow keys, Home, and End move between them.
         On a touch device, swipe.
@@ -87,9 +87,10 @@ export default function CarouselPage() {
       <Example
         imports="Carousel, CarouselSlide"
         title="Outline and flat"
-        summary="outline uses the parent surface. shadow false removes the offset. border false removes the frame stroke."
-        code={`<Carousel label="Outline carousel" variant="outline" shadow={false}>
+        summary="shadow and border on Carousel pass to the frame and the controls. shadow on a slide puts an offset on that slide."
+        code={`<Carousel label="Outline carousel" variant="outline" shadow={false} rounded>
   <CarouselSlide>Outline slide</CarouselSlide>
+  <CarouselSlide shadow>Keeps an offset</CarouselSlide>
 </Carousel>
 <Carousel label="Borderless carousel" border={false}>
   <CarouselSlide>Borderless slide</CarouselSlide>
@@ -99,11 +100,17 @@ export default function CarouselPage() {
           label="Outline carousel"
           variant="outline"
           shadow={false}
+          rounded
           indicators={false}
         >
           <CarouselSlide>
             <div className="flex min-h-32 items-center justify-center px-16 py-8 font-bold uppercase">
               Outline slide
+            </div>
+          </CarouselSlide>
+          <CarouselSlide shadow>
+            <div className="flex min-h-32 items-center justify-center px-16 py-8 font-bold uppercase">
+              Keeps an offset
             </div>
           </CarouselSlide>
         </Carousel>

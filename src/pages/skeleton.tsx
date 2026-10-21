@@ -4,7 +4,7 @@ import { ComponentNotes, Example } from "./shared";
 
 export default function SkeletonPage() {
   return (
-    <Container title="Skeleton" fullWidth animate="scroll" rounded>
+    <Container title="Skeleton" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Skeletons stand in for content that has not loaded. label names the
         placeholder for assistive tech.

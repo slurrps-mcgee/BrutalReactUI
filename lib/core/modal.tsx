@@ -19,6 +19,8 @@ import { twMerge } from "tailwind-merge";
 import { X } from "lucide-react";
 import Button from "./button";
 import DrawBorder from "../utils/draw-border";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import type { AnimationTrigger } from "../utils/use-enter-viewport";
 import { useControllableState } from "../utils/use-controllable-state";
 import { useOverlay } from "../utils/use-overlay";
 
@@ -116,12 +118,12 @@ export default function Modal({
   onOpenChange,
   closeOnEscape = true,
   closeOnBackdrop = true,
-  animate = false,
+  animate: animateProp,
   centered = true,
   scrollable = true,
-  rounded = false,
-  shadow = true,
-  border = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   disabled = false,
   className,
   wrapperClassName,
@@ -132,6 +134,10 @@ export default function Modal({
   "aria-label": ariaLabel,
   ...props
 }: ModalProps) {
+  const animate = Boolean(useSurfaceAnimate(animateProp));
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const [open, setOpen] = useControllableState({
     value: openProp,
     defaultValue: defaultOpen,
@@ -301,9 +307,16 @@ export default function Modal({
                 className="z-30"
               />
             )}
-            <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-              {children}
-            </div>
+            <SurfaceProvider
+              shadow={shadow || animate}
+              border={border}
+              rounded={rounded}
+              animate={animate}
+            >
+              <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+                {children}
+              </div>
+            </SurfaceProvider>
           </div>
         </div>
       </div>
@@ -315,17 +328,28 @@ export default function Modal({
 // Modal header
 export function ModalHeader({
   className,
+  border,
+  rounded,
+  shadow,
   ...props
-}: HTMLAttributes<HTMLElement>) {
+}: HTMLAttributes<HTMLElement> & {
+  border?: boolean;
+  rounded?: boolean;
+  shadow?: boolean;
+}) {
   const { titleId } = useModal();
+  const showBorder = useSurfaceFlag(border, "border", true);
   return (
     <header
       {...props}
       id={titleId}
       className={twMerge(
         [
-          // Layout and divider
-          "flex items-start justify-between gap-4 border-b-[3px] border-border p-5",
+          // Layout and divider. border follows the dialog unless this header sets it.
+          "flex items-start justify-between gap-4 p-5",
+          showBorder && "border-b-[3px] border-border",
+          rounded && "rounded-[var(--radius)]",
+          shadow && "shadow-[var(--shadow)]",
           className,
         ]
           .filter(Boolean)
@@ -352,15 +376,26 @@ export function ModalBody({
 // Modal footer
 export function ModalFooter({
   className,
+  border,
+  rounded,
+  shadow,
   ...props
-}: HTMLAttributes<HTMLElement>) {
+}: HTMLAttributes<HTMLElement> & {
+  border?: boolean;
+  rounded?: boolean;
+  shadow?: boolean;
+}) {
   useModal();
+  const showBorder = useSurfaceFlag(border, "border", true);
   return (
     <footer
       className={twMerge(
         [
-          // Actions and divider
-          "flex flex-wrap items-center justify-end gap-3 border-t-[3px] border-border p-5",
+          // Actions and divider. border follows the dialog unless this footer sets it.
+          "flex flex-wrap items-center justify-end gap-3 p-5",
+          showBorder && "border-t-[3px] border-border",
+          rounded && "rounded-[var(--radius)]",
+          shadow && "shadow-[var(--shadow)]",
           className,
         ]
           .filter(Boolean)
@@ -372,13 +407,22 @@ export function ModalFooter({
 }
 
 // Modal close control
-export type ModalCloseProps = ButtonHTMLAttributes<HTMLButtonElement>;
+export type ModalCloseProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  animate?: AnimationTrigger;
+};
 
 export function ModalClose({
   className,
   children,
   type = "button",
   onClick,
+  rounded,
+  shadow,
+  border,
+  animate,
   "aria-label": ariaLabel,
   ...props
 }: ModalCloseProps) {
@@ -391,6 +435,10 @@ export function ModalClose({
       type={type}
       variant="primary"
       size={iconOnly ? "sm" : "md"}
+      rounded={rounded}
+      shadow={shadow}
+      border={border}
+      animate={animate}
       aria-label={ariaLabel ?? (iconOnly ? "Close dialog" : undefined)}
       className={className}
       onClick={(event) => {

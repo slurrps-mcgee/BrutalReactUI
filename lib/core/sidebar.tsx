@@ -2,6 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
 import { NavCollapseProvider } from "./nav";
 import {
   useAnimationTrigger,
@@ -91,10 +92,10 @@ export default function Sidebar({
   offcanvas = false,
   open = false,
   onClose,
-  animate = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  animate,
+  rounded,
+  shadow,
+  border,
   disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
@@ -115,9 +116,7 @@ export default function Sidebar({
       faceClassName={faceClassName}
       {...props}
     >
-      <NavCollapseProvider collapsed={collapsed}>
-        {children}
-      </NavCollapseProvider>
+      <NavCollapseProvider collapsed={collapsed}>{children}</NavCollapseProvider>
     </SidebarFace>
   );
 
@@ -132,6 +131,7 @@ export default function Sidebar({
       rounded={rounded}
       shadow={shadow}
       border={border}
+      animate={animate}
     >
       <NavCollapseProvider collapsed={false}>{children}</NavCollapseProvider>
     </Offcanvas>
@@ -146,16 +146,19 @@ function SidebarFace({
   variant,
   size,
   collapsed = false,
-  animate = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   ...props
 }: SidebarFaceProps) {
-  // Animation trigger
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
 
@@ -216,21 +219,28 @@ function SidebarFace({
             className="z-10"
           />
         )}
-        <div
-          className={twMerge(
-            [
-              // Layout. Scrolls a long column. A collapsed rail stays visible so the flyout is not clipped.
-              "flex min-h-0 w-full flex-1 flex-col gap-4",
-              collapsed
-                ? "items-center overflow-visible"
-                : "overflow-x-hidden overflow-y-auto pe-3",
-            ]
-              .filter(Boolean)
-              .join(" "),
-          )}
+        <SurfaceProvider
+          shadow={showShadow}
+          border={border}
+          rounded={rounded}
+          animate={animate}
         >
-          {children}
-        </div>
+          <div
+            className={twMerge(
+              [
+                // Layout. Scrolls a long column. A collapsed rail stays visible so the flyout is not clipped.
+                "flex min-h-0 w-full flex-1 flex-col gap-4",
+                collapsed
+                  ? "items-center overflow-visible"
+                  : "overflow-x-hidden overflow-y-auto pe-3",
+              ]
+                .filter(Boolean)
+                .join(" "),
+            )}
+          >
+            {children}
+          </div>
+        </SurfaceProvider>
       </aside>
     </div>
   );
@@ -244,6 +254,7 @@ export type OffcanvasProps = HTMLAttributes<HTMLElement> &
     rounded?: boolean;
     shadow?: boolean;
     border?: boolean;
+    animate?: AnimationTrigger;
     children?: ReactNode;
   };
 
@@ -254,12 +265,17 @@ export function Offcanvas({
   className,
   variant,
   size,
-  rounded = false,
-  shadow = true,
-  border = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  animate: animateProp,
   children,
   ...props
 }: OffcanvasProps) {
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
   if (!open) return null;
 
   return (
@@ -289,14 +305,21 @@ export function Offcanvas({
         )}
         {...props}
       >
-        <div
-          className={[
-            // Scroll the panel. The flyout is not used while the panel is expanded.
-            "flex min-h-0 w-full flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pe-3",
-          ].join(" ")}
+        <SurfaceProvider
+          shadow={shadow}
+          border={border}
+          rounded={rounded}
+          animate={animate}
         >
-          {children}
-        </div>
+          <div
+            className={[
+              // Scroll the panel. The flyout is not used while the panel is expanded.
+              "flex min-h-0 w-full flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto pe-3",
+            ].join(" ")}
+          >
+            {children}
+          </div>
+        </SurfaceProvider>
       </aside>
     </div>
   );

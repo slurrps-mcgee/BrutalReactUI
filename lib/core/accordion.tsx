@@ -9,6 +9,8 @@ import {
   type ReactNode,
 } from "react";
 import { twMerge } from "tailwind-merge";
+import { SurfaceProvider } from "../utils/surface";
+import type { AnimationTrigger } from "../utils/use-enter-viewport";
 import Collapse, {
   CollapseContent,
   CollapseTrigger,
@@ -21,6 +23,9 @@ type AccordionContextValue = {
   disabled: boolean;
   flush: boolean;
   border: boolean;
+  rounded: boolean;
+  shadow?: boolean;
+  animate?: AnimationTrigger;
   faceClassName?: string;
   isOpen: (value: string) => boolean;
   registerTrigger: (value: string, trigger: HTMLButtonElement | null) => void;
@@ -66,6 +71,8 @@ type AccordionBaseProps = Omit<
   flush?: boolean;
   rounded?: boolean;
   border?: boolean;
+  shadow?: boolean;
+  animate?: AnimationTrigger;
   faceClassName?: string;
   children?: ReactNode;
 };
@@ -108,6 +115,8 @@ function AccordionRoot(props: AccordionProps) {
     flush = true,
     rounded = false,
     border = true,
+    shadow,
+    animate,
     faceClassName,
     className,
     children,
@@ -163,6 +172,9 @@ function AccordionRoot(props: AccordionProps) {
     disabled,
     flush,
     border,
+    rounded,
+    shadow,
+    animate,
     faceClassName,
     isOpen: (value) => selected.has(value),
     registerTrigger: (value, trigger) => {
@@ -189,6 +201,12 @@ function AccordionRoot(props: AccordionProps) {
 
   return (
     <AccordionContext.Provider value={context}>
+      <SurfaceProvider
+        shadow={shadow}
+        border={border}
+        rounded={rounded}
+        animate={animate}
+      >
       <div
         className={twMerge(
           [
@@ -199,8 +217,10 @@ function AccordionRoot(props: AccordionProps) {
               [
                 "overflow-hidden rounded-[var(--radius)]",
                 "[&>*:first-child]:overflow-hidden [&>*:first-child]:rounded-t-[var(--radius)]",
-                "[&>*:first-child>button]:rounded-t-[var(--radius)]",
+                "[&>*:first-child_[data-collapse-face]]:rounded-t-[var(--radius)]",
+                "[&>*:first-child_button]:rounded-t-[var(--radius)]",
                 "[&>*:last-child]:overflow-hidden [&>*:last-child]:rounded-b-[var(--radius)]",
+                "[&>*:last-child_[data-collapse-face]]:rounded-b-[var(--radius)]",
                 "[&>*:last-child_[role=region]]:rounded-b-[var(--radius)]",
               ].join(" "),
             className,
@@ -214,6 +234,7 @@ function AccordionRoot(props: AccordionProps) {
       >
         {children}
       </div>
+      </SurfaceProvider>
     </AccordionContext.Provider>
   );
 }
@@ -232,6 +253,9 @@ export function AccordionItem({
   disabled = false,
   className,
   border,
+  rounded,
+  shadow,
+  animate,
   faceClassName,
   children,
   ...props
@@ -242,27 +266,39 @@ export function AccordionItem({
 
   return (
     <AccordionItemContext.Provider value={{ disabled: isDisabled, value }}>
-      <Collapse
-        open={open}
-        disabled={isDisabled}
-        border={border ?? accordion.border}
-        faceClassName={twMerge(accordion.faceClassName, faceClassName)}
-        onOpenChange={(nextOpen) => accordion.toggle(value, nextOpen)}
-        className={twMerge(
-          [
-            // Surface and grouped borders
-            "bg-[var(--surface)] text-[var(--surface-foreground)]",
-            accordion.flush && "-mt-[3px] first:mt-0",
-            className,
-          ]
-            .filter(Boolean)
-            .join(" "),
-        )}
-        data-accordion-value={value}
-        {...props}
+      <SurfaceProvider
+        border={border}
+        rounded={rounded}
+        shadow={shadow}
+        animate={animate}
       >
-        {children}
-      </Collapse>
+        <Collapse
+          open={open}
+          disabled={isDisabled}
+          border={border ?? accordion.border}
+          rounded={rounded}
+          shadow={shadow ?? accordion.shadow}
+          animate={animate ?? accordion.animate}
+          faceClassName={twMerge(accordion.faceClassName, faceClassName)}
+          onOpenChange={(nextOpen) => accordion.toggle(value, nextOpen)}
+          className={twMerge(
+            [
+              // Surface and grouped borders
+              "bg-[var(--surface)] text-[var(--surface-foreground)]",
+              accordion.flush && "-mt-[3px] first:mt-0",
+              rounded === false &&
+                "!rounded-none [&_[data-collapse-face]]:!rounded-none [&_button]:!rounded-none [&_[role=region]]:!rounded-none",
+              className,
+            ]
+              .filter(Boolean)
+              .join(" "),
+          )}
+          data-accordion-value={value}
+          {...props}
+        >
+          {children}
+        </Collapse>
+      </SurfaceProvider>
     </AccordionItemContext.Provider>
   );
 }

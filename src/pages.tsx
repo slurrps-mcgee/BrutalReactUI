@@ -10,6 +10,7 @@ import CheckboxPage from "./pages/checkbox";
 import CodeSnippetPage from "./pages/code-snippet";
 import ColorsPage from "./pages/colors";
 import CollapsePage from "./pages/collapse";
+import ContainerPage from "./pages/container";
 import DropdownPage from "./pages/dropdown";
 import FloatingLabelPage from "./pages/floating-label";
 import FormPage from "./pages/form";
@@ -48,6 +49,7 @@ const pageMap = {
   "code-snippet": CodeSnippetPage,
   colors: ColorsPage,
   collapse: CollapsePage,
+  container: ContainerPage,
   dropdown: DropdownPage,
   "floating-label": FloatingLabelPage,
   form: FormPage,

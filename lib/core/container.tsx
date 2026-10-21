@@ -16,7 +16,8 @@ const containerStyles = cva(
     // Border and typography
     "border-[3px] bg-secondary-background text-foreground",
 
-    // Disabled state and reduced motion
+    // Disabled state and reduced motion. Gray communicates that it cannot be used.
+    "aria-disabled:pointer-events-none aria-disabled:bg-disabled aria-disabled:text-disabled-foreground",
     "motion-reduce:transition-none",
   ].join(" "),
   {
@@ -73,11 +74,6 @@ const containerStyles = cva(
         md: "gap-5",
         lg: "gap-8",
       },
-      // Stretch the face with the wrapper
-      fullWidth: {
-        true: "w-full",
-        false: "",
-      },
     },
     defaultVariants: {
       variant: "primary",
@@ -86,7 +82,6 @@ const containerStyles = cva(
       align: "stretch",
       justify: "start",
       gap: "md",
-      fullWidth: false,
     },
   },
 );
@@ -94,11 +89,13 @@ const containerStyles = cva(
 // Container props
 export type ContainerProps = HTMLAttributes<HTMLElement> &
   VariantProps<typeof containerStyles> & {
-    title: string;
+    title?: string;
     animate?: AnimationTrigger;
+    fluid?: boolean;
     shadow?: boolean;
     border?: boolean;
     rounded?: boolean;
+    disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
     children?: ReactNode;
@@ -115,11 +112,12 @@ export default function Container({
   align,
   justify,
   gap,
-  fullWidth,
   animate = false,
+  fluid = false,
   shadow = true,
   border = true,
   rounded = false,
+  disabled = false,
   wrapperClassName: wrapperClassNameProp,
   faceClassName,
   ...props
@@ -127,18 +125,19 @@ export default function Container({
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
 
-  // Wrapper classes
+  // Wrapper classes. fluid fills the parent. Otherwise the section stops at 7xl.
   const wrapperClassName = twMerge(
     [
-      // Layout and stacking
-      "relative isolate",
+      // Layout and stacking. The face fills this box.
+      "relative isolate flex w-full",
+      fluid ? "" : "mx-auto max-w-7xl",
 
-      // Full width
-      fullWidth ? "flex w-full" : "inline-flex w-fit",
-
-      // Shadow
+      // Shadow. A pop needs the offset, so animation turns it on.
       showShadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
+
+      // Animation
+      shouldAnimate && "animate-brutal-pop",
     ]
       .filter(Boolean)
       .join(" "),
@@ -158,8 +157,8 @@ export default function Container({
               align,
               justify,
               gap,
-              fullWidth,
             }),
+            "w-full",
 
             // Resting stroke, or none while the SVG draws it. border false drops both.
             !border
@@ -177,6 +176,7 @@ export default function Container({
             .filter(Boolean)
             .join(" "),
         )}
+        aria-disabled={disabled || undefined}
         {...props}
       >
         {/* Border */}

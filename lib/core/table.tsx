@@ -9,6 +9,7 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -61,8 +62,16 @@ const TableContext = createContext<TableOptions>({
   size: "md",
 });
 
+type CellSurfaceProps = {
+  border?: boolean;
+  rounded?: boolean;
+  shadow?: boolean;
+  animate?: AnimationTrigger;
+};
+
 export type TableProps = TableHTMLAttributes<HTMLTableElement> &
-  TableStyleProps & {
+  TableStyleProps &
+  CellSurfaceProps & {
     bordered?: boolean;
     striped?: boolean;
     hoverable?: boolean;
@@ -79,19 +88,37 @@ export default function Table({
   hoverable = false,
   compact = false,
   stickyHeader = false,
+  border,
+  rounded,
+  shadow,
+  animate,
+  children,
   ...props
 }: TableProps) {
+  const grid = border ?? bordered;
+
   return (
     <TableContext.Provider
-      value={{ bordered, striped, hoverable, compact, stickyHeader, size }}
+      value={{ bordered: grid, striped, hoverable, compact, stickyHeader, size }}
     >
-      <table
-        data-bordered={bordered ? "" : undefined}
-        className={twMerge(
-          [tableStyles({ variant, size }), className].filter(Boolean).join(" "),
-        )}
-        {...props}
-      />
+      <SurfaceProvider
+        border={border}
+        rounded={rounded}
+        shadow={shadow}
+        animate={animate}
+      >
+        <table
+          data-bordered={grid ? "" : undefined}
+          className={twMerge(
+            [tableStyles({ variant, size }), className]
+              .filter(Boolean)
+              .join(" "),
+          )}
+          {...props}
+        >
+          {children}
+        </table>
+      </SurfaceProvider>
     </TableContext.Provider>
   );
 }
@@ -108,16 +135,20 @@ export type TableResponsiveProps = HTMLAttributes<HTMLDivElement> & {
 
 export function TableResponsive({
   className,
-  rounded = false,
-  shadow = true,
-  border = true,
-  animate = false,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  animate: animateProp,
   disabled = false,
   wrapperClassName,
   faceClassName,
   children,
   ...props
 }: TableResponsiveProps) {
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
 
@@ -195,7 +226,14 @@ export function TableResponsive({
           )}
           {...props}
         >
-          {children}
+          <SurfaceProvider
+            shadow={showShadow}
+            border={border}
+            rounded={rounded}
+            animate={animate}
+          >
+            {children}
+          </SurfaceProvider>
         </div>
       </div>
     </div>
@@ -268,15 +306,21 @@ export function TableFooter({
 
 export function TableRow({
   className,
+  border,
+  rounded,
+  shadow,
   ...props
-}: HTMLAttributes<HTMLTableRowElement>) {
+}: HTMLAttributes<HTMLTableRowElement> & CellSurfaceProps) {
   const { bordered, hoverable } = useContext(TableContext);
+  const showRule = border ?? !bordered;
   return (
     <tr
       className={twMerge(
         [
-          // Every row keeps a bottom rule, including the last.
-          !bordered && "border-b-[3px] border-border",
+          // Every row keeps a bottom rule, including the last, unless a cell grid replaces it.
+          showRule && "border-b-[3px] border-border",
+          rounded && "rounded-[var(--radius)]",
+          shadow && "shadow-[var(--shadow)]",
 
           // Interaction and reduced motion
           "transition-colors duration-150 motion-reduce:transition-none",
@@ -300,9 +344,13 @@ function cellPadding(size: TableOptions["size"], compact: boolean) {
 
 export function TableHead({
   className,
+  border,
+  rounded,
+  shadow,
   ...props
-}: ThHTMLAttributes<HTMLTableCellElement>) {
+}: ThHTMLAttributes<HTMLTableCellElement> & CellSurfaceProps) {
   const { bordered, compact, size } = useContext(TableContext);
+  const showBorder = border ?? bordered;
   return (
     <th
       className={twMerge(
@@ -311,7 +359,9 @@ export function TableHead({
           "text-left font-bold uppercase tracking-wide",
 
           // Full grid. Collapse shares each edge, so every row and column is ruled.
-          bordered && "border-[3px] border-border",
+          showBorder && "border-[3px] border-border",
+          rounded && "rounded-[var(--radius)]",
+          shadow && "shadow-[var(--shadow)]",
           cellPadding(size, compact),
           className,
         ]
@@ -325,15 +375,21 @@ export function TableHead({
 
 export function TableCell({
   className,
+  border,
+  rounded,
+  shadow,
   ...props
-}: TdHTMLAttributes<HTMLTableCellElement>) {
+}: TdHTMLAttributes<HTMLTableCellElement> & CellSurfaceProps) {
   const { bordered, compact, size } = useContext(TableContext);
+  const showBorder = border ?? bordered;
   return (
     <td
       className={twMerge(
         [
           // Full grid. Collapse shares each edge, so every row and column is ruled.
-          bordered && "border-[3px] border-border",
+          showBorder && "border-[3px] border-border",
+          rounded && "rounded-[var(--radius)]",
+          shadow && "shadow-[var(--shadow)]",
           cellPadding(size, compact),
           className,
         ]
@@ -347,9 +403,13 @@ export function TableCell({
 
 export function TableCaption({
   className,
+  border,
+  rounded,
+  shadow,
   ...props
-}: HTMLAttributes<HTMLTableCaptionElement>) {
+}: HTMLAttributes<HTMLTableCaptionElement> & CellSurfaceProps) {
   const { bordered } = useContext(TableContext);
+  const showBorder = border ?? bordered;
   return (
     <caption
       className={twMerge(
@@ -357,7 +417,9 @@ export function TableCaption({
           // Layout and typography. Side and bottom rules continue the cell grid.
           // The row above already supplies the top rule.
           "caption-bottom bg-secondary-background px-4 py-3 text-left text-sm text-foreground",
-          bordered && "border-x-[3px] border-b-[3px] border-border",
+          showBorder && "border-x-[3px] border-b-[3px] border-border",
+          rounded && "rounded-[var(--radius)]",
+          shadow && "shadow-[var(--shadow)]",
           className,
         ]
           .filter(Boolean)

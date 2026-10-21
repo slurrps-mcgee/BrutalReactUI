@@ -8,6 +8,7 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -79,15 +80,19 @@ export default function ListGroup({
   className,
   variant,
   size,
-  animate = false,
-  rounded = false,
-  shadow = true,
-  border = true,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   wrapperClassName,
   faceClassName,
   children,
   ...props
 }: ListGroupProps) {
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const showShadow = shadow || Boolean(animate);
 
@@ -129,7 +134,10 @@ export default function ListGroup({
                 : shouldAnimate
                   ? "border-transparent"
                   : "border-border",
-              !border && "[&>li]:border-none [&>li.contents>*]:border-none",
+              !border &&
+                "[&>li:not([data-border=true])]:!border-none [&>li.contents:not([data-border=true])>*]:!border-none [&>li[data-border=true]:not(:first-child)]:border-t-[3px] [&>li[data-border=true]:not(:first-child)]:border-border [&>li.contents[data-border=true]:not(:first-child)>*]:border-t-[3px] [&>li.contents[data-border=true]:not(:first-child)>*]:border-border",
+              "[&>li[data-border=false]]:!border-b-0 [&>li.contents[data-border=false]>*]:!border-b-0",
+              "[&>li[data-rounded=false]]:!rounded-none [&>li.contents[data-rounded=false]>*]:!rounded-none",
 
               // Pop target. Must be the wrapper's direct child.
               shouldAnimate && "brutal-pop-face",
@@ -150,7 +158,14 @@ export default function ListGroup({
               className="z-10"
             />
           )}
-          {children}
+          <SurfaceProvider
+            shadow={showShadow}
+            border={border}
+            rounded={rounded}
+            animate={animate}
+          >
+            {children}
+          </SurfaceProvider>
         </ul>
       </div>
     </ListGroupContext.Provider>
@@ -204,7 +219,32 @@ const itemStyles = cva(
 type SharedItemProps = {
   active?: boolean;
   disabled?: boolean;
+  border?: boolean;
+  rounded?: boolean;
+  shadow?: boolean;
+  animate?: AnimationTrigger;
 };
+
+function useItemChrome({
+  border,
+  rounded,
+  shadow,
+}: Pick<SharedItemProps, "border" | "rounded" | "shadow">) {
+  const showBorder = useSurfaceFlag(border, "border", true);
+  return {
+    // The list frame owns the shared shadow. A row paints one only when it asks.
+    shadow: shadow === true,
+    // Inherited radius stays on the frame. A row can force its own or opt out.
+    roundClass:
+      rounded === false
+        ? "!rounded-none"
+        : rounded === true
+          ? "rounded-[var(--radius)]"
+          : "",
+    dataBorder: showBorder ? "true" : "false",
+    dataRounded: rounded === false ? "false" : undefined,
+  };
+}
 
 export type ListGroupItemProps = HTMLAttributes<HTMLLIElement> &
   SharedItemProps;
@@ -212,15 +252,28 @@ export type ListGroupItemProps = HTMLAttributes<HTMLLIElement> &
 export function ListGroupItem({
   active = false,
   disabled = false,
+  border,
+  rounded,
+  shadow,
+  animate,
   className,
   ...props
 }: ListGroupItemProps) {
   const { size } = useContext(ListGroupContext);
+  const chrome = useItemChrome({ border, rounded, shadow });
   return (
     <li
       aria-current={active ? "true" : undefined}
       aria-disabled={disabled || undefined}
-      className={twMerge(itemStyles({ size, active }), className)}
+      data-border={chrome.dataBorder}
+      data-rounded={chrome.dataRounded}
+      className={twMerge(
+        itemStyles({ size, active }),
+        chrome.roundClass,
+        chrome.shadow && "shadow-[var(--shadow)]",
+        animate && "animate-brutal-pop",
+        className,
+      )}
       {...props}
     />
   );
@@ -233,18 +286,24 @@ export function ListGroupLink({
   href,
   active = false,
   disabled = false,
+  border,
+  rounded,
+  shadow,
   className,
   ...props
 }: ListGroupLinkProps) {
   const { size } = useContext(ListGroupContext);
+  const chrome = useItemChrome({ border, rounded, shadow });
   return (
-    <li className="contents">
+    <li className="contents" data-border={chrome.dataBorder} data-rounded={chrome.dataRounded}>
       <a
         href={disabled ? undefined : href}
         aria-current={active ? "page" : undefined}
         aria-disabled={disabled || undefined}
         className={twMerge(
           itemStyles({ size, active, interactive: !disabled }),
+          chrome.roundClass,
+          chrome.shadow && "shadow-[var(--shadow)]",
           className,
         )}
         {...props}
@@ -259,19 +318,25 @@ export type ListGroupButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
 export function ListGroupButton({
   active = false,
   disabled = false,
+  border,
+  rounded,
+  shadow,
   className,
   type = "button",
   ...props
 }: ListGroupButtonProps) {
   const { size } = useContext(ListGroupContext);
+  const chrome = useItemChrome({ border, rounded, shadow });
   return (
-    <li className="contents">
+    <li className="contents" data-border={chrome.dataBorder} data-rounded={chrome.dataRounded}>
       <button
         type={type}
         disabled={disabled}
         aria-current={active ? "true" : undefined}
         className={twMerge(
           itemStyles({ size, active, interactive: !disabled }),
+          chrome.roundClass,
+          chrome.shadow && "shadow-[var(--shadow)]",
           className,
         )}
         {...props}

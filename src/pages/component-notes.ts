@@ -133,7 +133,7 @@ const mountOrScroll =
 
 export const accordionNotes = note(
   "Stack labeled sections and keep one, or several, open. AccordionItem holds a trigger and a panel; the root decides whether a single panel or many can stay open.",
-  "The panel height eases open and closed. There is no draw or pop trigger.",
+  "The panel height eases open and closed. shadow, border, rounded, and animate on Accordion pass to each item. Set the same prop on an item to replace the parent value.",
   [
     {
       name: "type",
@@ -323,7 +323,7 @@ export const breadcrumbNotes = note(
 
 export const buttonGroupNotes = note(
   "Join related actions into one row or column. selectionMode turns the group into a single-choice or multi-choice control.",
-  "None on the group. Buttons inside can still use their own animate prop.",
+  "animate on the group draws the joined control. shadow, border, rounded, and animate pass to each item. Set the same prop on an item to replace the parent value.",
   [
     {
       name: "orientation",
@@ -385,7 +385,7 @@ export const buttonNotes = note(
       detail: "Sets the face color.",
     },
     { name: "size", type: "sm | md | lg", detail: "Padding and type size." },
-    { name: "fullWidth", type: "boolean", detail: "Stretches the wrapper." },
+    { name: "fluid", type: "boolean", detail: "Stretches the wrapper." },
     {
       name: "animate",
       type: 'boolean | "scroll"',
@@ -447,7 +447,7 @@ export const cardNotes = note(
 
 export const carouselNotes = note(
   "Cycle through slides with controls, indicators, autoplay, or a swipe. CarouselItem is one slide.",
-  "The track slides between indexes. There is no draw or pop trigger.",
+  "The track slides between indexes. shadow, border, and rounded on Carousel pass to the controls. Set the same prop on a slide to replace the parent value.",
   [
     {
       name: "index / defaultIndex",
@@ -602,7 +602,7 @@ export const codeSnippetNotes = note(
 
 export const collapseNotes = note(
   "Show and hide a region by height. Control it yourself, or leave it uncontrolled with defaultOpen.",
-  "The panel height eases open and closed. There is no draw or pop trigger.",
+  "The panel height eases open and closed. shadow, border, rounded, and animate on Collapse pass to the trigger and the panel. Set the same prop on a part to replace the parent value.",
   [
     {
       name: "open / defaultOpen",
@@ -644,9 +644,83 @@ export const collapseNotes = note(
   ],
 );
 
+export const containerNotes = note(
+  "Frame a section of a page. The normal width centers at max-w-7xl. fluid fills the parent.",
+  "animate draws the border, then pops the face. shadow false and border false leave those parts off. A truthy animate turns the shadow on for the pop.",
+  [
+    {
+      name: "title",
+      type: "string",
+      detail: "Section heading.",
+    },
+    {
+      name: "variant",
+      type: "primary | secondary | outline",
+      detail: "Sets the face color.",
+    },
+    { name: "size", type: "sm | md | lg", detail: "Padding and type size." },
+    {
+      name: "fluid",
+      type: "boolean",
+      detail: "Fills the parent. false, the default, centers at max-w-7xl.",
+    },
+    {
+      name: "rounded",
+      type: "boolean",
+      detail: "Rounds the wrapper and the face with the library radius.",
+    },
+    {
+      name: "animate",
+      type: 'false | true | "scroll"',
+      detail:
+        "Draws the border, then pops the face. scroll waits for the viewport.",
+    },
+    {
+      name: "shadow",
+      type: "boolean",
+      detail: "Draws the hard offset. A truthy animate turns it on.",
+    },
+    {
+      name: "border",
+      type: "boolean",
+      detail: "false removes the stroke, including the drawn one.",
+    },
+    {
+      name: "direction",
+      type: "row | column",
+      detail: "Lays children across or down.",
+    },
+    {
+      name: "align",
+      type: "start | center | end | stretch",
+      detail: "Cross-axis alignment.",
+    },
+    {
+      name: "justify",
+      type: "start | center | end | between",
+      detail: "Main-axis alignment.",
+    },
+    {
+      name: "gap",
+      type: "none | sm | md | lg",
+      detail: "Space between children.",
+    },
+    {
+      name: "wrapperClassName",
+      type: "string",
+      detail: "Classes on the shadow wrapper.",
+    },
+    {
+      name: "faceClassName",
+      type: "string",
+      detail: "Classes on the bordered face.",
+    },
+  ],
+);
+
 export const dropdownNotes = note(
   "A button that opens a menu of actions or links. DropdownToggle is the button, DropdownMenu is the panel, and DropdownItem is one row.",
-  "Pass animate on DropdownMenu to draw the border and then pop the menu. Off shows a normal border.",
+  "shadow, border, rounded, and animate on Dropdown pass to the toggle and the menu. Set the same prop on the toggle or the menu to replace the parent value. Opening presses the toggle into its shadow. animate draws the toggle, then draws the menu and pops it out when it opens.",
   [
     {
       name: "DropdownToggle variant",
@@ -659,14 +733,21 @@ export const dropdownNotes = note(
       detail: "Button size.",
     },
     {
-      name: "DropdownMenu rounded",
-      type: "boolean",
-      detail: "Uses the library radius on the menu.",
+      name: "DropdownMenu align",
+      type: "left | right",
+      detail:
+        "Pins the menu to that edge of the toggle. right keeps a trailing toggle on the page.",
     },
     {
-      name: "DropdownMenu animate",
+      name: "rounded",
       type: "boolean",
-      detail: "Runs the open sequence. Off shows a normal border.",
+      detail: "Uses the library radius on the toggle and the menu.",
+    },
+    {
+      name: "animate",
+      type: 'false | true | "scroll"',
+      detail:
+        "Draws the toggle, then the menu when it opens. true plays on mount. scroll waits for the viewport. A child value replaces it.",
     },
     {
       name: "border",
@@ -686,7 +767,12 @@ export const dropdownNotes = note(
     {
       name: "shadow",
       type: "boolean",
-      detail: "Draws the hard offset on the toggle. false keeps it flat.",
+      detail: "Draws the hard offset on the toggle and the menu. false keeps both flat.",
+    },
+    {
+      name: "fluid",
+      type: "boolean",
+      detail: "Stretches the toggle and the menu across the parent.",
     },
     {
       name: "wrapperClassName",
@@ -716,7 +802,8 @@ export const floatingLabelNotes = note(
 
 export const formNotes = note(
   "Wrap fields in a framed form. FormField groups a label, control, and FormFeedback, and shares valid or invalid state with the control.",
-  mountOrScroll,
+  "shadow, border, rounded, and animate on Form pass to the fields and buttons. Set the same prop on a control to replace the parent value. " +
+    mountOrScroll,
   [
     {
       name: "variant",
@@ -794,7 +881,7 @@ export const imageNotes = note(
 
 export const inputGroupNotes = note(
   "Attach text or buttons to an input. InputGroupText is the static add-on. The input keeps its own props.",
-  "None on the group.",
+  "shadow, border, rounded, and animate on InputGroup pass to the field, the text, and the button. The group keeps one shared offset. Set shadow or border on a child to replace the parent value.",
   [
     {
       name: "orientation",
@@ -893,7 +980,8 @@ export const linkNotes = note(
 
 export const listGroupNotes = note(
   "A vertical list of rows. ListGroupItem is static text, ListGroupLink is an anchor, and ListGroupButton is a button.",
-  mountOrScroll,
+  "shadow, border, rounded, and animate on ListGroup pass to the rows. Set border or rounded on a row to replace the parent value. " +
+    mountOrScroll,
   [
     {
       name: "variant",
@@ -941,7 +1029,7 @@ export const listGroupNotes = note(
 
 export const modalNotes = note(
   "A dialog over a backdrop. ModalClose renders a Button; omit children for the icon button, or pass a label such as Cancel.",
-  "With animate, the dialog draws its border and pops into place. The content stays visible through that sequence. It runs on open, not on scroll.",
+  "With animate, the dialog draws its border and pops into place, and the buttons inside use that same value. shadow, border, and rounded pass to the header, footer, and buttons. Set the same prop on a part to replace the parent value. It runs on open, not on scroll.",
   [
     {
       name: "open / defaultOpen",
@@ -994,8 +1082,8 @@ export const modalNotes = note(
 );
 
 export const navbarNotes = note(
-  "A horizontal bar with a brand, links, and a collapse for small screens. NavbarBrand is the home link, NavbarCollapse holds the links, and Toggler opens that collapse.",
-  "The bar can draw and pop with animate. The collapse eases its height. Toggler can draw and pop on its own.",
+  "A horizontal bar with a brand, links, and a collapse for small screens. NavbarBrand is the home link, NavbarCollapse holds the links, and Toggler opens that collapse. Put ThemeToggle next to Toggler. Below the large breakpoint, the open menu stacks each link in a full-width row.",
+  "shadow, border, rounded, and animate on the bar pass to the links, dropdowns, and toggler. Set the same prop on a child to replace the parent value. The collapse eases its height.",
   [
     {
       name: "variant",
@@ -1006,7 +1094,8 @@ export const navbarNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the bar.",
+      detail:
+        "Draws the border, then pops the bar. Links, dropdown toggles, and the toggler use the same value unless they set their own. false on a child keeps that child still.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -1014,11 +1103,17 @@ export const navbarNotes = note(
       type: "boolean",
       detail: "Draws the hard offset shadow.",
     },
+    {
+      name: "sticky",
+      type: "boolean",
+      detail: "Keeps the bar at the top of the nearest scroll container.",
+    },
     { name: "disabled", type: "boolean", detail: "Blocks links in the bar." },
     {
       name: "NavbarCollapse open",
       type: "boolean",
-      detail: "Shows the links below the large-screen breakpoint.",
+      detail:
+        "Shows the links below the large-screen breakpoint. Open, each item is a full-width row. fluid on a Dropdown in that row spans the toggle and the menu. From that breakpoint up, the items sit in a row.",
     },
     {
       name: "Toggler expanded",
@@ -1034,6 +1129,18 @@ export const navbarNotes = note(
       name: "Toggler iconAnimation",
       type: "normal | arrow-left | arrow-right | arrow-up | arrow-down",
       detail: "Which icon motion the bars use.",
+    },
+    {
+      name: "NavLink active",
+      type: "boolean",
+      detail:
+        "Marks the current page. Compare href to the router location. Close the collapse when the path changes.",
+    },
+    {
+      name: "NavItem / NavLink animate",
+      type: 'false | true | "scroll"',
+      detail:
+        "Draws the link border, then pops it. animate on a Dropdown in that item draws the toggle and pops the menu when it opens. This replaces an animate value from the navbar. scroll waits for the viewport.",
     },
   ],
 );
@@ -1177,7 +1284,7 @@ export const rangeNotes = note(
 
 export const selectNotes = note(
   "A custom listbox. SelectOption is one option. The trigger shows the chosen label, and the placeholder until a value is chosen.",
-  "The menu draws its border and then pops when it opens.",
+  "The menu opens under the trigger, then the trigger and the menu pop out together. shadow, border, rounded, and animate on Select pass to the trigger and the menu. Set the same prop on an option to replace the parent value.",
   [
     {
       name: "value / defaultValue",
@@ -1222,7 +1329,7 @@ export const selectNotes = note(
     {
       name: "shadow",
       type: "boolean",
-      detail: "false keeps the menu from starting at the shadow offset.",
+      detail: "false keeps the open menu flat. It does not pop.",
     },
     {
       name: "border",
@@ -1249,7 +1356,7 @@ export const selectNotes = note(
 
 export const sidebarNotes = note(
   "A vertical nav that can collapse to icons or open as an offcanvas drawer. Nav, NavGroup, and NavLink build the links. Offcanvas is the drawer shell.",
-  "The frame can draw and pop with animate. A collapsed NavGroup opens a flyout; Offcanvas slides in from the side.",
+  "shadow, border, rounded, and animate on the rail pass to the links. Set the same prop on a link to replace the parent value. A collapsed NavGroup opens a flyout; Offcanvas slides in from the side.",
   [
     {
       name: "collapsed",
@@ -1291,7 +1398,8 @@ export const sidebarNotes = note(
     {
       name: "NavLink href / active",
       type: "string | boolean",
-      detail: "Destination and the current-page mark.",
+      detail:
+        "Destination, and whether this path is the current page. The app passes active.",
     },
     {
       name: "NavGroup label",
@@ -1349,7 +1457,7 @@ export const spinnerNotes = note(
 
 export const tableNotes = note(
   "Lay out rows and columns. TableResponsive frames the table and scrolls sideways when the columns are wider than the frame. Table is the table element.",
-  "TableResponsive accepts animate for a later pass. This page leaves it off so the frame stays a static shadowed border.",
+  "shadow, border, rounded, and animate on TableResponsive style the frame and pass to nested controls. bordered draws the cell grid. Set border, shadow, or rounded on a cell to replace that cell.",
   [
     {
       name: "Table variant",

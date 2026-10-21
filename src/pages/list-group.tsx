@@ -13,7 +13,7 @@ export default function ListGroupPage() {
   const [selected, setSelected] = useState("Inbox");
 
   return (
-    <Container title="List Group" fullWidth animate="scroll" rounded>
+    <Container title="List Group" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         List groups stack related rows. Items can be static text, buttons, or
         links.
@@ -91,12 +91,13 @@ export default function ListGroupPage() {
       <Example
         imports="ListGroup, ListGroupItem"
         title="Flat and borderless"
-        summary="shadow false removes the offset. border false removes the outer stroke and the row rules."
+        summary="shadow false removes the offset. border false removes the outer stroke and the row rules. border on a row puts that rule back."
         code={`<ListGroup shadow={false} wrapperClassName="max-w-md">
   <ListGroupItem>Flat</ListGroupItem>
 </ListGroup>
 <ListGroup border={false} rounded wrapperClassName="max-w-md">
   <ListGroupItem>No stroke</ListGroupItem>
+  <ListGroupItem border>Keeps a rule</ListGroupItem>
 </ListGroup>`}
       >
         <ListGroup shadow={false} wrapperClassName="max-w-md">
@@ -105,7 +106,7 @@ export default function ListGroupPage() {
         </ListGroup>
         <ListGroup border={false} rounded wrapperClassName="max-w-md">
           <ListGroupItem>No stroke</ListGroupItem>
-          <ListGroupItem>No row rule</ListGroupItem>
+          <ListGroupItem border>Keeps a rule</ListGroupItem>
         </ListGroup>
       </Example>
 

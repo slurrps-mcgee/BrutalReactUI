@@ -7,7 +7,7 @@ export default function RadioPage() {
   const [plan, setPlan] = useState("pro");
 
   return (
-    <Container title="Radio" fullWidth>
+    <Container title="Radio" fluid>
       <p className="max-w-2xl font-sans">
         Radios in one group share a name. Only one can be checked. The visible
         ring is the face; the input stays the real control.

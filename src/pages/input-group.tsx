@@ -13,7 +13,7 @@ export default function InputGroupPage() {
   const [domain, setDomain] = useState("");
 
   return (
-    <Container title="Input Group" fullWidth>
+    <Container title="Input Group" fluid>
       <p className="max-w-2xl font-sans">
         Input groups attach text or a button to a field. label names the group
         for assistive tech.
@@ -97,23 +97,29 @@ export default function InputGroupPage() {
       <Example
         imports="InputGroup, InputGroupText, Input, Button"
         title="Flat and borderless"
-        summary="shadow false removes the offset. border false removes the strokes. rounded also rounds the end buttons."
+        summary="shadow false and border false pass to the field and the button. shadow or border on a child puts that piece back. rounded rounds the outer ends."
         code={`<InputGroup label="Flat" shadow={false} rounded>
   <InputGroupText>https://</InputGroupText>
   <Input aria-label="Flat domain" placeholder="example.com" />
-  <Button>Go</Button>
+  <Button shadow>Go</Button>
 </InputGroup>
 <InputGroup label="No stroke" border={false}>
   <Input aria-label="Borderless field" placeholder="No stroke" />
+  <Button border>Go</Button>
 </InputGroup>`}
       >
         <InputGroup label="Flat website" shadow={false} rounded>
           <InputGroupText>https://</InputGroupText>
           <Input aria-label="Flat domain" placeholder="example.com" />
-          <Button type="button">Go</Button>
+          <Button type="button" shadow>
+            Go
+          </Button>
         </InputGroup>
         <InputGroup label="Borderless field" border={false}>
           <Input aria-label="Borderless field" placeholder="No stroke" />
+          <Button type="button" border>
+            Go
+          </Button>
         </InputGroup>
       </Example>
 

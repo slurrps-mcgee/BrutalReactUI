@@ -4,7 +4,7 @@ import { ComponentNotes, Example } from "./shared";
 
 export default function LinksPage() {
   return (
-    <Container title="Links" fullWidth>
+    <Container title="Links" fluid>
       <p className="max-w-2xl font-sans">
         Link is a text link with a hover ink slide and an arrow. External http
         and https addresses open in a new tab.

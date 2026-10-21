@@ -11,6 +11,8 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import type { AnimationTrigger } from "../utils/use-enter-viewport";
 
 const carouselStyles = cva(
   [
@@ -46,7 +48,7 @@ const controlStyles = cva(
   [
     "absolute top-1/2 z-20 inline-flex -translate-y-1/2 items-center justify-center",
     "border-[3px] border-border bg-[var(--carousel-accent)] text-main-foreground",
-    "shadow-[var(--shadow)] transition-transform duration-150",
+    "transition-transform duration-150",
     "hover:translate-x-[var(--shadow-offset-x)]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
@@ -103,6 +105,7 @@ export type CarouselProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
     rounded?: boolean;
     shadow?: boolean;
     border?: boolean;
+    animate?: AnimationTrigger;
     disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -124,9 +127,10 @@ export default function Carousel({
   pauseOnHover = true,
   pauseOnFocus = true,
   swipe = true,
-  rounded = false,
-  shadow = true,
-  border = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  animate: animateProp,
   disabled = false,
   wrapperClassName,
   faceClassName,
@@ -145,6 +149,10 @@ export default function Carousel({
   onTouchEnd,
   ...props
 }: CarouselProps) {
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
   const slides = Children.toArray(children);
   const count = slides.length;
   const [uncontrolledIndex, setUncontrolledIndex] = useState(defaultIndex);
@@ -235,6 +243,12 @@ export default function Carousel({
   const nextDisabled = !loop && currentIndex === count - 1;
 
   return (
+    <SurfaceProvider
+      shadow={shadow}
+      border={border}
+      rounded={rounded}
+      animate={animate}
+    >
     <div
       role="region"
       aria-roledescription="carousel"
@@ -314,6 +328,8 @@ export default function Carousel({
             className={twMerge(
               controlStyles({ size }),
               "left-3 hover:translate-y-[calc(-50%+var(--shadow-offset-y))]",
+              shadow && "shadow-[var(--shadow)]",
+              !border && "border-none",
               rounded && "rounded-[var(--radius)]",
             )}
             onClick={previous}
@@ -327,6 +343,8 @@ export default function Carousel({
             className={twMerge(
               controlStyles({ size }),
               "right-3 hover:translate-y-[calc(-50%+var(--shadow-offset-y))]",
+              shadow && "shadow-[var(--shadow)]",
+              !border && "border-none",
               rounded && "rounded-[var(--radius)]",
             )}
             onClick={next}
@@ -349,7 +367,8 @@ export default function Carousel({
               aria-label={`Go to slide ${slideIndex + 1}`}
               aria-current={slideIndex === currentIndex ? "true" : undefined}
               className={twMerge(
-                "size-3 border-2 border-border bg-secondary-background",
+                "size-3 border-2 bg-secondary-background",
+                border ? "border-border" : "border-none",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 slideIndex === currentIndex && "bg-[var(--carousel-accent)]",
                 rounded && "rounded-full",
@@ -360,11 +379,37 @@ export default function Carousel({
         </div>
       )}
     </div>
+    </SurfaceProvider>
   );
 }
 
-export type CarouselSlideProps = HTMLAttributes<HTMLDivElement>;
+export type CarouselSlideProps = HTMLAttributes<HTMLDivElement> & {
+  rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  animate?: AnimationTrigger;
+};
 
-export function CarouselSlide({ className, ...props }: CarouselSlideProps) {
-  return <div className={twMerge("h-full w-full", className)} {...props} />;
+export function CarouselSlide({
+  className,
+  rounded,
+  shadow,
+  border,
+  animate,
+  ...props
+}: CarouselSlideProps) {
+  return (
+    <div
+      className={twMerge(
+        "h-full w-full",
+        shadow && "shadow-[var(--shadow)]",
+        border === false && "!border-none",
+        border && "border-[3px] border-border",
+        rounded && "rounded-[var(--radius)]",
+        className,
+      )}
+      data-animate={animate === undefined ? undefined : String(animate)}
+      {...props}
+    />
+  );
 }

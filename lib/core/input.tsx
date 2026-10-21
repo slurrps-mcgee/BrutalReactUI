@@ -1,6 +1,12 @@
 import type { InputHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
+import DrawBorder from "../utils/draw-border";
+import { useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  useAnimationTrigger,
+  type AnimationTrigger,
+} from "../utils/use-enter-viewport";
 import { useFormFieldControl } from "./form";
 
 // Input styles
@@ -67,6 +73,8 @@ export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> &
     faceClassName?: string;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
+    animate?: AnimationTrigger;
     valid?: boolean;
     invalid?: boolean;
   };
@@ -78,8 +86,10 @@ export default function Input({
   faceClassName,
   variant,
   size,
-  rounded = false,
-  shadow = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  animate: animateProp,
   valid: validProp,
   invalid: invalidProp,
   id: idProp,
@@ -88,6 +98,11 @@ export default function Input({
   ...inputProps
 }: InputProps) {
   const field = useFormFieldControl();
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
   const valid = validProp ?? field?.valid ?? false;
   const invalid = invalidProp ?? field?.invalid ?? false;
   const isInvalid = invalid || ariaInvalid === true || ariaInvalid === "true";
@@ -103,9 +118,26 @@ export default function Input({
 
   // Main return
   return (
-    <div className={wrapperClassName}>
-      <div className="relative isolate w-full">
-        {shadow && (
+    <div
+      ref={ref}
+      className={twMerge(
+        wrapperClassName,
+        shouldAnimate && "animate-brutal-pop",
+        shouldAnimate && shadow && "shadow-[var(--shadow)]",
+      )}
+      data-pop-direction={shouldAnimate ? "out" : undefined}
+      data-surface-shadow={
+        shadowProp === undefined ? undefined : shadow ? "own" : "off"
+      }
+      data-rounded={roundedProp === false ? "false" : undefined}
+    >
+      <div
+        className={twMerge(
+          "relative isolate w-full",
+          shouldAnimate && "brutal-pop-face",
+        )}
+      >
+        {shadow && !shouldAnimate && (
           <div
             aria-hidden="true"
             className={twMerge(
@@ -124,10 +156,13 @@ export default function Input({
           id={idProp ?? field?.controlId}
           className={twMerge(
             inputStyles({ variant, size, validity }),
+            !border && "border-none",
+            shouldAnimate && border && "border-transparent",
             rounded && "rounded-[var(--radius)]",
 
             // Sit on the plate, then lift off on focus. A flat field stays put.
             shadow &&
+              !shouldAnimate &&
               "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)] transition-transform duration-150 focus:translate-x-0 focus:translate-y-0 motion-reduce:transition-none",
             faceClassName,
             className,
@@ -138,6 +173,13 @@ export default function Input({
           aria-invalid={isInvalid || undefined}
           {...inputProps}
         />
+        {shouldAnimate && border && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
+        )}
       </div>
     </div>
   );

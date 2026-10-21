@@ -21,7 +21,7 @@ const plans = [
 
 export default function TablePage() {
   return (
-    <Container title="Table" fullWidth animate="scroll" rounded>
+    <Container title="Table" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Tables list comparable data. TableResponsive frames the table and
         scrolls sideways when the columns do not fit.
@@ -130,12 +130,13 @@ export default function TablePage() {
       <Example
         imports="TableResponsive, Table, TableBody, TableRow, TableCell"
         title="Flat frame"
-        summary="TableResponsive shadow false removes the offset. A bordered table keeps one grid, without a second frame stroke."
+        summary="shadow false removes the frame offset. shadow on a cell puts an offset on that cell. A bordered table keeps one grid."
         code={`<TableResponsive shadow={false}>
   <Table bordered>
     <TableBody>
       <TableRow>
         <TableCell>Flat</TableCell>
+        <TableCell shadow>Keeps an offset</TableCell>
       </TableRow>
     </TableBody>
   </Table>
@@ -146,7 +147,7 @@ export default function TablePage() {
             <TableBody>
               <TableRow>
                 <TableCell>Flat</TableCell>
-                <TableCell>One grid</TableCell>
+                <TableCell shadow>Keeps an offset</TableCell>
               </TableRow>
             </TableBody>
           </Table>

@@ -119,7 +119,7 @@ function Swatch({ token }: { token: string }) {
 
 export default function ColorsPage() {
   return (
-    <Container title="Colors" fullWidth>
+    <Container title="Colors" fluid>
       <p className="max-w-2xl font-sans">
         Components read CSS variables. Paste new values in the same file that
         imports the library, after the import. Later rules replace the shipped

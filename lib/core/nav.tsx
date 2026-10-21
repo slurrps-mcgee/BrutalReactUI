@@ -4,9 +4,10 @@ import {
   createContext,
   useContext,
   useEffect,
-  useRef,
   useState,
+  useRef,
   type AnchorHTMLAttributes,
+  type AnimationEvent,
   type HTMLAttributes,
   type ReactNode,
   type TransitionEvent,
@@ -14,13 +15,77 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronRight } from "lucide-react";
+import DrawBorder from "../utils/draw-border";
+import {
+  SurfaceProvider,
+  useSurface,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import { useDismissableLayer } from "../utils/use-dismissable-layer";
+import {
+  useAnimationTrigger,
+  type AnimationTrigger,
+} from "../utils/use-enter-viewport";
 
 // True while a dropdown sits inside a nav item, so the menu skips its shadow.
 const NavItemContext = createContext(false);
 
-// NavItem rounded has to reach the link fill. The anchor radius alone leaves a square slide.
-const NavRoundedContext = createContext(false);
+// Below the large breakpoint, an open navbar collapse stacks its links.
+const NavbarMenuContext = createContext(false);
+
+export function NavbarMenuProvider({
+  stacked,
+  children,
+}: {
+  stacked: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <NavbarMenuContext.Provider value={stacked}>
+      {children}
+    </NavbarMenuContext.Provider>
+  );
+}
+
+function useNavbarMenuStacked() {
+  return useContext(NavbarMenuContext);
+}
+
+export function useNavAnimate() {
+  return useSurface().animate;
+}
+
+// Navbar and NavItem share one value. A set prop replaces the parent, including false.
+export function NavAnimateProvider({
+  animate,
+  children,
+}: {
+  animate?: AnimationTrigger;
+  children: ReactNode;
+}) {
+  return <SurfaceProvider animate={animate}>{children}</SurfaceProvider>;
+}
+
+// Draw and pop, then drop the temporary shadow unless the link is active.
+function useSettledPop(animate: AnimationTrigger) {
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
+  const [settled, setSettled] = useState(false);
+
+  useEffect(() => {
+    if (!shouldAnimate) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setSettled(true);
+    }
+  }, [shouldAnimate]);
+
+  function onAnimationEnd(event: AnimationEvent<HTMLSpanElement>) {
+    if (event.animationName !== "brutalPopOut") return;
+    setSettled(true);
+  }
+
+  return { ref, drawing: shouldAnimate && !settled, onAnimationEnd };
+}
 
 export function useInNavItem() {
   return useContext(NavItemContext);
@@ -86,7 +151,7 @@ const navStyles = cva(
       // Stack links in a bar or down a sidebar.
       direction: {
         row: "flex-row flex-wrap items-center gap-2",
-        column: "flex-col items-stretch gap-2",
+        column: "w-full flex-col items-stretch gap-2 [&>li]:w-full",
       },
     },
     defaultVariants: {
@@ -101,35 +166,58 @@ export type NavProps = HTMLAttributes<HTMLUListElement> &
 
 // Main Nav component
 export function Nav({ className, direction, ...props }: NavProps) {
+  const stacked = useNavbarMenuStacked();
+
   return (
-    <ul className={twMerge(navStyles({ direction }), className)} {...props} />
+    <ul
+      className={twMerge(
+        navStyles({ direction: stacked ? "column" : direction }),
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
 // Nav item props
 export type NavItemProps = HTMLAttributes<HTMLLIElement> & {
   rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  animate?: AnimationTrigger;
 };
 
 // Main NavItem component
 export function NavItem({
   className,
-  rounded = false,
+  rounded,
+  shadow,
+  border,
+  animate,
   ...props
 }: NavItemProps) {
+  const stacked = useNavbarMenuStacked();
+  const isRounded = useSurfaceFlag(rounded, "rounded", false);
+
   return (
     <NavItemContext.Provider value={true}>
-      <NavRoundedContext.Provider value={rounded}>
+      <SurfaceProvider
+        rounded={rounded}
+        shadow={shadow}
+        border={border}
+        animate={animate}
+      >
         <li
           className={twMerge(
             "flex flex-col",
-            rounded &&
+            stacked && "w-full [&>*]:w-full",
+            isRounded &&
               "rounded-[var(--radius)] [&>span]:rounded-[var(--radius)] [&_a]:rounded-[var(--radius)] [&>button]:rounded-[var(--radius)]",
             className,
           )}
           {...props}
         />
-      </NavRoundedContext.Provider>
+      </SurfaceProvider>
     </NavItemContext.Provider>
   );
 }
@@ -275,7 +363,9 @@ export type NavLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
     disabled?: boolean;
     rounded?: boolean;
     shadow?: boolean;
+    border?: boolean;
     icon?: ReactNode;
+    animate?: AnimationTrigger;
     wrapperClassName?: string;
     faceClassName?: string;
     fillClassName?: string;
@@ -286,9 +376,11 @@ export function NavLink({
   href,
   active = false,
   disabled = false,
-  rounded = false,
-  shadow = true,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   icon,
+  animate: animateProp,
   className,
   variant,
   size,
@@ -299,17 +391,25 @@ export function NavLink({
   ...props
 }: NavLinkProps) {
   const collapsed = useNavCollapsed();
-  const inheritedRounded = useContext(NavRoundedContext);
-  const isRounded = rounded || inheritedRounded;
+  const isRounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
+  const { ref, drawing, onAnimationEnd } = useSettledPop(animate);
   const popped = active && !disabled && shadow;
+  const showShadow = popped || (drawing && shadow);
 
   return (
     <span
+      ref={ref}
+      onAnimationEnd={onAnimationEnd}
+      data-pop-direction={drawing ? "out" : undefined}
       className={twMerge(
         [
           // Layout. The shadow stays on this box so the face does not move away from it.
           "relative isolate flex w-full",
-          popped && "z-20 shadow-[var(--shadow)]",
+          showShadow && "z-20 shadow-[var(--shadow)]",
+          drawing && "animate-brutal-pop",
           isRounded && "rounded-[var(--radius)]",
           wrapperClassName,
         ]
@@ -327,6 +427,8 @@ export function NavLink({
 
             // Icon rail keeps the mark and hides the words.
             collapsed ? "justify-center px-2" : "",
+            !border && "border-none",
+            drawing && border ? "border-transparent brutal-pop-face" : "",
             isRounded && "overflow-hidden rounded-[var(--radius)]",
             faceClassName,
             className,
@@ -336,6 +438,13 @@ export function NavLink({
         )}
         {...props}
       >
+        {drawing && border && (
+          <DrawBorder
+            animate
+            radius={isRounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
+        )}
         <span
           className={twMerge(
             "relative z-10 inline-flex min-w-0 items-center",
@@ -391,7 +500,10 @@ export type NavGroupProps = HTMLAttributes<HTMLLIElement> &
     onOpenChange?: (open: boolean) => void;
     defaultOpen?: boolean;
     rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
     icon?: ReactNode;
+    animate?: AnimationTrigger;
   };
 
 // Parent item that shows or hides its child links, the way a Bootstrap sidebar does.
@@ -400,8 +512,11 @@ export function NavGroup({
   open,
   onOpenChange,
   defaultOpen = false,
-  rounded = false,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
   icon,
+  animate: animateProp,
   className,
   variant,
   size,
@@ -409,6 +524,11 @@ export function NavGroup({
   ...props
 }: NavGroupProps) {
   const collapsed = useNavCollapsed();
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const animate = useSurfaceAnimate(animateProp);
+  const { ref, drawing, onAnimationEnd } = useSettledPop(animate);
   const [uncontrolled, setUncontrolled] = useState(defaultOpen);
   const [collapsedOpen, setCollapsedOpen] = useState(false);
   const groupRef = useRef<HTMLLIElement>(null);
@@ -447,79 +567,102 @@ export function NavGroup({
       )}
       {...props}
     >
-      <button
-        type="button"
+      <span
+        ref={ref}
+        onAnimationEnd={onAnimationEnd}
+        data-pop-direction={drawing ? "out" : undefined}
         className={twMerge(
-          navLinkStyles({ variant, size }),
-          "text-left",
-          collapsed && "justify-center px-2",
-          rounded && "rounded-[var(--radius)]",
+          "flex w-full",
+          drawing && "relative isolate animate-brutal-pop",
+          drawing && shadow && "shadow-[var(--shadow)]",
+          rounded && drawing && "rounded-[var(--radius)]",
         )}
-        aria-expanded={revealed}
-        onClick={toggle}
       >
-        <span
+        <button
+          type="button"
           className={twMerge(
-            "relative z-10 inline-flex w-full min-w-0 items-center",
-            collapsed ? "justify-center gap-0" : "gap-2",
-            hoverInk(variant),
+            navLinkStyles({ variant, size }),
+            "text-left",
+            collapsed && "justify-center px-2",
+            !border && "border-none",
+            drawing && border && "border-transparent brutal-pop-face",
+            rounded && "rounded-[var(--radius)]",
           )}
+          aria-expanded={revealed}
+          onClick={toggle}
         >
-          {icon ? (
-            <span aria-hidden="true" className="shrink-0">
-              {icon}
-            </span>
-          ) : (
-            collapsed && (
-              <span aria-hidden="true" className="shrink-0">
-                {label.slice(0, 1)}
-              </span>
-            )
+          {drawing && border && (
+            <DrawBorder
+              animate
+              radius={rounded ? "var(--radius)" : undefined}
+              className="z-10"
+            />
           )}
           <span
             className={twMerge(
-              [
-                // Label width. The rail keeps the icon.
-                "grid transition-[grid-template-columns] duration-300 ease-out",
-                collapsed ? "grid-cols-[0fr]" : "grid-cols-[1fr]",
-                "motion-reduce:transition-none",
-              ]
-                .filter(Boolean)
-                .join(" "),
+              "relative z-10 inline-flex w-full min-w-0 items-center",
+              collapsed ? "justify-center gap-0" : "gap-2",
+              hoverInk(variant),
             )}
           >
-            <span className="overflow-hidden whitespace-nowrap">{label}</span>
-          </span>
-          <ChevronRight
-            aria-hidden="true"
-            className={twMerge(
-              [
-                // Caret. Hidden on the icon rail.
-                "size-4 shrink-0",
-                collapsed && "hidden",
-
-                // Turn down while the group is open.
-                "transition-transform duration-200 ease-out",
-                revealed && "rotate-90",
-
-                // Reduced motion
-                "motion-reduce:transition-none",
-              ]
-                .filter(Boolean)
-                .join(" "),
+            {icon ? (
+              <span aria-hidden="true" className="shrink-0">
+                {icon}
+              </span>
+            ) : (
+              collapsed && (
+                <span aria-hidden="true" className="shrink-0">
+                  {label.slice(0, 1)}
+                </span>
+              )
             )}
-          />
-        </span>
-        <HoverFill variant={variant} rounded={rounded} />
-      </button>
+            <span
+              className={twMerge(
+                [
+                  // Label width. The rail keeps the icon.
+                  "grid transition-[grid-template-columns] duration-300 ease-out",
+                  collapsed ? "grid-cols-[0fr]" : "grid-cols-[1fr]",
+                  "motion-reduce:transition-none",
+                ]
+                  .filter(Boolean)
+                  .join(" "),
+              )}
+            >
+              <span className="overflow-hidden whitespace-nowrap">{label}</span>
+            </span>
+            <ChevronRight
+              aria-hidden="true"
+              className={twMerge(
+                [
+                  // Caret. Hidden on the icon rail.
+                  "size-4 shrink-0",
+                  collapsed && "hidden",
+
+                  // Turn down while the group is open.
+                  "transition-transform duration-200 ease-out",
+                  revealed && "rotate-90",
+
+                  // Reduced motion
+                  "motion-reduce:transition-none",
+                ]
+                  .filter(Boolean)
+                  .join(" "),
+              )}
+            />
+          </span>
+          <HoverFill variant={variant} rounded={rounded} />
+        </button>
+      </span>
       {collapsed && collapsedOpen ? (
         <div
           className={twMerge(
             [
               // Flyout chooser for an icon rail.
               "absolute left-full top-0 z-50 ml-3 min-w-48",
-              "border-[3px] border-border bg-[var(--surface)] p-2 text-[var(--surface-foreground)]",
-              "shadow-[var(--shadow)]",
+              "border-[3px] bg-[var(--surface)] p-2 text-[var(--surface-foreground)]",
+              border ? "border-border" : "border-none",
+              shadow && "shadow-[var(--shadow)]",
+              rounded && "rounded-[var(--radius)]",
 
               // Mount only after it was explicitly opened.
               "origin-left",
@@ -532,12 +675,19 @@ export function NavGroup({
             {label}
           </p>
           <NavCollapseProvider collapsed={false}>
-            <ul
-              className="flex list-none flex-col gap-2"
-              onClick={() => setCollapsedOpen(false)}
+            <SurfaceProvider
+              rounded={roundedProp}
+              shadow={shadowProp}
+              border={borderProp}
+              animate={animateProp}
             >
-              {children}
-            </ul>
+              <ul
+                className="flex list-none flex-col gap-2"
+                onClick={() => setCollapsedOpen(false)}
+              >
+                {children}
+              </ul>
+            </SurfaceProvider>
           </NavCollapseProvider>
         </div>
       ) : !collapsed ? (
@@ -563,9 +713,16 @@ export function NavGroup({
               clip ? "overflow-hidden" : "overflow-visible",
             )}
           >
-            <ul className="flex list-none flex-col gap-2 py-2 pe-2 ps-4">
-              {children}
-            </ul>
+            <SurfaceProvider
+              rounded={roundedProp}
+              shadow={shadowProp}
+              border={borderProp}
+              animate={animateProp}
+            >
+              <ul className="flex list-none flex-col gap-2 py-2 pe-2 ps-4">
+                {children}
+              </ul>
+            </SurfaceProvider>
           </div>
         </div>
       ) : null}

@@ -8,7 +8,7 @@ export default function ButtonsPage() {
   const [presses, setPresses] = useState(0);
 
   return (
-    <Container title="Buttons" fullWidth animate="scroll" rounded>
+    <Container title="Buttons" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Use Button for an action. The shadow sits on a wrapper and the stroke
         sits on the face, so a pop never leaves the border behind the offset.
@@ -67,10 +67,10 @@ export default function ButtonsPage() {
       <Example
         imports="Button"
         title="Full width"
-        summary="fullWidth stretches the wrapper to the parent."
-        code={`<Button fullWidth variant="secondary">Full width</Button>`}
+        summary="fluid stretches the wrapper to the parent."
+        code={`<Button fluid variant="secondary">Full width</Button>`}
       >
-        <Button fullWidth variant="secondary">
+        <Button fluid variant="secondary">
           Full width
         </Button>
       </Example>

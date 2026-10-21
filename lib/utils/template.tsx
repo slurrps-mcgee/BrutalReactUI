@@ -73,7 +73,7 @@ const componentStyles = cva(
         lg: "gap-8",
       },
       // Stretch the face with the wrapper
-      fullWidth: {
+      fluid: {
         true: "w-full",
         false: "",
       },
@@ -85,7 +85,7 @@ const componentStyles = cva(
       align: "center",
       justify: "center",
       gap: "none",
-      fullWidth: false,
+      fluid: false,
     },
   },
 );
@@ -114,7 +114,7 @@ type ComponentProps = HTMLAttributes<HTMLDivElement> &
  * variant and size belong on a component that already paints them. size is sm, md, or lg, and md keeps the current look.
  * DrawBorder mounts only when shouldAnimate is true. Otherwise the face uses border-border.
  * The pop face must be the wrapper's direct child: .animate-brutal-pop > .brutal-pop-face.
- * Layout props (direction, align, justify, gap, fullWidth) belong on layout components such as Container.
+ * Layout props (direction, align, justify, gap, fluid) belong on layout components. Container width is fluid or max-w-7xl.
  */
 export default function Component({
   children,
@@ -125,7 +125,7 @@ export default function Component({
   align,
   justify,
   gap,
-  fullWidth,
+  fluid,
   animate = false,
   rounded = false,
   shadow = true,
@@ -143,7 +143,7 @@ export default function Component({
       "relative isolate",
 
       // Full width
-      fullWidth ? "flex w-full" : "inline-flex w-fit",
+      fluid ? "flex w-full" : "inline-flex w-fit",
 
       // Shadow. Animation needs the offset, so a pop turns it on.
       showShadow && "shadow-[var(--shadow)]",
@@ -169,7 +169,7 @@ export default function Component({
               align,
               justify,
               gap,
-              fullWidth,
+              fluid,
             }),
 
             // Resting stroke, or none while the SVG draws it.

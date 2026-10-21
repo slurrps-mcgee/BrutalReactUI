@@ -13,7 +13,7 @@ const variants = [
 
 export default function BadgesPage() {
   return (
-    <Container title="Badges" fullWidth>
+    <Container title="Badges" fluid>
       <p className="max-w-2xl font-sans">
         Badges mark a short status or count. The face is a span, so keep the
         text brief. A badge has no shadow wrapper.

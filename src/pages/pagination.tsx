@@ -20,7 +20,7 @@ export default function PaginationPage() {
   };
 
   return (
-    <Container title="Pagination" fullWidth animate="scroll" rounded>
+    <Container title="Pagination" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Pagination moves between pages of a list. Mark the current page with
         active and disable the previous or next control at the ends.

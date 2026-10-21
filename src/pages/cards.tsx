@@ -16,7 +16,7 @@ const preview = { src: exampleUrl, width: 1200, height: 675 };
 
 export default function CardsPage() {
   return (
-    <Container title="Cards" fullWidth>
+    <Container title="Cards" fluid>
       <p className="max-w-2xl font-sans">
         Cards group a title, a short description, and optional media. Header,
         body, image, and footer are separate parts.

@@ -19,7 +19,7 @@ export default function SidebarPage() {
   const icon = "size-4 shrink-0";
 
   return (
-    <Container title="Sidebar" fullWidth>
+    <Container title="Sidebar" fluid>
       <p className="max-w-2xl font-sans">
         A sidebar holds a vertical nav. Collapsed, each item shows its icon and
         the group flyout opens beside the rail.
@@ -28,12 +28,12 @@ export default function SidebarPage() {
       <Example
         imports="Sidebar, Nav, NavItem, NavLink, NavGroup"
         title="Collapsible rail"
-        summary="collapsed hides the labels. The active link keeps its shadow flush with the face."
+        summary="rounded and animate on the rail pass to each link. collapsed hides the labels. The active link keeps its shadow flush with the face."
         code={`import { Award, Library, PanelLeft } from "lucide-react";
 
 <Sidebar collapsed={collapsed} animate="scroll" rounded>
   <Nav direction="column">
-    <NavItem rounded>
+    <NavItem>
       <NavLink href="#/sidebar" active icon={<PanelLeft />}>
         Sidebar
       </NavLink>
@@ -64,7 +64,7 @@ export default function SidebarPage() {
             <span className={collapsed ? "sr-only" : undefined}>Collapse</span>
           </button>
           <Nav direction="column">
-            <NavItem rounded>
+            <NavItem>
               <NavLink
                 href="#/sidebar"
                 active
@@ -96,11 +96,11 @@ export default function SidebarPage() {
       <Example
         imports="Sidebar, Nav, NavItem, NavLink"
         title="Static sidebar"
-        summary="shadow false leaves a flat rail. variant secondary changes the face."
+        summary="shadow false flattens the rail and the links. shadow on one link puts that offset back."
         code={`<Sidebar variant="secondary" shadow={false}>
   <Nav direction="column">
-    <NavItem rounded>
-      <NavLink href="#/sidebar" active>Sidebar</NavLink>
+    <NavItem>
+      <NavLink href="#/sidebar" active shadow>Sidebar</NavLink>
     </NavItem>
   </Nav>
 </Sidebar>`}
@@ -113,10 +113,11 @@ export default function SidebarPage() {
         >
           <p className="font-display text-xl">Static sidebar</p>
           <Nav direction="column">
-            <NavItem rounded>
+            <NavItem>
               <NavLink
                 href="#/sidebar"
                 active
+                shadow
                 icon={<PanelLeft className={icon} />}
               >
                 Sidebar

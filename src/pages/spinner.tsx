@@ -13,7 +13,7 @@ const variants = [
 
 export default function SpinnerPage() {
   return (
-    <Container title="Spinner" fullWidth animate="scroll" rounded>
+    <Container title="Spinner" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Spinner marks a wait. label is the accessible name and stays visually
         hidden.

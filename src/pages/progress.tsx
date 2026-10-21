@@ -7,7 +7,7 @@ export default function ProgressPage() {
   const [value, setValue] = useState(42);
 
   return (
-    <Container title="Progress" fullWidth animate="scroll" rounded>
+    <Container title="Progress" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Progress shows how far a task has gone. Omit value for an indeterminate
         bar.

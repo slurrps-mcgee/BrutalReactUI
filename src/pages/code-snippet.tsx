@@ -15,7 +15,7 @@ const exactCode = `function WelcomeCard() {
 
 export default function CodeSnippetPage() {
   return (
-    <Container title="Code Snippet" fullWidth animate="scroll" rounded>
+    <Container title="Code Snippet" fluid animate="scroll" rounded>
       <p className="max-w-2xl font-sans">
         Code snippets show source with highlighting. The copy control writes the
         same string that is on the page.

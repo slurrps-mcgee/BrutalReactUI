@@ -7,7 +7,7 @@ export default function FloatingLabelPage() {
   const [email, setEmail] = useState("");
 
   return (
-    <Container title="Floating Label" fullWidth>
+    <Container title="Floating Label" fluid>
       <p className="max-w-2xl font-sans">
         A floating label rests in the field and rises when the field has a value
         or focus. The label text is the accessible name.
