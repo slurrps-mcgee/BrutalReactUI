@@ -75,7 +75,7 @@ export default function ModalPage() {
       <Example
         imports="Modal, ModalHeader, ModalClose, ModalBody"
         title="Static dialog"
-        summary="animate false opens the dialog without the border draw or the pop."
+        summary="animate false opens the dialog without the pop."
         code={`<Modal open={open} onOpenChange={setOpen} animate={false} variant="secondary">
   <ModalHeader>
     <span>Static modal</span>
@@ -103,7 +103,7 @@ export default function ModalPage() {
           </ModalHeader>
           <ModalBody>
             <p className="font-sans font-normal">
-              This version opens without the border or pop animation.
+              This version opens without the pop.
             </p>
           </ModalBody>
         </Modal>

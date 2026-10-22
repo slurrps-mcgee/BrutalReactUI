@@ -200,9 +200,8 @@ export default function NavbarPage() {
       <p className="max-w-2xl font-sans">
         A navbar holds a brand, links, and an optional menu. On a narrow screen
         the toggler opens the collapse, and each link takes its own full-width
-        row. The filled link is the current path.
-        Compare that path to the router location and pass{" "}
-        <span className="font-mono">active</span>.
+        row. The filled link is the current path. Compare that path to the
+        router location and pass <span className="font-mono">active</span>.
       </p>
 
       <Example
@@ -241,7 +240,7 @@ export default function NavbarPage() {
       <Example
         imports="Nav, NavItem, NavLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Animated items"
-        summary="animate on a nav item draws that link, then pops it. animate on Dropdown draws the toggle and pops the menu when it opens. fluid spans the item. scroll waits until the item enters the viewport."
+        summary="animate on a nav item pops an active link. animate on Dropdown pops the toggle and pops the menu when it opens. fluid spans the item. scroll waits until the item enters the viewport."
         code={`<Nav>
   <NavItem animate="scroll">
     <NavLink href="#/navbar">Home</NavLink>

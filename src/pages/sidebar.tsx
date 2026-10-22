@@ -28,7 +28,7 @@ export default function SidebarPage() {
       <Example
         imports="Sidebar, Nav, NavItem, NavLink, NavGroup"
         title="Collapsible rail"
-        summary="rounded and animate on the rail pass to each link. collapsed hides the labels. The active link keeps its shadow flush with the face."
+        summary="rounded and animate on the rail pass to each link. Only the active link pops, and it keeps its shadow flush with the face. collapsed hides the labels."
         code={`import { Award, Library, PanelLeft } from "lucide-react";
 
 <Sidebar collapsed={collapsed} animate="scroll" rounded>

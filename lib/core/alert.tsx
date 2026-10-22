@@ -18,9 +18,6 @@ import {
 import { twMerge } from "tailwind-merge";
 import { usePresence } from "../utils/use-presence";
 
-export type AlertVariant =
-  "primary" | "secondary" | "success" | "warning" | "danger" | "info";
-
 // Alert styles
 const alertStyles = cva(
   [
@@ -28,7 +25,7 @@ const alertStyles = cva(
     "relative isolate flex w-full items-start gap-3",
 
     // Border and typography
-    "border-[3px] border-border",
+    "border-[length:var(--border-width)] border-border",
     "font-mono",
 
     // Reduced motion
@@ -103,6 +100,9 @@ const variantIcons: Record<AlertVariant, typeof Bell> = {
   danger: XCircle,
   info: Info,
 };
+
+export type AlertVariant =
+  "primary" | "secondary" | "success" | "warning" | "danger" | "info";
 
 // Alert props
 export type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> &
@@ -183,17 +183,27 @@ export default function Alert({
       role={role ?? "alert"}
       aria-disabled={disabled || undefined}
       className={twMerge(
-        alertStyles({ variant, size }),
-        visible
-          ? "translate-x-0 scale-100 opacity-100"
-          : "translate-x-3 scale-95 opacity-0",
-        shadow && "shadow-[var(--shadow)]",
-        !border && "border-none",
-        rounded && "rounded-[var(--radius)]",
-        disabled && "pointer-events-none opacity-70",
-        wrapperClassName,
-        faceClassName,
-        className,
+        [
+          alertStyles({ variant, size }),
+
+          // Entrance
+          visible
+            ? "translate-x-0 scale-100 opacity-100"
+            : "translate-x-3 scale-95 opacity-0",
+
+          // Hard offset. A flat alert stays put.
+          shadow && "shadow-[var(--shadow)]",
+          !border && "border-none",
+          rounded && "rounded-[var(--radius)]",
+
+          // Disabled state
+          disabled && "pointer-events-none opacity-70",
+          wrapperClassName,
+          faceClassName,
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     >

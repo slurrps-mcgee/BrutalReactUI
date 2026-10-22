@@ -12,7 +12,11 @@ import {
 import { useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
 
 // ThemeToggle is a button for light and dark. Extra theme names use a dropdown.
-// animate draws that control. align places the menu. Class props land on the face.
+// animate pops that control. align places the menu. Class props land on the face.
+
+function themeLabel(name: string) {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
 
 export type ThemeToggleProps = {
   rounded?: boolean;
@@ -22,10 +26,6 @@ export type ThemeToggleProps = {
   animate?: AnimationTrigger;
   align?: "left" | "right";
 };
-
-function themeLabel(name: string) {
-  return name.charAt(0).toUpperCase() + name.slice(1);
-}
 
 export default function ThemeToggle({
   rounded,

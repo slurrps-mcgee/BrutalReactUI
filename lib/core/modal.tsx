@@ -6,12 +6,12 @@ import {
   useId,
   useRef,
   useState,
-  type AnimationEvent,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type MouseEvent,
   type ReactNode,
   type TransitionEvent,
+  type AnimationEvent,
 } from "react";
 import { createPortal } from "react-dom";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -19,23 +19,16 @@ import { twMerge } from "tailwind-merge";
 import { X } from "lucide-react";
 import Button from "./button";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import type { AnimationTrigger } from "../utils/use-enter-viewport";
 import { useControllableState } from "../utils/use-controllable-state";
 import { useOverlay } from "../utils/use-overlay";
-
-type ModalContextValue = {
-  close: () => void;
-  titleId: string;
-};
-
-const ModalContext = createContext<ModalContextValue | null>(null);
-
-function useModal() {
-  const context = useContext(ModalContext);
-  if (!context) throw new Error("Modal parts must render inside Modal");
-  return context;
-}
 
 // Modal face styles
 const modalStyles = cva(
@@ -44,7 +37,7 @@ const modalStyles = cva(
     "relative isolate z-10 flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-auto",
 
     // Border and typography
-    "border-[3px] font-mono font-bold",
+    "font-mono font-bold",
 
     // Keyboard focus
     "focus:outline-none",
@@ -89,7 +82,20 @@ const modalStyles = cva(
   },
 );
 
+type ModalContextValue = {
+  close: () => void;
+  titleId: string;
+};
+
 type ModalPhase = "draw" | "pop" | "reveal" | "closing";
+
+const ModalContext = createContext<ModalContextValue | null>(null);
+
+function useModal() {
+  const context = useContext(ModalContext);
+  if (!context) throw new Error("Modal parts must render inside Modal");
+  return context;
+}
 
 // Modal props
 export type ModalProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
@@ -156,7 +162,7 @@ export default function Modal({
     closeOnEscape,
   });
 
-  // Start with the border, then pop the face out of its shadow.
+  // Draw the stroke, then pop the face out of its shadow.
   useEffect(() => {
     const reduced =
       typeof window !== "undefined" &&
@@ -177,8 +183,7 @@ export default function Modal({
     return () => cancelAnimationFrame(frame);
   }, [animate, open, present]);
 
-  // DrawBorder normally reports completion; this keeps the sequence moving
-  // if an environment suppresses animation events.
+  // The stroke reports completion. This keeps the sequence moving if that event never fires.
   useEffect(() => {
     if (!open || phase !== "draw" || !animate) return;
     const timer = window.setTimeout(() => setPhase("pop"), 900);
@@ -191,7 +196,7 @@ export default function Modal({
     return () => window.clearTimeout(timer);
   }, [open, phase]);
 
-  // A close during the border draw has no translate change to report.
+  // A close before the face has moved has no translate change to report.
   useEffect(() => {
     if (open || phase !== "closing") return;
     const timer = window.setTimeout(() => setPresent(false), 250);
@@ -221,7 +226,7 @@ export default function Modal({
 
   if (!present || typeof document === "undefined") return null;
 
-  const drawing = animate && phase === "draw";
+  const drawing = animate && phase === "draw" && border;
   const faceInShadow = phase === "draw" || phase === "closing";
 
   return createPortal(
@@ -251,9 +256,7 @@ export default function Modal({
               size === "sm" && "max-w-sm",
               (!size || size === "md") && "max-w-lg",
               size === "lg" && "max-w-2xl",
-              (shadow || animate) &&
-                phase !== "draw" &&
-                "shadow-[var(--shadow)]",
+              shadow && phase !== "draw" && "shadow-[var(--shadow)]",
               rounded && "rounded-[var(--radius)]",
               wrapperClassName,
             ]
@@ -276,20 +279,16 @@ export default function Modal({
                 modalStyles({ variant, size }),
                 !scrollable && "max-h-none overflow-visible",
 
-                // Resting stroke, or none while the SVG draws it.
-                // The drawn stroke sits just outside the face, so the face must not clip it.
-                !border
-                  ? "overflow-visible border-none"
-                  : drawing
-                    ? "overflow-visible border-transparent"
-                    : "border-border",
+                // Drawn stroke, or the resting border. The dialog must not clip the stroke.
+                drawing ? "overflow-visible border-none" : borderPaintClass(border),
 
-                // Pop from the shadow after the stroke completes.
+                // Pop from the shadow. A flat dialog stays put.
                 "transition-[translate] duration-200 ease-out",
-                faceInShadow &&
+                shadow &&
+                  faceInShadow &&
                   "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-                !faceInShadow && "translate-x-0 translate-y-0",
-                rounded && "rounded-[var(--radius)]",
+                (!shadow || !faceInShadow) && "translate-x-0 translate-y-0",
+                faceRadiusClass(rounded),
                 disabled && "pointer-events-none opacity-70",
                 faceClassName,
                 className,
@@ -299,20 +298,14 @@ export default function Modal({
             )}
             onTransitionEnd={onTransitionEnd}
           >
-            {/* Border. On the face so the stroke stays with the panel while it pops. */}
-            {drawing && border && (
+            {drawing && (
               <DrawBorder
                 animate
                 radius={rounded ? "var(--radius)" : undefined}
                 className="z-30"
               />
             )}
-            <SurfaceProvider
-              shadow={shadow || animate}
-              border={border}
-              rounded={rounded}
-              animate={animate}
-            >
+            <SurfaceProvider rounded={rounded}>
               <div className="relative z-10 flex min-h-0 flex-1 flex-col">
                 {children}
               </div>
@@ -324,6 +317,14 @@ export default function Modal({
     document.body,
   );
 }
+
+// Modal close control
+export type ModalCloseProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  animate?: AnimationTrigger;
+};
 
 // Modal header
 export function ModalHeader({
@@ -347,7 +348,7 @@ export function ModalHeader({
         [
           // Layout and divider. border follows the dialog unless this header sets it.
           "flex items-start justify-between gap-4 p-5",
-          showBorder && "border-b-[3px] border-border",
+          showBorder && "border-b-[length:var(--border-width)] border-border",
           rounded && "rounded-[var(--radius)]",
           shadow && "shadow-[var(--shadow)]",
           className,
@@ -393,7 +394,7 @@ export function ModalFooter({
         [
           // Actions and divider. border follows the dialog unless this footer sets it.
           "flex flex-wrap items-center justify-end gap-3 p-5",
-          showBorder && "border-t-[3px] border-border",
+          showBorder && "border-t-[length:var(--border-width)] border-border",
           rounded && "rounded-[var(--radius)]",
           shadow && "shadow-[var(--shadow)]",
           className,
@@ -405,14 +406,6 @@ export function ModalFooter({
     />
   );
 }
-
-// Modal close control
-export type ModalCloseProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  rounded?: boolean;
-  shadow?: boolean;
-  border?: boolean;
-  animate?: AnimationTrigger;
-};
 
 export function ModalClose({
   className,

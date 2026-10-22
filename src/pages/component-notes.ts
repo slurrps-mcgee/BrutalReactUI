@@ -186,7 +186,7 @@ export const accordionNotes = note(
 
 export const alertNotes = note(
   "Show a short status message with an optional title, icon, actions, and dismiss control. Pair it with a live region when the message appears after an action.",
-  "None. Dismissing unmounts the alert without a draw or pop.",
+  "None. Dismissing unmounts the alert without a pop.",
   [
     {
       name: "variant",
@@ -267,7 +267,7 @@ export const badgeNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the face.",
+      detail: "Pops the face.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -323,7 +323,7 @@ export const breadcrumbNotes = note(
 
 export const buttonGroupNotes = note(
   "Join related actions into one row or column. selectionMode turns the group into a single-choice or multi-choice control.",
-  "animate on the group draws the joined control. shadow, border, rounded, and animate pass to each item. Set the same prop on an item to replace the parent value.",
+  "animate on the group pops the joined control. shadow, border, rounded, and animate pass to each item. Set the same prop on an item to replace the parent value.",
   [
     {
       name: "orientation",
@@ -389,7 +389,7 @@ export const buttonNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the face.",
+      detail: "Pops the face.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -423,7 +423,7 @@ export const cardNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the face.",
+      detail: "Pops the face.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -447,7 +447,7 @@ export const cardNotes = note(
 
 export const carouselNotes = note(
   "Cycle through slides with controls, indicators, autoplay, or a swipe. CarouselItem is one slide.",
-  "The track slides between indexes. shadow, border, and rounded on Carousel pass to the controls. Set the same prop on a slide to replace the parent value.",
+  "The track slides between indexes. The frame keeps the shadow. border and rounded on Carousel pass to the controls. Set shadow on a slide to put an offset on that slide.",
   [
     {
       name: "index / defaultIndex",
@@ -559,7 +559,7 @@ export const codeSnippetNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the frame.",
+      detail: "Pops the frame.",
     },
     {
       name: "copyLabel / copiedLabel",
@@ -646,7 +646,7 @@ export const collapseNotes = note(
 
 export const containerNotes = note(
   "Frame a section of a page. The normal width centers at max-w-7xl. fluid fills the parent.",
-  "animate draws the border, then pops the face. shadow false and border false leave those parts off. A truthy animate turns the shadow on for the pop.",
+  "animate pops the face. shadow false and border false leave those parts off. A truthy animate turns the shadow on for the pop.",
   [
     {
       name: "title",
@@ -673,7 +673,7 @@ export const containerNotes = note(
       name: "animate",
       type: 'false | true | "scroll"',
       detail:
-        "Draws the border, then pops the face. scroll waits for the viewport.",
+        "Pops the face. scroll waits for the viewport.",
     },
     {
       name: "shadow",
@@ -683,7 +683,7 @@ export const containerNotes = note(
     {
       name: "border",
       type: "boolean",
-      detail: "false removes the stroke, including the drawn one.",
+      detail: "false removes the stroke.",
     },
     {
       name: "direction",
@@ -720,7 +720,7 @@ export const containerNotes = note(
 
 export const dropdownNotes = note(
   "A button that opens a menu of actions or links. DropdownToggle is the button, DropdownMenu is the panel, and DropdownItem is one row.",
-  "shadow, border, rounded, and animate on Dropdown pass to the toggle and the menu. Set the same prop on the toggle or the menu to replace the parent value. Opening presses the toggle into its shadow. animate draws the toggle, then draws the menu and pops it out when it opens.",
+  "shadow, border, rounded, and animate on Dropdown pass to the toggle and the menu. Set the same prop on the toggle or the menu to replace the parent value. Opening presses the toggle into its shadow. animate pops the toggle, then pops the menu out when it opens.",
   [
     {
       name: "DropdownToggle variant",
@@ -747,7 +747,7 @@ export const dropdownNotes = note(
       name: "animate",
       type: 'false | true | "scroll"',
       detail:
-        "Draws the toggle, then the menu when it opens. true plays on mount. scroll waits for the viewport. A child value replaces it.",
+        "Pops the toggle, then the menu when it opens. true plays on mount. scroll waits for the viewport. A child value replaces it.",
     },
     {
       name: "border",
@@ -767,7 +767,8 @@ export const dropdownNotes = note(
     {
       name: "shadow",
       type: "boolean",
-      detail: "Draws the hard offset on the toggle and the menu. false keeps both flat.",
+      detail:
+        "Draws the hard offset on the toggle and the menu. false keeps both flat.",
     },
     {
       name: "fluid",
@@ -784,7 +785,7 @@ export const dropdownNotes = note(
 
 export const floatingLabelNotes = note(
   "Park a label over an input until the field has a value or focus, then move it to the top edge. The child must be a single input-like element.",
-  "The label moves when the field is focused or filled. There is no draw or pop trigger.",
+  "The label moves when the field is focused or filled. There is no pop.",
   [
     { name: "label", type: "ReactNode", detail: "The floating text." },
     {
@@ -814,7 +815,7 @@ export const formNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the frame.",
+      detail: "Pops the frame.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -863,7 +864,7 @@ export const imageNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the frame.",
+      detail: "Pops the frame.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -881,7 +882,7 @@ export const imageNotes = note(
 
 export const inputGroupNotes = note(
   "Attach text or buttons to an input. InputGroupText is the static add-on. The input keeps its own props.",
-  "shadow, border, rounded, and animate on InputGroup pass to the field, the text, and the button. The group keeps one shared offset. Set shadow or border on a child to replace the parent value.",
+  "shadow, border, and rounded on InputGroup pass to the field, the text, and the button. The group keeps one shared offset. Set shadow or border on a child to replace the parent value.",
   [
     {
       name: "orientation",
@@ -980,7 +981,7 @@ export const linkNotes = note(
 
 export const listGroupNotes = note(
   "A vertical list of rows. ListGroupItem is static text, ListGroupLink is an anchor, and ListGroupButton is a button.",
-  "shadow, border, rounded, and animate on ListGroup pass to the rows. Set border or rounded on a row to replace the parent value. " +
+  "animate pops the list. shadow, border, and rounded pass to the rows. Set border or rounded on a row to replace the parent value. " +
     mountOrScroll,
   [
     {
@@ -996,7 +997,7 @@ export const listGroupNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the list.",
+      detail: "Pops the list.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -1029,7 +1030,7 @@ export const listGroupNotes = note(
 
 export const modalNotes = note(
   "A dialog over a backdrop. ModalClose renders a Button; omit children for the icon button, or pass a label such as Cancel.",
-  "With animate, the dialog draws its border and pops into place, and the buttons inside use that same value. shadow, border, and rounded pass to the header, footer, and buttons. Set the same prop on a part to replace the parent value. It runs on open, not on scroll.",
+  "With animate, the dialog pops into place, and the buttons inside use that same value. shadow, border, and rounded pass to the header, footer, and buttons. Set the same prop on a part to replace the parent value. It runs on open, not on scroll.",
   [
     {
       name: "open / defaultOpen",
@@ -1049,7 +1050,7 @@ export const modalNotes = note(
     {
       name: "animate",
       type: "boolean",
-      detail: "Runs the draw, pop, and reveal sequence.",
+      detail: "Pops the dialog out of its shadow on open.",
     },
     {
       name: "centered",
@@ -1095,7 +1096,7 @@ export const navbarNotes = note(
       name: "animate",
       type: 'boolean | "scroll"',
       detail:
-        "Draws the border, then pops the bar. Links, dropdown toggles, and the toggler use the same value unless they set their own. false on a child keeps that child still.",
+        "Pops the bar. Links, dropdown toggles, and the toggler use the same value unless they set their own. false on a child keeps that child still.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -1140,7 +1141,7 @@ export const navbarNotes = note(
       name: "NavItem / NavLink animate",
       type: 'false | true | "scroll"',
       detail:
-        "Draws the link border, then pops it. animate on a Dropdown in that item draws the toggle and pops the menu when it opens. This replaces an animate value from the navbar. scroll waits for the viewport.",
+        "Pops the active link out of its shadow. animate on a Dropdown in that item pops the toggle and pops the menu when it opens. This replaces an animate value from the navbar. scroll waits for the viewport.",
     },
   ],
 );
@@ -1190,7 +1191,7 @@ export const paginationNotes = note(
 
 export const progressNotes = note(
   "Show how far a task has gone. The indicator width is value divided by max.",
-  "The bar can draw and pop with animate. The indicator width changes with the value.",
+  "The bar can pop with animate. The indicator width changes with the value.",
   [
     {
       name: "variant",
@@ -1226,7 +1227,7 @@ export const progressNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the bar.",
+      detail: "Pops the bar.",
     },
     {
       name: "wrapperClassName / faceClassName / indicatorClassName",
@@ -1284,7 +1285,7 @@ export const rangeNotes = note(
 
 export const selectNotes = note(
   "A custom listbox. SelectOption is one option. The trigger shows the chosen label, and the placeholder until a value is chosen.",
-  "The menu opens under the trigger, then the trigger and the menu pop out together. shadow, border, rounded, and animate on Select pass to the trigger and the menu. Set the same prop on an option to replace the parent value.",
+  "The menu opens under the trigger. With a shadow, both faces start in the offset and pop out. A flat select stays put. animate pops the trigger. Set shadow, border, or rounded on an option to replace the parent value.",
   [
     {
       name: "value / defaultValue",
@@ -1382,7 +1383,7 @@ export const sidebarNotes = note(
     {
       name: "animate",
       type: 'boolean | "scroll"',
-      detail: "Draws the border, then pops the frame.",
+      detail: "Pops the frame.",
     },
     { name: "rounded", type: "boolean", detail: "Uses the library radius." },
     {
@@ -1416,7 +1417,7 @@ export const sidebarNotes = note(
 
 export const skeletonNotes = note(
   "Hold space while content loads. Set a width and height with className.",
-  "pulse and wave loop inside the block. There is no draw or pop trigger.",
+  "pulse and wave loop inside the block. There is no pop.",
   [
     {
       name: "variant",
@@ -1439,7 +1440,7 @@ export const skeletonNotes = note(
 
 export const spinnerNotes = note(
   "A small status mark for a wait. The visible glyph is decorative; the label is announced.",
-  "The mark spins until it unmounts. There is no draw or pop trigger.",
+  "The mark spins until it unmounts. There is no pop.",
   [
     {
       name: "variant",
@@ -1505,14 +1506,14 @@ export const tableNotes = note(
       name: "TableResponsive animate",
       type: 'boolean | "scroll"',
       detail:
-        "Draws the border, then pops the frame. Leave it off for a static table.",
+        "Pops the frame. Leave it off for a static table.",
     },
   ],
 );
 
 export const toastNotes = note(
   "A brief message, usually in a corner. ToastProvider places the stack. The toast can dismiss itself or wait for the close control.",
-  "The toast fades and slides as it enters and leaves. There is no draw or pop trigger.",
+  "The toast fades and slides as it enters and leaves. There is no pop.",
   [
     {
       name: "variant",

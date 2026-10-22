@@ -7,7 +7,6 @@ import {
   useState,
   useRef,
   type AnchorHTMLAttributes,
-  type AnimationEvent,
   type HTMLAttributes,
   type ReactNode,
   type TransitionEvent,
@@ -18,6 +17,8 @@ import { ChevronRight } from "lucide-react";
 import DrawBorder from "../utils/draw-border";
 import {
   SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
   useSurface,
   useSurfaceAnimate,
   useSurfaceFlag,
@@ -27,115 +28,6 @@ import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
-
-// True while a dropdown sits inside a nav item, so the menu skips its shadow.
-const NavItemContext = createContext(false);
-
-// Below the large breakpoint, an open navbar collapse stacks its links.
-const NavbarMenuContext = createContext(false);
-
-export function NavbarMenuProvider({
-  stacked,
-  children,
-}: {
-  stacked: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <NavbarMenuContext.Provider value={stacked}>
-      {children}
-    </NavbarMenuContext.Provider>
-  );
-}
-
-function useNavbarMenuStacked() {
-  return useContext(NavbarMenuContext);
-}
-
-export function useNavAnimate() {
-  return useSurface().animate;
-}
-
-// Navbar and NavItem share one value. A set prop replaces the parent, including false.
-export function NavAnimateProvider({
-  animate,
-  children,
-}: {
-  animate?: AnimationTrigger;
-  children: ReactNode;
-}) {
-  return <SurfaceProvider animate={animate}>{children}</SurfaceProvider>;
-}
-
-// Draw and pop, then drop the temporary shadow unless the link is active.
-function useSettledPop(animate: AnimationTrigger) {
-  const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
-  const [settled, setSettled] = useState(false);
-
-  useEffect(() => {
-    if (!shouldAnimate) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setSettled(true);
-    }
-  }, [shouldAnimate]);
-
-  function onAnimationEnd(event: AnimationEvent<HTMLSpanElement>) {
-    if (event.animationName !== "brutalPopOut") return;
-    setSettled(true);
-  }
-
-  return { ref, drawing: shouldAnimate && !settled, onAnimationEnd };
-}
-
-export function useInNavItem() {
-  return useContext(NavItemContext);
-}
-
-// True while the parent sidebar is an icon rail.
-const NavCollapseContext = createContext(false);
-
-export function useNavCollapsed() {
-  return useContext(NavCollapseContext);
-}
-
-export function NavCollapseProvider({
-  collapsed,
-  children,
-}: {
-  collapsed: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <NavCollapseContext.Provider value={collapsed}>
-      {children}
-    </NavCollapseContext.Provider>
-  );
-}
-
-// Keep the panel clipped while it collapses, then release it so a popped
-// link or a dropdown can draw outside the row.
-export function useRevealClip(open: boolean) {
-  const [clip, setClip] = useState(!open);
-
-  useEffect(() => {
-    if (!open) {
-      setClip(true);
-      return;
-    }
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setClip(false);
-    }
-  }, [open]);
-
-  function onTransitionEnd(event: TransitionEvent<HTMLElement>) {
-    if (event.target !== event.currentTarget) return;
-    if (event.propertyName !== "grid-template-rows") return;
-    if (open) setClip(false);
-  }
-
-  return { clip, onTransitionEnd };
-}
 
 // Nav styles
 const navStyles = cva(
@@ -160,68 +52,6 @@ const navStyles = cva(
   },
 );
 
-// Nav props
-export type NavProps = HTMLAttributes<HTMLUListElement> &
-  VariantProps<typeof navStyles>;
-
-// Main Nav component
-export function Nav({ className, direction, ...props }: NavProps) {
-  const stacked = useNavbarMenuStacked();
-
-  return (
-    <ul
-      className={twMerge(
-        navStyles({ direction: stacked ? "column" : direction }),
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-// Nav item props
-export type NavItemProps = HTMLAttributes<HTMLLIElement> & {
-  rounded?: boolean;
-  shadow?: boolean;
-  border?: boolean;
-  animate?: AnimationTrigger;
-};
-
-// Main NavItem component
-export function NavItem({
-  className,
-  rounded,
-  shadow,
-  border,
-  animate,
-  ...props
-}: NavItemProps) {
-  const stacked = useNavbarMenuStacked();
-  const isRounded = useSurfaceFlag(rounded, "rounded", false);
-
-  return (
-    <NavItemContext.Provider value={true}>
-      <SurfaceProvider
-        rounded={rounded}
-        shadow={shadow}
-        border={border}
-        animate={animate}
-      >
-        <li
-          className={twMerge(
-            "flex flex-col",
-            stacked && "w-full [&>*]:w-full",
-            isRounded &&
-              "rounded-[var(--radius)] [&>span]:rounded-[var(--radius)] [&_a]:rounded-[var(--radius)] [&>button]:rounded-[var(--radius)]",
-            className,
-          )}
-          {...props}
-        />
-      </SurfaceProvider>
-    </NavItemContext.Provider>
-  );
-}
-
 // Nav link styles
 const navLinkStyles = cva(
   [
@@ -229,7 +59,7 @@ const navLinkStyles = cva(
     "group/nav relative z-10 isolate inline-flex w-full items-center gap-2",
 
     // Border and typography
-    "border-[3px] border-border font-mono font-bold uppercase tracking-wide",
+    "border-border font-mono font-bold uppercase tracking-wide",
 
     // Keyboard focus
     "focus-visible:outline-none focus-visible:ring-2",
@@ -310,6 +140,56 @@ const fillStyles = cva(
   },
 );
 
+// True while a dropdown sits inside a nav item, so the menu skips its shadow.
+const NavItemContext = createContext(false);
+
+// Below the large breakpoint, an open navbar collapse stacks its links.
+const NavbarMenuContext = createContext(false);
+
+// True while the parent sidebar is an icon rail.
+const NavCollapseContext = createContext(false);
+
+function useNavbarMenuStacked() {
+  return useContext(NavbarMenuContext);
+}
+
+export function useNavAnimate(): AnimationTrigger | undefined {
+  return useSurface().animate;
+}
+
+export function useInNavItem() {
+  return useContext(NavItemContext);
+}
+
+export function useNavCollapsed() {
+  return useContext(NavCollapseContext);
+}
+
+// Keep the panel clipped while it collapses, then release it so a popped
+// link or a dropdown can draw outside the row.
+export function useRevealClip(open: boolean) {
+  const [clip, setClip] = useState(!open);
+
+  useEffect(() => {
+    if (!open) {
+      setClip(true);
+      return;
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setClip(false);
+    }
+  }, [open]);
+
+  function onTransitionEnd(event: TransitionEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget) return;
+    if (event.propertyName !== "grid-template-rows") return;
+    if (open) setClip(false);
+  }
+
+  return { clip, onTransitionEnd };
+}
+
 function hoverInk(
   variant: "primary" | "secondary" | "outline" | null | undefined,
 ) {
@@ -338,7 +218,7 @@ function HoverFill({
         [
           // Start at the inner edge so the fill never covers the 3px stroke.
           "pointer-events-none absolute inset-0 z-0 overflow-hidden",
-          rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
+          rounded && "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
         ]
           .filter(Boolean)
           .join(" "),
@@ -349,12 +229,39 @@ function HoverFill({
           fillStyles({ variant }),
           "group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100",
           fillClassName,
-          rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
+          rounded && "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
         )}
       />
     </span>
   );
 }
+
+// Nav props
+export type NavProps = HTMLAttributes<HTMLUListElement> &
+  VariantProps<typeof navStyles>;
+
+// Main Nav component
+export function Nav({ className, direction, ...props }: NavProps) {
+  const stacked = useNavbarMenuStacked();
+
+  return (
+    <ul
+      className={twMerge(
+        navStyles({ direction: stacked ? "column" : direction }),
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+// Nav item props
+export type NavItemProps = HTMLAttributes<HTMLLIElement> & {
+  rounded?: boolean;
+  shadow?: boolean;
+  border?: boolean;
+  animate?: AnimationTrigger;
+};
 
 // Nav link props
 export type NavLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
@@ -370,6 +277,94 @@ export type NavLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
     faceClassName?: string;
     fillClassName?: string;
   };
+
+// Nav group props
+export type NavGroupProps = HTMLAttributes<HTMLLIElement> &
+  VariantProps<typeof navLinkStyles> & {
+    label: string;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    defaultOpen?: boolean;
+    rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    icon?: ReactNode;
+    animate?: AnimationTrigger;
+  };
+
+export function NavbarMenuProvider({
+  stacked,
+  children,
+}: {
+  stacked: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <NavbarMenuContext.Provider value={stacked}>
+      {children}
+    </NavbarMenuContext.Provider>
+  );
+}
+
+// Navbar and NavItem share one value. A set prop replaces the parent, including false.
+export function NavAnimateProvider({
+  animate,
+  children,
+}: {
+  animate?: AnimationTrigger;
+  children: ReactNode;
+}) {
+  return <SurfaceProvider animate={animate}>{children}</SurfaceProvider>;
+}
+
+export function NavCollapseProvider({
+  collapsed,
+  children,
+}: {
+  collapsed: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <NavCollapseContext.Provider value={collapsed}>
+      {children}
+    </NavCollapseContext.Provider>
+  );
+}
+
+// Main NavItem component
+export function NavItem({
+  className,
+  rounded,
+  shadow,
+  border,
+  animate,
+  ...props
+}: NavItemProps) {
+  const stacked = useNavbarMenuStacked();
+  const isRounded = useSurfaceFlag(rounded, "rounded", false);
+
+  return (
+    <NavItemContext.Provider value={true}>
+      <SurfaceProvider
+        rounded={rounded}
+        shadow={shadow}
+        border={border}
+        animate={animate}
+      >
+        <li
+          className={twMerge(
+            "flex flex-col",
+            stacked && "w-full [&>*]:w-full",
+            isRounded &&
+              "rounded-[var(--radius)] [&>span]:rounded-[var(--radius)] [&_a]:rounded-[var(--radius)] [&>button]:rounded-[var(--radius)]",
+            className,
+          )}
+          {...props}
+        />
+      </SurfaceProvider>
+    </NavItemContext.Provider>
+  );
+}
 
 // Main NavLink component
 export function NavLink({
@@ -395,21 +390,19 @@ export function NavLink({
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
   const animate = useSurfaceAnimate(animateProp);
-  const { ref, drawing, onAnimationEnd } = useSettledPop(animate);
-  const popped = active && !disabled && shadow;
-  const showShadow = popped || (drawing && shadow);
+  const pop = active && !disabled && shadow;
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
 
   return (
     <span
       ref={ref}
-      onAnimationEnd={onAnimationEnd}
-      data-pop-direction={drawing ? "out" : undefined}
+      data-pop-direction={shouldAnimate && pop ? "out" : undefined}
       className={twMerge(
         [
-          // Layout. The shadow stays on this box so the face does not move away from it.
+          // Layout. The shadow stays on this box so the active face can pop out of it.
           "relative isolate flex w-full",
-          showShadow && "z-20 shadow-[var(--shadow)]",
-          drawing && "animate-brutal-pop",
+          pop && "z-20 shadow-[var(--shadow)]",
+          shouldAnimate && pop && "animate-brutal-pop",
           isRounded && "rounded-[var(--radius)]",
           wrapperClassName,
         ]
@@ -427,9 +420,9 @@ export function NavLink({
 
             // Icon rail keeps the mark and hides the words.
             collapsed ? "justify-center px-2" : "",
-            !border && "border-none",
-            drawing && border ? "border-transparent brutal-pop-face" : "",
-            isRounded && "overflow-hidden rounded-[var(--radius)]",
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+            shouldAnimate && pop && "brutal-pop-face",
+            faceRadiusClass(isRounded),
             faceClassName,
             className,
           ]
@@ -438,7 +431,7 @@ export function NavLink({
         )}
         {...props}
       >
-        {drawing && border && (
+        {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={isRounded ? "var(--radius)" : undefined}
@@ -492,20 +485,6 @@ export function NavLink({
   );
 }
 
-// Nav group props
-export type NavGroupProps = HTMLAttributes<HTMLLIElement> &
-  VariantProps<typeof navLinkStyles> & {
-    label: string;
-    open?: boolean;
-    onOpenChange?: (open: boolean) => void;
-    defaultOpen?: boolean;
-    rounded?: boolean;
-    shadow?: boolean;
-    border?: boolean;
-    icon?: ReactNode;
-    animate?: AnimationTrigger;
-  };
-
 // Parent item that shows or hides its child links, the way a Bootstrap sidebar does.
 export function NavGroup({
   label,
@@ -528,7 +507,7 @@ export function NavGroup({
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
   const animate = useSurfaceAnimate(animateProp);
-  const { ref, drawing, onAnimationEnd } = useSettledPop(animate);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
   const [uncontrolled, setUncontrolled] = useState(defaultOpen);
   const [collapsedOpen, setCollapsedOpen] = useState(false);
   const groupRef = useRef<HTMLLIElement>(null);
@@ -569,13 +548,12 @@ export function NavGroup({
     >
       <span
         ref={ref}
-        onAnimationEnd={onAnimationEnd}
-        data-pop-direction={drawing ? "out" : undefined}
+        data-pop-direction={shouldAnimate ? "out" : undefined}
         className={twMerge(
-          "flex w-full",
-          drawing && "relative isolate animate-brutal-pop",
-          drawing && shadow && "shadow-[var(--shadow)]",
-          rounded && drawing && "rounded-[var(--radius)]",
+          "relative flex w-full",
+          rounded && "rounded-[var(--radius)]",
+          shouldAnimate && shadow && "shadow-[var(--shadow)]",
+          shouldAnimate && "animate-brutal-pop",
         )}
       >
         <button
@@ -584,14 +562,14 @@ export function NavGroup({
             navLinkStyles({ variant, size }),
             "text-left",
             collapsed && "justify-center px-2",
-            !border && "border-none",
-            drawing && border && "border-transparent brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+            shouldAnimate && "brutal-pop-face",
+            faceRadiusClass(rounded),
           )}
           aria-expanded={revealed}
           onClick={toggle}
         >
-          {drawing && border && (
+          {shouldAnimate && border && (
             <DrawBorder
               animate
               radius={rounded ? "var(--radius)" : undefined}
@@ -659,7 +637,7 @@ export function NavGroup({
             [
               // Flyout chooser for an icon rail.
               "absolute left-full top-0 z-50 ml-3 min-w-48",
-              "border-[3px] bg-[var(--surface)] p-2 text-[var(--surface-foreground)]",
+              "border-[length:var(--border-width)] bg-[var(--surface)] p-2 text-[var(--surface-foreground)]",
               border ? "border-border" : "border-none",
               shadow && "shadow-[var(--shadow)]",
               rounded && "rounded-[var(--radius)]",

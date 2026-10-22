@@ -36,32 +36,10 @@ type AccordionContextValue = {
   ) => void;
 };
 
-const AccordionContext = createContext<AccordionContextValue | null>(null);
-
-function useAccordion() {
-  const context = useContext(AccordionContext);
-  if (!context) {
-    throw new Error("Accordion parts must render inside Accordion");
-  }
-  return context;
-}
-
 type AccordionItemContextValue = {
   disabled: boolean;
   value: string;
 };
-
-const AccordionItemContext = createContext<AccordionItemContextValue | null>(
-  null,
-);
-
-function useAccordionItem() {
-  const context = useContext(AccordionItemContext);
-  if (!context) {
-    throw new Error("AccordionTrigger must render inside AccordionItem");
-  }
-  return context;
-}
 
 type AccordionBaseProps = Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -76,6 +54,28 @@ type AccordionBaseProps = Omit<
   faceClassName?: string;
   children?: ReactNode;
 };
+
+const AccordionContext = createContext<AccordionContextValue | null>(null);
+
+const AccordionItemContext = createContext<AccordionItemContextValue | null>(
+  null,
+);
+
+function useAccordion() {
+  const context = useContext(AccordionContext);
+  if (!context) {
+    throw new Error("Accordion parts must render inside Accordion");
+  }
+  return context;
+}
+
+function useAccordionItem() {
+  const context = useContext(AccordionItemContext);
+  if (!context) {
+    throw new Error("AccordionTrigger must render inside AccordionItem");
+  }
+  return context;
+}
 
 export type AccordionSingleProps = AccordionBaseProps & {
   type?: "single";
@@ -201,12 +201,7 @@ function AccordionRoot(props: AccordionProps) {
 
   return (
     <AccordionContext.Provider value={context}>
-      <SurfaceProvider
-        shadow={shadow}
-        border={border}
-        rounded={rounded}
-        animate={animate}
-      >
+      <SurfaceProvider rounded={rounded}>
       <div
         className={twMerge(
           [
@@ -217,11 +212,11 @@ function AccordionRoot(props: AccordionProps) {
               [
                 "overflow-hidden rounded-[var(--radius)]",
                 "[&>*:first-child]:overflow-hidden [&>*:first-child]:rounded-t-[var(--radius)]",
-                "[&>*:first-child_[data-collapse-face]]:rounded-t-[var(--radius)]",
-                "[&>*:first-child_button]:rounded-t-[var(--radius)]",
+                "[&>*:first-child_[data-collapse-face]]:rounded-t-[var(--face-radius,var(--radius))]",
+                "[&>*:first-child_button]:rounded-t-[max(0px,calc(var(--radius)-var(--collapse-stroke,0px)))]",
                 "[&>*:last-child]:overflow-hidden [&>*:last-child]:rounded-b-[var(--radius)]",
-                "[&>*:last-child_[data-collapse-face]]:rounded-b-[var(--radius)]",
-                "[&>*:last-child_[role=region]]:rounded-b-[var(--radius)]",
+                "[&>*:last-child_[data-collapse-face]]:rounded-b-[var(--face-radius,var(--radius))]",
+                "[&>*:last-child[data-state=closed]_button]:rounded-b-[max(0px,calc(var(--radius)-var(--collapse-stroke,0px)))]",
               ].join(" "),
             className,
           ]
@@ -247,6 +242,11 @@ export type AccordionItemProps = Omit<
   value: string;
 };
 
+// Accordion trigger props
+export type AccordionTriggerProps = CollapseTriggerProps & {
+  headingLevel?: number;
+};
+
 // One animated accordion panel.
 export function AccordionItem({
   value,
@@ -266,12 +266,7 @@ export function AccordionItem({
 
   return (
     <AccordionItemContext.Provider value={{ disabled: isDisabled, value }}>
-      <SurfaceProvider
-        border={border}
-        rounded={rounded}
-        shadow={shadow}
-        animate={animate}
-      >
+      <SurfaceProvider rounded={rounded}>
         <Collapse
           open={open}
           disabled={isDisabled}
@@ -285,7 +280,7 @@ export function AccordionItem({
             [
               // Surface and grouped borders
               "bg-[var(--surface)] text-[var(--surface-foreground)]",
-              accordion.flush && "-mt-[3px] first:mt-0",
+              accordion.flush && "-mt-[var(--border-width)] first:mt-0",
               rounded === false &&
                 "!rounded-none [&_[data-collapse-face]]:!rounded-none [&_button]:!rounded-none [&_[role=region]]:!rounded-none",
               className,
@@ -302,11 +297,6 @@ export function AccordionItem({
     </AccordionItemContext.Provider>
   );
 }
-
-// Accordion trigger props
-export type AccordionTriggerProps = CollapseTriggerProps & {
-  headingLevel?: number;
-};
 
 // Heading-wrapped trigger with WAI-ARIA accordion keyboard navigation.
 export function AccordionTrigger({

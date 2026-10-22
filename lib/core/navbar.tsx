@@ -11,54 +11,18 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import { NavbarMenuProvider, useRevealClip } from "./nav";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
-
-function useBelowLg() {
-  const [below, setBelow] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 1023px)").matches,
-  );
-
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 1023px)");
-    const update = () => setBelow(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-
-  return below;
-}
-
-// True while a toggler sits in a navbar, so it hides once the bar is expanded.
-const NavbarContext = createContext(false);
-
-export function useInNavbar() {
-  return useContext(NavbarContext);
-}
-
-// A rounded bar shares its radius with the togglers inside it.
-export function useNavbarRounded() {
-  return useSurfaceFlag(undefined, "rounded", false);
-}
-
-// Lets an open menu lift this bar above later siblings.
-type NavbarStack = {
-  raise: () => void;
-  release: () => void;
-};
-
-const NavbarStackContext = createContext<NavbarStack | null>(null);
-
-export function useNavbarStack() {
-  return useContext(NavbarStackContext);
-}
 
 // Navbar styles
 const navbarStyles = cva(
@@ -67,7 +31,7 @@ const navbarStyles = cva(
     "relative z-10 isolate flex w-full flex-wrap items-center justify-between gap-3",
 
     // Border and typography
-    "border-[3px] font-mono font-bold",
+    "font-mono font-bold",
 
     // Disabled state and reduced motion. Gray communicates that it cannot be used.
     "aria-disabled:pointer-events-none aria-disabled:bg-disabled aria-disabled:text-disabled-foreground",
@@ -109,6 +73,48 @@ const navbarStyles = cva(
   },
 );
 
+// Lets an open menu lift this bar above later siblings.
+type NavbarStack = {
+  raise: () => void;
+  release: () => void;
+};
+
+// True while a toggler sits in a navbar, so it hides once the bar is expanded.
+const NavbarContext = createContext(false);
+
+const NavbarStackContext = createContext<NavbarStack | null>(null);
+
+function useBelowLg() {
+  const [below, setBelow] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 1023px)").matches,
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1023px)");
+    const update = () => setBelow(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  return below;
+}
+
+export function useInNavbar() {
+  return useContext(NavbarContext);
+}
+
+// A rounded bar shares its radius with the togglers inside it.
+export function useNavbarRounded() {
+  return useSurfaceFlag(undefined, "rounded", false);
+}
+
+export function useNavbarStack() {
+  return useContext(NavbarStackContext);
+}
+
 // Navbar props
 export type NavbarProps = HTMLAttributes<HTMLElement> &
   VariantProps<typeof navbarStyles> & {
@@ -144,7 +150,6 @@ export default function Navbar({
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
   const [raised, setRaised] = useState(0);
   const raise = useCallback(() => setRaised((count) => count + 1), []);
   const release = useCallback(
@@ -164,7 +169,7 @@ export default function Navbar({
       raised > 0 && "z-50",
 
       // Shadow. Optional so a bar can sit flat.
-      showShadow && "shadow-[var(--shadow)]",
+      shadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -183,16 +188,12 @@ export default function Navbar({
           [
             navbarStyles({ variant, size }),
 
-            // Resting stroke, or none while the SVG draws it. border false drops both.
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
+            faceRadiusClass(rounded),
             faceClassName,
             className,
           ]
@@ -202,7 +203,6 @@ export default function Navbar({
         aria-disabled={disabled || undefined}
         {...props}
       >
-        {/* Border */}
         {shouldAnimate && border && (
           <DrawBorder
             animate
@@ -212,10 +212,10 @@ export default function Navbar({
         )}
         <NavbarContext.Provider value={true}>
           <SurfaceProvider
-            shadow={showShadow}
-            border={border}
             rounded={rounded}
-            animate={animate}
+            shadow={shadowProp}
+            border={borderProp}
+            animate={animateProp}
           >
             <NavbarStackContext.Provider value={stack}>
               {children}
@@ -230,6 +230,11 @@ export default function Navbar({
 // Brand props
 export type NavbarBrandProps = HTMLAttributes<HTMLElement> & {
   href?: string;
+};
+
+// Collapse props
+export type NavbarCollapseProps = HTMLAttributes<HTMLDivElement> & {
+  open?: boolean;
 };
 
 // Main NavbarBrand component
@@ -261,11 +266,6 @@ export function NavbarBrand({
     </span>
   );
 }
-
-// Collapse props
-export type NavbarCollapseProps = HTMLAttributes<HTMLDivElement> & {
-  open?: boolean;
-};
 
 // Hidden below lg until the toggler opens it. Always shown from lg up.
 export function NavbarCollapse({

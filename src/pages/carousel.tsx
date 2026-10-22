@@ -87,7 +87,7 @@ export default function CarouselPage() {
       <Example
         imports="Carousel, CarouselSlide"
         title="Outline and flat"
-        summary="shadow and border on Carousel pass to the frame and the controls. shadow on a slide puts an offset on that slide."
+        summary="The frame keeps the shadow. border and rounded still reach the controls. shadow on a slide puts an offset on that slide."
         code={`<Carousel label="Outline carousel" variant="outline" shadow={false} rounded>
   <CarouselSlide>Outline slide</CarouselSlide>
   <CarouselSlide shadow>Keeps an offset</CarouselSlide>

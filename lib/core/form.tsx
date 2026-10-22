@@ -12,37 +12,23 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
-type FormContextValue = {
-  submitted: boolean;
-};
-
-type FormFieldContextValue = {
-  controlId: string;
-  feedbackId: string;
-  invalid: boolean;
-  valid: boolean;
-};
-
-const FormContext = createContext<FormContextValue>({ submitted: false });
-const FormFieldContext = createContext<FormFieldContextValue | null>(null);
-
-// Used by controls that opt into FormField's generated accessibility state.
-// eslint-disable-next-line react-refresh/only-export-components
-export function useFormFieldControl() {
-  return useContext(FormFieldContext);
-}
-
 // Form styles
 const formStyles = cva(
   [
     // Layout and surface
-    "relative z-10 isolate flex w-full flex-col border-[3px] font-mono",
+    "relative z-10 isolate flex w-full flex-col font-mono",
 
     // Reduced motion
     "motion-reduce:transition-none",
@@ -68,6 +54,26 @@ const formStyles = cva(
     },
   },
 );
+
+type FormContextValue = {
+  submitted: boolean;
+};
+
+type FormFieldContextValue = {
+  controlId: string;
+  feedbackId: string;
+  invalid: boolean;
+  valid: boolean;
+};
+
+const FormContext = createContext<FormContextValue>({ submitted: false });
+const FormFieldContext = createContext<FormFieldContextValue | null>(null);
+
+// Used by controls that opt into FormField's generated accessibility state.
+// eslint-disable-next-line react-refresh/only-export-components
+export function useFormFieldControl() {
+  return useContext(FormFieldContext);
+}
 
 // Form props
 export type FormProps = Omit<
@@ -106,7 +112,6 @@ export function Form({
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     setSubmitted(true);
@@ -120,9 +125,14 @@ export function Form({
 
   const wrapperClassName = twMerge(
     [
+      // Layout and stacking
       "relative isolate flex w-full",
-      showShadow && "shadow-[var(--shadow)]",
+
+      // Hard offset. A flat form stays put.
+      shadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
+
+      // Animation
       shouldAnimate && "animate-brutal-pop",
     ]
       .filter(Boolean)
@@ -139,12 +149,8 @@ export function Form({
           className={twMerge(
             formStyles({ variant, size }),
             shouldAnimate && "brutal-pop-face",
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
-            rounded && "rounded-[var(--radius)]",
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+            faceRadiusClass(rounded),
             disabled && "pointer-events-none opacity-70",
             faceClassName,
             className,
@@ -159,12 +165,7 @@ export function Form({
               className="z-10"
             />
           )}
-          <SurfaceProvider
-            shadow={showShadow}
-            border={border}
-            rounded={rounded}
-            animate={animate}
-          >
+          <SurfaceProvider rounded={rounded}>
             {children}
           </SurfaceProvider>
         </form>
@@ -179,6 +180,17 @@ export type FormFieldProps = HTMLAttributes<HTMLDivElement> & {
   valid?: boolean;
   invalid?: boolean;
   children?: ReactNode;
+};
+
+// FormLabel props
+export type FormLabelProps = LabelHTMLAttributes<HTMLLabelElement> & {
+  required?: boolean;
+};
+
+// FormFeedback props
+export type FormFeedbackProps = HTMLAttributes<HTMLParagraphElement> & {
+  state?: "valid" | "invalid";
+  forceMount?: boolean;
 };
 
 // Groups a label, control, and feedback message.
@@ -213,11 +225,6 @@ export function FormField({
   );
 }
 
-// FormLabel props
-export type FormLabelProps = LabelHTMLAttributes<HTMLLabelElement> & {
-  required?: boolean;
-};
-
 // Field label
 export function FormLabel({
   className,
@@ -245,12 +252,6 @@ export function FormLabel({
     </label>
   );
 }
-
-// FormFeedback props
-export type FormFeedbackProps = HTMLAttributes<HTMLParagraphElement> & {
-  state?: "valid" | "invalid";
-  forceMount?: boolean;
-};
 
 // Validation feedback
 export function FormFeedback({

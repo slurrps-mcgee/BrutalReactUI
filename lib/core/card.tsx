@@ -1,7 +1,11 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import { useLayoutEffect, useRef, type HTMLAttributes, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
+import {
+  borderPaintClass,
+  faceRadiusClass,
+} from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -13,8 +17,8 @@ const cardStyles = cva(
     // Layout and stacking
     "relative z-10 isolate flex h-full w-full flex-col [--card-radius:0px]",
 
-    // Border and typography. Color matches the drawn stroke.
-    "border-[3px] bg-secondary-background text-foreground",
+    // Border and typography.
+    "bg-secondary-background text-foreground",
 
     // Press interaction is added only while the shadow is on.
 
@@ -87,7 +91,24 @@ export default function Card({
 }: CardProps) {
   // Animation trigger
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
+  const faceRef = useRef<HTMLElement>(null);
+
+  // The used stroke can snap below the token. CardImage bleeds by that width.
+  useLayoutEffect(() => {
+    const face = faceRef.current;
+    if (!face) return;
+
+    const read = () => {
+      const used = Number.parseFloat(getComputedStyle(face).borderTopWidth);
+      const next = Number.isFinite(used) && used > 0 ? used : 0;
+      face.style.setProperty("--card-border", `${next}px`);
+    };
+
+    read();
+    const observer = new ResizeObserver(read);
+    observer.observe(face);
+    return () => observer.disconnect();
+  }, [border, shouldAnimate]);
 
   // Wrapper classes
   const wrapperClassName = twMerge(
@@ -95,8 +116,8 @@ export default function Card({
       // Layout and stacking
       "relative isolate h-full w-full",
 
-      // Shadow. A pop needs the offset, so animation turns it on.
-      showShadow && "shadow-[var(--shadow)]",
+      // Hard offset. A flat face stays put.
+      shadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -111,16 +132,17 @@ export default function Card({
   return (
     <div ref={ref} className={wrapperClassName} data-pop-direction="out">
       <article
+        ref={faceRef}
         className={twMerge(
           [
             cardStyles({ variant, size }),
 
-            // Resting stroke, or none while the SVG draws it. border false drops both.
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
+            // Drawn stroke, or the resting border. border false drops both.
+            // --card-border is the used width so CardImage stops at that stroke.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+            border && !shouldAnimate
+              ? "[--card-border:var(--border-width)]"
+              : "[--card-border:0px]",
 
             // Press into the shadow. A flat card stays put.
             shadow &&
@@ -128,7 +150,8 @@ export default function Card({
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)] [--card-radius:var(--radius)]",
+            faceRadiusClass(rounded),
+            rounded && "[--card-radius:var(--radius)]",
             disabled && "pointer-events-none opacity-70",
             faceClassName,
             className,
@@ -140,7 +163,6 @@ export default function Card({
         {...props}
       >
         {children}
-        {/* Border. Rendered after the slots so a leading CardImage stays the first child. */}
         {shouldAnimate && border && (
           <DrawBorder
             animate
@@ -186,11 +208,16 @@ export function CardImage({
     <div
       className={twMerge(
         [
-          // Cancel the face padding so the picture meets the card stroke.
-          "w-[calc(100%+2*var(--card-padding))]",
-          "-mx-[var(--card-padding)] first:-mt-[var(--card-padding)]",
+          // Cancel the face padding and the stroke width so the picture
+          // sits under the border. A padding-only bleed leaves the card
+          // fill as a strip beside the image, and hover makes that strip crisp.
+          "w-[calc(100%+2*var(--card-padding)+2*var(--card-border,0px))]",
+          "-mx-[calc(var(--card-padding)+var(--card-border,0px))]",
+          "first:-mt-[calc(var(--card-padding)+var(--card-border,0px))]",
+          "last:-mb-[calc(var(--card-padding)+var(--card-border,0px))]",
           "overflow-hidden",
-          "first:rounded-t-[max(0px,calc(var(--card-radius)-3px))]",
+          "first:rounded-t-[var(--card-radius,0px)]",
+          "last:rounded-b-[var(--card-radius,0px)]",
         ].join(" "),
         className,
       )}

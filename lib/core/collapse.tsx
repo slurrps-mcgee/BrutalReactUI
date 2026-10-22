@@ -15,7 +15,13 @@ import {
 import { twMerge } from "tailwind-merge";
 import { ChevronDown } from "lucide-react";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -95,7 +101,6 @@ export default function Collapse({
   const shadow = useSurfaceFlag(shadowProp, "shadow", false);
   const animate = useSurfaceAnimate(animateProp);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const isOpen = open ?? uncontrolledOpen;
   const triggerId = useId();
@@ -145,20 +150,22 @@ export default function Collapse({
         finishTransition,
       }}
     >
-      <SurfaceProvider
-        shadow={showShadow}
-        border={border}
-        rounded={roundedProp ?? inheritedRounded}
-        animate={animate}
-      >
+      <SurfaceProvider rounded={roundedProp ?? inheritedRounded}>
         <div
           ref={ref}
           className={twMerge(
             [
+              // Layout
               "w-full",
-              showShadow && "shadow-[var(--shadow)]",
+
+              // Hard offset. A flat panel stays put.
+              shadow && "shadow-[var(--shadow)]",
               rounded && "rounded-[var(--radius)]",
+
+              // Animation
               shouldAnimate && "animate-brutal-pop",
+
+              // Disabled state
               disabled && "opacity-60",
               className,
             ]
@@ -174,14 +181,19 @@ export default function Collapse({
             data-collapse-face
             className={twMerge(
               [
-                "border-[3px] bg-[var(--surface)] text-[var(--surface-foreground)]",
-                !border
-                  ? "border-none"
-                  : shouldAnimate
-                    ? "border-transparent"
-                    : "border-border",
-                rounded && "overflow-hidden rounded-[var(--radius)]",
+                // Border, fill, and ink.
+                "relative bg-[var(--surface)] text-[var(--surface-foreground)]",
+
+                // Drawn stroke, or the resting border. border false drops both.
+                shouldAnimate && border ? "border-none" : borderPaintClass(border),
+
+                // Width an end trigger subtracts so its fill follows the stroke.
+                border ? "[--collapse-stroke:var(--border-width)]" : "[--collapse-stroke:0px]",
+                rounded && "[--face-radius:var(--radius)]",
+
+                // Pop target. Must be the wrapper's direct child.
                 shouldAnimate && "brutal-pop-face",
+                faceRadiusClass(rounded),
                 faceClassName,
               ]
                 .filter(Boolean)
@@ -192,10 +204,17 @@ export default function Collapse({
               <DrawBorder
                 animate
                 radius={rounded ? "var(--radius)" : undefined}
-                className="z-10"
+                className="z-20"
               />
             )}
-            {children}
+            <div
+              className={twMerge(
+                rounded &&
+                  "overflow-hidden rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
+              )}
+            >
+              {children}
+            </div>
           </div>
         </div>
       </SurfaceProvider>
@@ -209,6 +228,13 @@ export type CollapseTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   rounded?: boolean;
   border?: boolean;
   shadow?: boolean;
+};
+
+// Collapse content props
+export type CollapseContentProps = HTMLAttributes<HTMLDivElement> & {
+  innerClassName?: string;
+  border?: boolean;
+  rounded?: boolean;
 };
 
 // Button that controls the collapse content.
@@ -263,7 +289,7 @@ export const CollapseTrigger = forwardRef<
           "motion-reduce:transition-none",
           rounded === false && "!rounded-none",
           rounded && "rounded-[var(--radius)]",
-          border && "border-b-[3px] border-border",
+          border && "border-b-[length:var(--border-width)] border-border",
           shadow && "shadow-[var(--shadow)]",
           className,
         ]
@@ -298,13 +324,6 @@ export const CollapseTrigger = forwardRef<
     </button>
   );
 });
-
-// Collapse content props
-export type CollapseContentProps = HTMLAttributes<HTMLDivElement> & {
-  innerClassName?: string;
-  border?: boolean;
-  rounded?: boolean;
-};
 
 // Grid rows animate to the content's measured intrinsic height without
 // hard-coding a maximum height.
@@ -370,7 +389,7 @@ export const CollapseContent = forwardRef<HTMLDivElement, CollapseContentProps>(
           <div
             className={twMerge(
               "p-4",
-              showBorder && "border-t-[3px] border-border",
+              showBorder && "border-t-[length:var(--border-width)] border-border",
               rounded && "rounded-[var(--radius)]",
               rounded === false && "!rounded-none",
               innerClassName,

@@ -8,7 +8,13 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -20,11 +26,11 @@ const listGroupStyles = cva(
     "relative flex w-full list-none flex-col overflow-visible",
 
     // Border and typography
-    "border-[3px] border-border",
+    "border-border",
 
     // Dividers. The control inside a contents row is the box that can paint.
-    "[&>li:not(:last-child)]:border-b-[3px] [&>li:not(:last-child)]:border-border",
-    "[&>li.contents:not(:last-child)>*]:border-b-[3px]",
+    "[&>li:not(:last-child)]:border-b-[length:var(--border-width)] [&>li:not(:last-child)]:border-border",
+    "[&>li.contents:not(:last-child)>*]:border-b-[length:var(--border-width)]",
     "[&>li.contents:not(:last-child)>*]:border-border",
   ].join(" "),
   {
@@ -48,129 +54,6 @@ const listGroupStyles = cva(
     },
   },
 );
-
-// Item fills sit inside the 3px stroke so a rounded corner is one curve, not two.
-function itemRadius(rounded: boolean) {
-  if (!rounded) return "";
-  return [
-    "[&>li:first-of-type]:rounded-t-[max(0px,calc(var(--radius)-3px))]",
-    "[&>li.contents:first-of-type>*]:rounded-t-[max(0px,calc(var(--radius)-3px))]",
-    "[&>li:last-child]:rounded-b-[max(0px,calc(var(--radius)-3px))]",
-    "[&>li.contents:last-child>*]:rounded-b-[max(0px,calc(var(--radius)-3px))]",
-  ].join(" ");
-}
-
-type ListGroupStyleProps = VariantProps<typeof listGroupStyles>;
-const ListGroupContext = createContext<ListGroupStyleProps>({
-  variant: "outline",
-  size: "md",
-});
-
-export type ListGroupProps = HTMLAttributes<HTMLUListElement> &
-  ListGroupStyleProps & {
-    animate?: AnimationTrigger;
-    rounded?: boolean;
-    shadow?: boolean;
-    border?: boolean;
-    wrapperClassName?: string;
-    faceClassName?: string;
-  };
-
-export default function ListGroup({
-  className,
-  variant,
-  size,
-  animate: animateProp,
-  rounded: roundedProp,
-  shadow: shadowProp,
-  border: borderProp,
-  wrapperClassName,
-  faceClassName,
-  children,
-  ...props
-}: ListGroupProps) {
-  const animate = useSurfaceAnimate(animateProp);
-  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
-  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
-  const border = useSurfaceFlag(borderProp, "border", true);
-  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
-
-  return (
-    <ListGroupContext.Provider value={{ variant, size }}>
-      <div
-        ref={ref}
-        className={twMerge(
-          [
-            // Layout and stacking. The face grows with a stretched parent so the shadow meets the stroke.
-            "relative isolate flex w-full flex-col",
-
-            // Shadow
-            showShadow && "shadow-[var(--shadow)]",
-            rounded && "rounded-[var(--radius)]",
-
-            // Animation
-            shouldAnimate && "animate-brutal-pop",
-          ]
-            .filter(Boolean)
-            .join(" "),
-          wrapperClassName,
-        )}
-        data-pop-direction="out"
-      >
-        <ul
-          className={twMerge(
-            [
-              listGroupStyles({ variant, size }),
-              itemRadius(rounded),
-              rounded && !shouldAnimate && "overflow-hidden",
-
-              // Fill the shadow box when a grid or flex parent stretches the wrapper.
-              "flex-1",
-
-              // Resting stroke, or none while the SVG draws it. border false drops both.
-              !border
-                ? "border-none"
-                : shouldAnimate
-                  ? "border-transparent"
-                  : "border-border",
-              !border &&
-                "[&>li:not([data-border=true])]:!border-none [&>li.contents:not([data-border=true])>*]:!border-none [&>li[data-border=true]:not(:first-child)]:border-t-[3px] [&>li[data-border=true]:not(:first-child)]:border-border [&>li.contents[data-border=true]:not(:first-child)>*]:border-t-[3px] [&>li.contents[data-border=true]:not(:first-child)>*]:border-border",
-              "[&>li[data-border=false]]:!border-b-0 [&>li.contents[data-border=false]>*]:!border-b-0",
-              "[&>li[data-rounded=false]]:!rounded-none [&>li.contents[data-rounded=false]>*]:!rounded-none",
-
-              // Pop target. Must be the wrapper's direct child.
-              shouldAnimate && "brutal-pop-face",
-              rounded && "rounded-[var(--radius)]",
-              faceClassName,
-              className,
-            ]
-              .filter(Boolean)
-              .join(" "),
-          )}
-          {...props}
-        >
-          {/* Border. Inside the face so the stroke travels with the pop. */}
-          {shouldAnimate && border && (
-            <DrawBorder
-              animate
-              radius={rounded ? "var(--radius)" : undefined}
-              className="z-10"
-            />
-          )}
-          <SurfaceProvider
-            shadow={showShadow}
-            border={border}
-            rounded={rounded}
-            animate={animate}
-          >
-            {children}
-          </SurfaceProvider>
-        </ul>
-      </div>
-    </ListGroupContext.Provider>
-  );
-}
 
 const itemStyles = cva(
   [
@@ -216,14 +99,30 @@ const itemStyles = cva(
   },
 );
 
+type ListGroupStyleProps = VariantProps<typeof listGroupStyles>;
+
 type SharedItemProps = {
   active?: boolean;
   disabled?: boolean;
   border?: boolean;
   rounded?: boolean;
   shadow?: boolean;
-  animate?: AnimationTrigger;
 };
+const ListGroupContext = createContext<ListGroupStyleProps>({
+  variant: "outline",
+  size: "md",
+});
+
+// Item fills sit inside the 3px stroke so a rounded corner is one curve, not two.
+function itemRadius(rounded: boolean) {
+  if (!rounded) return "";
+  return [
+    "[&>li:first-of-type]:rounded-t-[max(0px,calc(var(--radius)-var(--border-width)))]",
+    "[&>li.contents:first-of-type>*]:rounded-t-[max(0px,calc(var(--radius)-var(--border-width)))]",
+    "[&>li:last-child]:rounded-b-[max(0px,calc(var(--radius)-var(--border-width)))]",
+    "[&>li.contents:last-child>*]:rounded-b-[max(0px,calc(var(--radius)-var(--border-width)))]",
+  ].join(" ");
+}
 
 function useItemChrome({
   border,
@@ -246,7 +145,108 @@ function useItemChrome({
   };
 }
 
+export type ListGroupProps = HTMLAttributes<HTMLUListElement> &
+  ListGroupStyleProps & {
+    animate?: AnimationTrigger;
+    rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
+  };
+
+export default function ListGroup({
+  className,
+  variant,
+  size,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  wrapperClassName,
+  faceClassName,
+  children,
+  ...props
+}: ListGroupProps) {
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+
+  return (
+    <ListGroupContext.Provider value={{ variant, size }}>
+      <div
+        ref={ref}
+        className={twMerge(
+          [
+            // Layout and stacking. The face grows with a stretched parent so the shadow meets the stroke.
+            "relative isolate flex w-full flex-col",
+
+            // Shadow.
+            shadow && "shadow-[var(--shadow)]",
+            rounded && "rounded-[var(--radius)]",
+
+            // Animation
+            shouldAnimate && "animate-brutal-pop",
+          ]
+            .filter(Boolean)
+            .join(" "),
+          wrapperClassName,
+        )}
+        data-pop-direction="out"
+      >
+        <ul
+          className={twMerge(
+            [
+              listGroupStyles({ variant, size }),
+              itemRadius(rounded),
+              rounded && !shouldAnimate && "overflow-hidden",
+
+              // Fill the shadow box when a grid or flex parent stretches the wrapper.
+              "flex-1",
+
+              // Drawn stroke, or the resting border. border false drops both.
+              shouldAnimate && border ? "border-none" : borderPaintClass(border),
+              !border &&
+                "[&>li:not([data-border=true])]:!border-none [&>li.contents:not([data-border=true])>*]:!border-none [&>li[data-border=true]:not(:first-child)]:border-t-[length:var(--border-width)] [&>li[data-border=true]:not(:first-child)]:border-border [&>li.contents[data-border=true]:not(:first-child)>*]:border-t-[length:var(--border-width)] [&>li.contents[data-border=true]:not(:first-child)>*]:border-border",
+              "[&>li[data-border=false]]:!border-b-0 [&>li.contents[data-border=false]>*]:!border-b-0",
+              "[&>li[data-rounded=false]]:!rounded-none [&>li.contents[data-rounded=false]>*]:!rounded-none",
+
+              // Pop target. Must be the wrapper's direct child.
+              shouldAnimate && "brutal-pop-face",
+              faceRadiusClass(rounded),
+              faceClassName,
+              className,
+            ]
+              .filter(Boolean)
+              .join(" "),
+          )}
+          {...props}
+        >
+          {shouldAnimate && border && (
+            <DrawBorder
+              animate
+              radius={rounded ? "var(--radius)" : undefined}
+              className="z-10"
+            />
+          )}
+          <SurfaceProvider rounded={rounded}>
+            {children}
+          </SurfaceProvider>
+        </ul>
+      </div>
+    </ListGroupContext.Provider>
+  );
+}
+
 export type ListGroupItemProps = HTMLAttributes<HTMLLIElement> &
+  SharedItemProps;
+
+export type ListGroupLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
+  SharedItemProps;
+
+export type ListGroupButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   SharedItemProps;
 
 export function ListGroupItem({
@@ -255,7 +255,6 @@ export function ListGroupItem({
   border,
   rounded,
   shadow,
-  animate,
   className,
   ...props
 }: ListGroupItemProps) {
@@ -271,16 +270,12 @@ export function ListGroupItem({
         itemStyles({ size, active }),
         chrome.roundClass,
         chrome.shadow && "shadow-[var(--shadow)]",
-        animate && "animate-brutal-pop",
         className,
       )}
       {...props}
     />
   );
 }
-
-export type ListGroupLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> &
-  SharedItemProps;
 
 export function ListGroupLink({
   href,
@@ -311,9 +306,6 @@ export function ListGroupLink({
     </li>
   );
 }
-
-export type ListGroupButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
-  SharedItemProps;
 
 export function ListGroupButton({
   active = false,

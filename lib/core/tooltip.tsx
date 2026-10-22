@@ -19,12 +19,62 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { usePresence } from "../utils/use-presence";
 
+// Tooltip face styles
+const tooltipStyles = cva(
+  [
+    // Layout and stacking
+    "pointer-events-none absolute z-50 w-max max-w-64",
+
+    // Border and typography
+    "border-[length:var(--border-width)] border-border font-mono font-bold uppercase tracking-wide",
+
+    // Entrance and reduced motion
+    "transition-[opacity,translate] duration-150 ease-out",
+    "motion-reduce:transition-none",
+  ].join(" "),
+  {
+    variants: {
+      // Fill and ink
+      variant: {
+        primary: "bg-main text-main-foreground",
+        secondary: "bg-chart-2 text-main-foreground",
+        outline: "bg-secondary-background text-foreground",
+      },
+      // Padding and type size
+      size: {
+        sm: "px-2 py-1 text-[0.625rem]",
+        md: "px-3 py-1.5 text-xs",
+        lg: "px-4 py-2 text-sm",
+      },
+      // Position relative to the trigger
+      placement: {
+        top: "bottom-full left-1/2 mb-2 -translate-x-1/2",
+        right: "left-full top-1/2 ml-2 -translate-y-1/2",
+        bottom: "left-1/2 top-full mt-2 -translate-x-1/2",
+        left: "right-full top-1/2 mr-2 -translate-y-1/2",
+      },
+    },
+    defaultVariants: {
+      variant: "outline",
+      size: "md",
+      placement: "top",
+    },
+  },
+);
+
 type TooltipContextValue = {
   open: boolean;
   tooltipId: string;
   show: () => void;
   hide: () => void;
   setFocused: (focused: boolean) => void;
+};
+
+type TriggerChildProps = {
+  "aria-describedby"?: string;
+  onFocus?: (event: FocusEvent<HTMLElement>) => void;
+  onBlur?: (event: FocusEvent<HTMLElement>) => void;
+  ref?: Ref<HTMLElement>;
 };
 
 const TooltipContext = createContext<TooltipContextValue | null>(null);
@@ -134,18 +184,21 @@ export default function Tooltip({
   );
 }
 
-type TriggerChildProps = {
-  "aria-describedby"?: string;
-  onFocus?: (event: FocusEvent<HTMLElement>) => void;
-  onBlur?: (event: FocusEvent<HTMLElement>) => void;
-  ref?: Ref<HTMLElement>;
-};
-
 // Tooltip trigger props
 export type TooltipTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   asChild?: boolean;
   children: ReactNode;
 };
+
+// Tooltip content props
+export type TooltipContentProps = HTMLAttributes<HTMLSpanElement> &
+  VariantProps<typeof tooltipStyles> & {
+    rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    wrapperClassName?: string;
+    faceClassName?: string;
+  };
 
 // Tooltip trigger
 export function TooltipTrigger({
@@ -201,58 +254,6 @@ export function TooltipTrigger({
     </button>
   );
 }
-
-// Tooltip face styles
-const tooltipStyles = cva(
-  [
-    // Layout and stacking
-    "pointer-events-none absolute z-50 w-max max-w-64",
-
-    // Border and typography
-    "border-[3px] border-border font-mono font-bold uppercase tracking-wide",
-
-    // Entrance and reduced motion
-    "transition-[opacity,translate] duration-150 ease-out",
-    "motion-reduce:transition-none",
-  ].join(" "),
-  {
-    variants: {
-      variant: {
-        primary: "bg-main text-main-foreground",
-        secondary: "bg-chart-2 text-main-foreground",
-        outline: "bg-secondary-background text-foreground",
-      },
-      // Padding and type size
-      size: {
-        sm: "px-2 py-1 text-[0.625rem]",
-        md: "px-3 py-1.5 text-xs",
-        lg: "px-4 py-2 text-sm",
-      },
-      // Position relative to the trigger
-      placement: {
-        top: "bottom-full left-1/2 mb-2 -translate-x-1/2",
-        right: "left-full top-1/2 ml-2 -translate-y-1/2",
-        bottom: "left-1/2 top-full mt-2 -translate-x-1/2",
-        left: "right-full top-1/2 mr-2 -translate-y-1/2",
-      },
-    },
-    defaultVariants: {
-      variant: "outline",
-      size: "md",
-      placement: "top",
-    },
-  },
-);
-
-// Tooltip content props
-export type TooltipContentProps = HTMLAttributes<HTMLSpanElement> &
-  VariantProps<typeof tooltipStyles> & {
-    rounded?: boolean;
-    shadow?: boolean;
-    border?: boolean;
-    wrapperClassName?: string;
-    faceClassName?: string;
-  };
 
 // Tooltip content
 export function TooltipContent({

@@ -74,7 +74,7 @@ export default function InputsPage() {
       <Example
         imports="Input"
         title="Validity and disabled"
-        summary="valid and invalid recolor the shadow plate. disabled blocks the field."
+        summary="valid and invalid recolor the border and the shadow plate. disabled blocks the field."
         code={`<Input valid placeholder="Valid" />
 <Input invalid placeholder="Invalid" />
 <Input disabled placeholder="Disabled" />

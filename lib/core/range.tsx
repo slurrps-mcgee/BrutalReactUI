@@ -78,12 +78,21 @@ export default function Range({
         onChange={handleChange}
         className={twMerge(
           [
-            "h-3 w-full cursor-pointer appearance-none border-[3px] border-border bg-secondary-background accent-main",
+            // Track
+            "h-3 w-full cursor-pointer appearance-none border-[length:var(--border-width)] border-border bg-secondary-background accent-main",
+
+            // WebKit thumb
             "[&::-webkit-slider-thumb]:size-6 [&::-webkit-slider-thumb]:appearance-none",
-            "[&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-border [&::-webkit-slider-thumb]:bg-main",
+            "[&::-webkit-slider-thumb]:border-[length:var(--border-width)] [&::-webkit-slider-thumb]:border-border [&::-webkit-slider-thumb]:bg-main",
+
+            // Firefox thumb
             "[&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:rounded-none",
-            "[&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-border [&::-moz-range-thumb]:bg-main",
+            "[&::-moz-range-thumb]:border-[length:var(--border-width)] [&::-moz-range-thumb]:border-border [&::-moz-range-thumb]:bg-main",
+
+            // Keyboard focus
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+
+            // Disabled state
             "disabled:cursor-not-allowed disabled:bg-disabled",
           ].join(" "),
           rounded &&

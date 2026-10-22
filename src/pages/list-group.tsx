@@ -75,7 +75,7 @@ export default function ListGroupPage() {
       <Example
         imports="ListGroup, ListGroupItem"
         title="Animation"
-        summary="animate draws the outer stroke, then pops the list. The rows stay flush with each other."
+        summary="animate pops the list. The rows stay flush with each other."
         code={`<ListGroup animate="scroll" rounded wrapperClassName="max-w-md">
   <ListGroupItem>First</ListGroupItem>
   <ListGroupItem>Second</ListGroupItem>

@@ -118,9 +118,9 @@ export default function HomePage() {
           <span className="font-mono">{"shadow={false}"}</span> removes the
           offset and any press or pop that only exists to sit on it.{" "}
           <span className="font-mono">{"border={false}"}</span> removes the
-          stroke. <span className="font-mono">animate</span> draws the border,
-          then pops the face on mount, or the first time it enters the viewport
-          when the value is <span className="font-mono">"scroll"</span>.
+          stroke. <span className="font-mono">animate</span> pops the face on
+          mount, or the first time it enters the viewport when the value is{" "}
+          <span className="font-mono">"scroll"</span>.
         </p>
         <p className="font-sans">
           <span className="font-mono">variant</span> is usually primary,

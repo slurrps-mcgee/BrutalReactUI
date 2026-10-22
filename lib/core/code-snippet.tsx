@@ -10,6 +10,10 @@ import {
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
+  borderPaintClass,
+  faceRadiusClass,
+} from "../utils/surface";
+import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
@@ -21,8 +25,8 @@ const codeSnippetStyles = cva(
     // Layout and stacking
     "relative isolate w-full",
 
-    // Border, shadow, and typography
-    "border-[3px] border-border",
+    // Border and type. Padding-box keeps the variant fill inside the stroke.
+    "border-border bg-clip-padding",
     "font-mono text-sm",
   ].join(" "),
   {
@@ -94,7 +98,6 @@ export default function CodeSnippet({
   const [copied, setCopied] = useState(false);
   const { toast, available: hasToastProvider } = useToast();
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
 
   useEffect(() => {
     if (!copied) return;
@@ -129,41 +132,55 @@ export default function CodeSnippet({
     <div
       ref={ref}
       className={twMerge(
-        "relative isolate w-full",
-        showShadow && "shadow-[var(--shadow)]",
-        disabled && "pointer-events-none opacity-70",
-        rounded && "rounded-[var(--radius)]",
-        shouldAnimate && "animate-brutal-pop",
-        wrapperClassName,
+        [
+          // Layout and stacking
+          "relative isolate w-full",
+
+          // Hard offset. A flat snippet stays put.
+          shadow && "shadow-[var(--shadow)]",
+          rounded && "rounded-[var(--radius)]",
+
+          // Disabled state
+          disabled && "pointer-events-none opacity-70",
+
+          // Animation
+          shouldAnimate && "animate-brutal-pop",
+          wrapperClassName,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       data-pop-direction="out"
     >
       <div
         className={twMerge(
-          codeSnippetStyles({ variant, size }),
-          shouldAnimate && "brutal-pop-face",
-          !border
-            ? "border-none"
-            : shouldAnimate
-              ? "border-transparent"
-              : "border-border",
-          rounded && "rounded-[var(--radius)]",
-          faceClassName,
-          className,
+          [
+            codeSnippetStyles({ variant, size }),
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+            faceRadiusClass(rounded),
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
         {...props}
       >
         {shouldAnimate && border && (
           <DrawBorder
             animate
-            strokeWidth={3}
             radius={rounded ? "var(--radius)" : undefined}
             className="z-20"
           />
         )}
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between gap-3 border-b-[3px] border-border px-3 py-2">
+        <div className="flex items-center justify-between gap-3 border-b-[length:var(--border-width)] border-border px-3 py-2">
           {showLanguage ? (
             <span className="truncate font-bold uppercase tracking-wide">
               {language}
@@ -177,7 +194,7 @@ export default function CodeSnippet({
             className={twMerge(
               [
                 // Layout and typography
-                "inline-flex shrink-0 items-center gap-2 border-[3px] border-border px-3 py-1.5",
+                "inline-flex shrink-0 items-center gap-2 border-[length:var(--border-width)] border-border px-3 py-1.5",
                 "bg-secondary-background font-mono text-xs font-bold uppercase text-foreground",
 
                 // Interaction
@@ -213,13 +230,25 @@ export default function CodeSnippet({
               aria-label={`Copy ${language} code`}
               tabIndex={0}
               className={twMerge(
-                prismClassName,
-                "m-0 max-w-full cursor-copy bg-secondary-background p-4 text-left text-foreground",
-                wrap
-                  ? "overflow-x-hidden whitespace-pre-wrap break-words"
-                  : "overflow-auto",
-                "[&_.token]:brightness-90 dark:[&_.token]:brightness-100",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                [
+                  prismClassName,
+
+                  // Layout, fill, and type. The theme background is cleared below.
+                  "m-0 max-w-full cursor-copy bg-secondary-background p-4 text-left text-foreground",
+
+                  // Wrap or scroll the source
+                  wrap
+                    ? "overflow-x-hidden whitespace-pre-wrap break-words"
+                    : "overflow-auto",
+
+                  // Token ink stays readable on the library fill.
+                  "[&_.token]:brightness-90 dark:[&_.token]:brightness-100",
+
+                  // Keyboard focus
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                ]
+                  .filter(Boolean)
+                  .join(" "),
               )}
               style={{
                 ...style,

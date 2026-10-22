@@ -9,24 +9,64 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronRight } from "lucide-react";
 
-const breadcrumbStyles = cva("font-mono font-bold uppercase tracking-wide", {
-  variants: {
-    variant: {
-      primary: "text-main",
-      secondary: "text-chart-2",
-      outline: "text-[var(--surface-foreground)]",
+// Breadcrumb styles
+const breadcrumbStyles = cva(
+  [
+    // Typography
+    "font-mono font-bold uppercase tracking-wide",
+  ].join(" "),
+  {
+    variants: {
+      // Ink
+      variant: {
+        primary: "text-main",
+        secondary: "text-chart-2",
+        outline: "text-[var(--surface-foreground)]",
+      },
+      // Type size
+      size: {
+        sm: "text-xs",
+        md: "text-sm",
+        lg: "text-base",
+      },
     },
-    size: {
-      sm: "text-xs",
-      md: "text-sm",
-      lg: "text-base",
-    },
-  },
-  defaultVariants: {
+    defaultVariants: {
     variant: "outline",
     size: "md",
   },
 });
+
+// Breadcrumb link styles
+const linkStyles = cva(
+  [
+    // Layout and underline
+    "inline-flex items-center border-b-2 border-current",
+
+    // Hover
+    "transition-colors duration-200",
+
+    // Keyboard focus
+    "focus-visible:outline-none focus-visible:ring-2",
+    "focus-visible:ring-ring focus-visible:ring-offset-2",
+
+    // Disabled state and reduced motion
+    "aria-disabled:pointer-events-none aria-disabled:border-none",
+    "aria-disabled:text-disabled-foreground",
+    "motion-reduce:transition-none",
+  ].join(" "),
+  {
+    variants: {
+      // Current crumb drops the underline.
+      active: {
+        true: "border-none text-foreground",
+        false: "",
+      },
+    },
+    defaultVariants: {
+      active: false,
+    },
+  },
+);
 
 type BreadcrumbStyleProps = VariantProps<typeof breadcrumbStyles>;
 
@@ -57,10 +97,16 @@ export default function Breadcrumb({
         aria-label={label}
         aria-disabled={disabled || undefined}
         className={twMerge(
-          breadcrumbStyles({ variant, size }),
-          rounded && "rounded-[var(--radius)]",
-          disabled && "pointer-events-none opacity-70",
-          className,
+          [
+            breadcrumbStyles({ variant, size }),
+            rounded && "rounded-[var(--radius)]",
+
+            // Disabled state
+            disabled && "pointer-events-none opacity-70",
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
         {...props}
       />
@@ -69,6 +115,22 @@ export default function Breadcrumb({
 }
 
 export type BreadcrumbListProps = HTMLAttributes<HTMLOListElement>;
+
+export type BreadcrumbItemProps = HTMLAttributes<HTMLLIElement>;
+
+export type BreadcrumbLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  active?: boolean;
+  disabled?: boolean;
+  border?: boolean;
+};
+
+export type BreadcrumbPageProps = HTMLAttributes<HTMLSpanElement> & {
+  disabled?: boolean;
+};
+
+export type BreadcrumbSeparatorProps = HTMLAttributes<HTMLSpanElement> & {
+  children?: ReactNode;
+};
 
 export function BreadcrumbList({ className, ...props }: BreadcrumbListProps) {
   return (
@@ -82,8 +144,6 @@ export function BreadcrumbList({ className, ...props }: BreadcrumbListProps) {
   );
 }
 
-export type BreadcrumbItemProps = HTMLAttributes<HTMLLIElement>;
-
 export function BreadcrumbItem({ className, ...props }: BreadcrumbItemProps) {
   return (
     <li
@@ -92,35 +152,6 @@ export function BreadcrumbItem({ className, ...props }: BreadcrumbItemProps) {
     />
   );
 }
-
-const linkStyles = cva(
-  [
-    "inline-flex items-center border-b-2 border-current",
-    "transition-colors duration-200",
-    "focus-visible:outline-none focus-visible:ring-2",
-    "focus-visible:ring-ring focus-visible:ring-offset-2",
-    "aria-disabled:pointer-events-none aria-disabled:border-transparent",
-    "aria-disabled:text-disabled-foreground",
-    "motion-reduce:transition-none",
-  ].join(" "),
-  {
-    variants: {
-      active: {
-        true: "border-transparent text-foreground",
-        false: "",
-      },
-    },
-    defaultVariants: {
-      active: false,
-    },
-  },
-);
-
-export type BreadcrumbLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
-  active?: boolean;
-  disabled?: boolean;
-  border?: boolean;
-};
 
 export function BreadcrumbLink({
   href,
@@ -154,10 +185,6 @@ export function BreadcrumbLink({
   );
 }
 
-export type BreadcrumbPageProps = HTMLAttributes<HTMLSpanElement> & {
-  disabled?: boolean;
-};
-
 export function BreadcrumbPage({
   disabled = false,
   className,
@@ -176,10 +203,6 @@ export function BreadcrumbPage({
     />
   );
 }
-
-export type BreadcrumbSeparatorProps = HTMLAttributes<HTMLSpanElement> & {
-  children?: ReactNode;
-};
 
 export function BreadcrumbSeparator({
   className,

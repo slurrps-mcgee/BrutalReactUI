@@ -2,7 +2,12 @@ import type { InputHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -13,7 +18,7 @@ import { useFormFieldControl } from "./form";
 const inputStyles = cva(
   [
     // Layout and stacking
-    "relative z-10 w-full border-[3px] border-border font-mono",
+    "relative z-10 w-full font-mono",
 
     // Focus ring. The offset lift is added only while the shadow plate is on.
     "focus:z-20 focus-visible:outline-none",
@@ -52,16 +57,10 @@ const inputStyles = cva(
         md: "px-4 py-3 text-sm",
         lg: "px-5 py-4 text-base",
       },
-      validity: {
-        valid: "border-success",
-        invalid: "border-danger",
-        neutral: "",
-      },
     },
     defaultVariants: {
       variant: "primary",
       size: "md",
-      validity: "neutral",
     },
   },
 );
@@ -124,6 +123,7 @@ export default function Input({
         wrapperClassName,
         shouldAnimate && "animate-brutal-pop",
         shouldAnimate && shadow && "shadow-[var(--shadow)]",
+        rounded && "rounded-[var(--radius)]",
       )}
       data-pop-direction={shouldAnimate ? "out" : undefined}
       data-surface-shadow={
@@ -135,6 +135,7 @@ export default function Input({
         className={twMerge(
           "relative isolate w-full",
           shouldAnimate && "brutal-pop-face",
+          faceRadiusClass(rounded),
         )}
       >
         {shadow && !shouldAnimate && (
@@ -155,10 +156,19 @@ export default function Input({
         <input
           id={idProp ?? field?.controlId}
           className={twMerge(
-            inputStyles({ variant, size, validity }),
-            !border && "border-none",
-            shouldAnimate && border && "border-transparent",
-            rounded && "rounded-[var(--radius)]",
+            inputStyles({ variant, size }),
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+
+            // Paint after the shared border class, which would otherwise win.
+            !shouldAnimate &&
+              border &&
+              validity === "valid" &&
+              "border-success",
+            !shouldAnimate &&
+              border &&
+              validity === "invalid" &&
+              "border-danger",
+            faceRadiusClass(rounded),
 
             // Sit on the plate, then lift off on focus. A flat field stays put.
             shadow &&

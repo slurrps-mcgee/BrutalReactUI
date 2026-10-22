@@ -3,6 +3,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
+  borderPaintClass,
+  faceRadiusClass,
+} from "../utils/surface";
+import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
@@ -14,7 +18,7 @@ const containerStyles = cva(
     "relative z-10 isolate flex",
 
     // Border and typography
-    "border-[3px] bg-secondary-background text-foreground",
+    "bg-secondary-background text-foreground",
 
     // Disabled state and reduced motion. Gray communicates that it cannot be used.
     "aria-disabled:pointer-events-none aria-disabled:bg-disabled aria-disabled:text-disabled-foreground",
@@ -123,8 +127,6 @@ export default function Container({
   ...props
 }: ContainerProps) {
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
-
   // Wrapper classes. fluid fills the parent. Otherwise the section stops at 7xl.
   const wrapperClassName = twMerge(
     [
@@ -132,8 +134,8 @@ export default function Container({
       "relative isolate flex w-full",
       fluid ? "" : "mx-auto max-w-7xl",
 
-      // Shadow. A pop needs the offset, so animation turns it on.
-      showShadow && "shadow-[var(--shadow)]",
+      // Hard offset. A flat face stays put.
+      shadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -160,16 +162,12 @@ export default function Container({
             }),
             "w-full",
 
-            // Resting stroke, or none while the SVG draws it. border false drops both.
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
+            faceRadiusClass(rounded),
             faceClassName,
             className,
           ]
@@ -179,7 +177,6 @@ export default function Container({
         aria-disabled={disabled || undefined}
         {...props}
       >
-        {/* Border */}
         {shouldAnimate && border && (
           <DrawBorder
             animate
@@ -187,7 +184,7 @@ export default function Container({
             className="z-10"
           />
         )}
-        {/* Section title sits above the drawn stroke. */}
+        {/* Section title */}
         <h2 className="relative z-10 font-display text-2xl font-bold">
           {title}
         </h2>

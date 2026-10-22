@@ -6,7 +6,6 @@ import {
   useId,
   useRef,
   useState,
-  type AnimationEvent,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type ReactNode,
@@ -16,13 +15,138 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronUp } from "lucide-react";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import { useNavbarStack } from "./navbar";
 import { useNavAnimate } from "./nav";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
+
+// Toggle styles
+const toggleStyles = cva(
+  [
+    // Layout. The name is unused; the button itself is the pop face.
+    "relative inline-flex w-full items-center justify-between gap-2",
+
+    // Border and typography
+    "border-border font-mono text-sm font-bold uppercase tracking-wide",
+
+    // Pop when the menu is open.
+    "transition-[translate] duration-200 ease-out",
+
+    // Keyboard focus
+    "focus-visible:outline-none focus-visible:ring-2",
+    "focus-visible:ring-ring focus-visible:ring-offset-2",
+
+    // Disabled state and reduced motion
+    "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
+    "motion-reduce:transition-none",
+  ].join(" "),
+  {
+    variants: {
+      variant: {
+        primary: [
+          // Fill and ink
+          "bg-main text-main-foreground",
+
+          // Surface for outline children.
+          "[--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]",
+        ].join(" "),
+        secondary: [
+          // Fill and ink
+          "bg-chart-2 text-main-foreground",
+
+          // Surface for outline children.
+          "[--surface:var(--chart-2)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--main)]",
+        ].join(" "),
+        outline: [
+          // Cut out of the parent surface and ink.
+          "bg-[var(--surface)] text-[var(--surface-foreground)]",
+        ].join(" "),
+      },
+      // Padding and type size
+      size: {
+        sm: "px-3 py-2 text-xs",
+        md: "px-4 py-2.5 text-sm",
+        lg: "px-5 py-3 text-base",
+      },
+    },
+    defaultVariants: {
+      variant: "outline",
+      size: "md",
+    },
+  },
+);
+
+// Menu item styles
+const itemStyles = cva(
+  [
+    // Layout and stacking. The name scopes hover to this item.
+    "group/menu relative isolate block w-full px-4 py-2 text-left",
+
+    // Typography
+    "font-mono text-sm font-bold uppercase tracking-wide",
+
+    // Keyboard focus
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+
+    // Disabled state
+    "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
+    "aria-disabled:pointer-events-none aria-disabled:bg-disabled aria-disabled:text-disabled-foreground",
+  ].join(" "),
+  {
+    variants: {
+      variant: {
+        primary: "bg-main text-main-foreground",
+        secondary: "bg-chart-2 text-main-foreground",
+        outline: "bg-[var(--surface)] text-[var(--surface-foreground)]",
+      },
+      active: {
+        true: "bg-main text-main-foreground",
+        false: "",
+      },
+    },
+    defaultVariants: {
+      variant: "outline",
+      active: false,
+    },
+  },
+);
+
+// Hover and focus fill styles
+const fillStyles = cva(
+  [
+    // Fill layer positioning
+    "pointer-events-none absolute inset-0 origin-left",
+
+    // Fill reveal on hover and keyboard focus
+    "scale-x-0 transition-transform duration-300 ease-out",
+    "group-hover/menu:scale-x-100 group-focus-visible/menu:scale-x-100",
+
+    // Reduced motion
+    "motion-reduce:transition-none",
+  ].join(" "),
+  {
+    variants: {
+      // Slide color. Outline reads the parent so a main parent uses secondary.
+      variant: {
+        primary: "bg-chart-2",
+        secondary: "bg-main",
+        outline: "bg-[var(--outline-button-fill)]",
+      },
+    },
+    defaultVariants: {
+      variant: "outline",
+    },
+  },
+);
 
 type DropdownContextValue = {
   open: boolean;
@@ -43,6 +167,67 @@ function useDropdown() {
     throw new Error("Dropdown parts must render inside Dropdown");
   }
   return context;
+}
+
+function hoverInk(
+  variant: "primary" | "secondary" | "outline" | null | undefined,
+) {
+  if (variant === "primary") {
+    return "group-hover/menu:text-foreground group-focus-visible/menu:text-foreground";
+  }
+
+  return "group-hover/menu:text-main-foreground group-focus-visible/menu:text-main-foreground";
+}
+
+// Holds the menu through the close so it can travel back into its shadow.
+function useMenuPresence(open: boolean, animate: boolean) {
+  const [present, setPresent] = useState(open);
+  const [phase, setPhase] = useState<"in" | "out">(open ? "out" : "in");
+
+  useEffect(() => {
+    if (!animate) {
+      setPresent(open);
+      setPhase(open ? "out" : "in");
+      return;
+    }
+
+    if (!open) {
+      setPhase("in");
+      return;
+    }
+
+    setPresent(true);
+    setPhase("in");
+
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setPhase("out"));
+    });
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [open, animate]);
+
+  useEffect(() => {
+    if (!animate || open || !present) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setPresent(false);
+      return;
+    }
+
+    const id = window.setTimeout(() => setPresent(false), 250);
+    return () => window.clearTimeout(id);
+  }, [animate, open, present, phase]);
+
+  function onTransitionEnd(event: TransitionEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget) return;
+    if (event.propertyName !== "translate") return;
+    if (!open) setPresent(false);
+  }
+
+  return { present, phase, onTransitionEnd };
 }
 
 // Dropdown props
@@ -113,12 +298,7 @@ export function Dropdown({
         animate,
       }}
     >
-      <SurfaceProvider
-        shadow={shadow}
-        border={border}
-        rounded={rounded}
-        animate={animate}
-      >
+      <SurfaceProvider rounded={rounded}>
       <div
         ref={ref}
         aria-disabled={disabled || undefined}
@@ -138,62 +318,6 @@ export function Dropdown({
   );
 }
 
-// Toggle styles
-const toggleStyles = cva(
-  [
-    // Layout. The name is unused; the button itself is the pop face.
-    "relative inline-flex w-full items-center justify-between gap-2",
-
-    // Border and typography
-    "border-[3px] border-border font-mono text-sm font-bold uppercase tracking-wide",
-
-    // Pop when the menu is open.
-    "transition-[translate] duration-200 ease-out",
-
-    // Keyboard focus
-    "focus-visible:outline-none focus-visible:ring-2",
-    "focus-visible:ring-ring focus-visible:ring-offset-2",
-
-    // Disabled state and reduced motion
-    "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
-    "motion-reduce:transition-none",
-  ].join(" "),
-  {
-    variants: {
-      variant: {
-        primary: [
-          // Fill and ink
-          "bg-main text-main-foreground",
-
-          // Surface for outline children.
-          "[--surface:var(--main)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--chart-2)]",
-        ].join(" "),
-        secondary: [
-          // Fill and ink
-          "bg-chart-2 text-main-foreground",
-
-          // Surface for outline children.
-          "[--surface:var(--chart-2)] [--surface-foreground:var(--main-foreground)] [--outline-button-fill:var(--main)]",
-        ].join(" "),
-        outline: [
-          // Cut out of the parent surface and ink.
-          "bg-[var(--surface)] text-[var(--surface-foreground)]",
-        ].join(" "),
-      },
-      // Padding and type size
-      size: {
-        sm: "px-3 py-2 text-xs",
-        md: "px-4 py-2.5 text-sm",
-        lg: "px-5 py-3 text-base",
-      },
-    },
-    defaultVariants: {
-      variant: "outline",
-      size: "md",
-    },
-  },
-);
-
 // Dropdown toggle props
 export type DropdownToggleProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof toggleStyles> & {
@@ -203,6 +327,23 @@ export type DropdownToggleProps = ButtonHTMLAttributes<HTMLButtonElement> &
     animate?: AnimationTrigger;
     caret?: boolean;
   };
+
+// Dropdown item props
+export type DropdownItemProps = HTMLAttributes<HTMLElement> &
+  VariantProps<typeof itemStyles> & {
+    href?: string;
+    active?: boolean;
+    disabled?: boolean;
+  };
+
+// Dropdown menu props
+export type DropdownMenuProps = HTMLAttributes<HTMLDivElement> & {
+  rounded?: boolean;
+  animate?: boolean;
+  border?: boolean;
+  shadow?: boolean;
+  align?: "left" | "right";
+};
 
 // Main DropdownToggle component
 export function DropdownToggle({
@@ -248,9 +389,9 @@ export function DropdownToggle({
           open &&
             shadow &&
             "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]",
-          !border && "border-none",
-          shouldAnimate && border && "border-transparent brutal-pop-face",
-          isRounded && "rounded-[var(--radius)]",
+          shouldAnimate && border ? "border-none" : borderPaintClass(border),
+          shouldAnimate && "brutal-pop-face",
+          faceRadiusClass(isRounded),
           className,
         ]
           .filter(Boolean)
@@ -315,87 +456,6 @@ export function DropdownToggle({
     </div>
   );
 }
-
-// Menu item styles
-const itemStyles = cva(
-  [
-    // Layout and stacking. The name scopes hover to this item.
-    "group/menu relative isolate block w-full px-4 py-2 text-left",
-
-    // Typography
-    "font-mono text-sm font-bold uppercase tracking-wide",
-
-    // Keyboard focus
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-
-    // Disabled state
-    "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
-    "aria-disabled:pointer-events-none aria-disabled:bg-disabled aria-disabled:text-disabled-foreground",
-  ].join(" "),
-  {
-    variants: {
-      variant: {
-        primary: "bg-main text-main-foreground",
-        secondary: "bg-chart-2 text-main-foreground",
-        outline: "bg-[var(--surface)] text-[var(--surface-foreground)]",
-      },
-      active: {
-        true: "bg-main text-main-foreground",
-        false: "",
-      },
-    },
-    defaultVariants: {
-      variant: "outline",
-      active: false,
-    },
-  },
-);
-
-// Hover and focus fill styles
-const fillStyles = cva(
-  [
-    // Fill layer positioning
-    "pointer-events-none absolute inset-0 origin-left",
-
-    // Fill reveal on hover and keyboard focus
-    "scale-x-0 transition-transform duration-300 ease-out",
-    "group-hover/menu:scale-x-100 group-focus-visible/menu:scale-x-100",
-
-    // Reduced motion
-    "motion-reduce:transition-none",
-  ].join(" "),
-  {
-    variants: {
-      // Slide color. Outline reads the parent so a main parent uses secondary.
-      variant: {
-        primary: "bg-chart-2",
-        secondary: "bg-main",
-        outline: "bg-[var(--outline-button-fill)]",
-      },
-    },
-    defaultVariants: {
-      variant: "outline",
-    },
-  },
-);
-
-function hoverInk(
-  variant: "primary" | "secondary" | "outline" | null | undefined,
-) {
-  if (variant === "primary") {
-    return "group-hover/menu:text-foreground group-focus-visible/menu:text-foreground";
-  }
-
-  return "group-hover/menu:text-main-foreground group-focus-visible/menu:text-main-foreground";
-}
-
-// Dropdown item props
-export type DropdownItemProps = HTMLAttributes<HTMLElement> &
-  VariantProps<typeof itemStyles> & {
-    href?: string;
-    active?: boolean;
-    disabled?: boolean;
-  };
 
 // Main DropdownItem component
 export function DropdownItem({
@@ -462,92 +522,8 @@ export function DropdownItem({
   );
 }
 
-// Holds the menu through the close so it can travel back into its shadow.
-// When the border draws, the pop waits until that stroke finishes.
-function useMenuPresence(
-  open: boolean,
-  animate: boolean,
-  waitForBorder: boolean,
-) {
-  const [present, setPresent] = useState(open);
-  const [phase, setPhase] = useState<"in" | "out">(open ? "out" : "in");
-
-  useEffect(() => {
-    if (!animate) {
-      setPresent(open);
-      setPhase(open ? "out" : "in");
-      return;
-    }
-
-    if (!open) {
-      setPhase("in");
-      return;
-    }
-
-    setPresent(true);
-    setPhase("in");
-
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (waitForBorder && !reduced) return;
-
-    let inner = 0;
-    const outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => setPhase("out"));
-    });
-    return () => {
-      cancelAnimationFrame(outer);
-      cancelAnimationFrame(inner);
-    };
-  }, [open, animate, waitForBorder]);
-
-  useEffect(() => {
-    if (!animate || !open || !present || !waitForBorder) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    // The stroke is 800ms. This releases the pop if the draw never reports an end.
-    const id = window.setTimeout(() => setPhase("out"), 1100);
-    return () => window.clearTimeout(id);
-  }, [animate, open, present, waitForBorder]);
-
-  useEffect(() => {
-    if (!animate || open || !present) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setPresent(false);
-      return;
-    }
-
-    const id = window.setTimeout(() => setPresent(false), 250);
-    return () => window.clearTimeout(id);
-  }, [animate, open, present, phase]);
-
-  function onTransitionEnd(event: TransitionEvent<HTMLElement>) {
-    if (event.target !== event.currentTarget) return;
-    if (event.propertyName !== "translate") return;
-    if (!open) setPresent(false);
-  }
-
-  function onAnimationEnd(event: AnimationEvent<HTMLElement>) {
-    if (event.animationName !== "drawBorder") return;
-    if (open) setPhase("out");
-  }
-
-  return { present, phase, onTransitionEnd, onAnimationEnd };
-}
-
-// Dropdown menu props
-export type DropdownMenuProps = HTMLAttributes<HTMLDivElement> & {
-  rounded?: boolean;
-  animate?: boolean;
-  border?: boolean;
-  shadow?: boolean;
-  align?: "left" | "right";
-};
-
 // Main DropdownMenu component.
-// animate draws the border, then reveals the shadow and pops the menu out.
+// animate pops the menu out of its shadow when it opens.
 export function DropdownMenu({
   className,
   rounded,
@@ -572,11 +548,7 @@ export function DropdownMenu({
   const isRounded = rounded ?? groupRounded;
   const animate = animateProp ?? Boolean(groupAnimate);
   const stack = useNavbarStack();
-  const { present, phase, onTransitionEnd, onAnimationEnd } = useMenuPresence(
-    open,
-    animate,
-    animate && showBorder,
-  );
+  const { present, phase, onTransitionEnd } = useMenuPresence(open, animate);
 
   // Keep the navbar above later siblings until the menu has finished closing.
   useEffect(() => {
@@ -596,14 +568,10 @@ export function DropdownMenu({
           // Layout and stacking
           "relative z-20 flex min-w-48 flex-col",
 
-          // Border. Drawn while animate is on, otherwise a resting stroke.
-          // The width stays while the stroke draws so the menu does not shrink.
-          "border-[3px]",
-          showBorder && animate && "border-transparent",
-          showBorder && !animate && "border-border",
-          !showBorder && "border-none",
+          // Drawn stroke while the menu is animated, otherwise the resting border.
+          showBorder && animate ? "border-none" : borderPaintClass(Boolean(showBorder)),
           "bg-[var(--surface)] text-[var(--surface-foreground)]",
-          isRounded && "rounded-[var(--radius)]",
+          faceRadiusClass(Boolean(isRounded)),
           className,
         ]
           .filter(Boolean)
@@ -631,8 +599,7 @@ export function DropdownMenu({
           align === "right" ? "right-0" : "left-0",
           fluid && "w-full",
 
-          // The shadow appears only after the border finishes, so no edge
-          // peeks out while the face is sitting in its starting position.
+          // The shadow appears once the face has popped out.
           shadow && phase === "out" && "shadow-[var(--shadow)]",
           isRounded && "rounded-[var(--radius)]",
         ]
@@ -663,7 +630,6 @@ export function DropdownMenu({
             .join(" "),
         )}
         onTransitionEnd={animate ? onTransitionEnd : undefined}
-        onAnimationEnd={animate && showBorder ? onAnimationEnd : undefined}
       >
         {face}
       </div>

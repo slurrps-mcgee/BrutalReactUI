@@ -6,19 +6,26 @@ import { useSurfaceFlag } from "../utils/surface";
 // Radio control styles
 const radioStyles = cva(
   [
-    // Circle and interaction
-    "relative isolate inline-flex shrink-0 items-center justify-center rounded-full border-[3px] border-border",
-    "bg-secondary-background text-foreground",
+    // Layout. The control stays a circle.
+    "relative isolate inline-flex shrink-0 items-center justify-center rounded-full",
+
+    // Border and fill
+    "border-[length:var(--border-width)] border-border bg-secondary-background text-foreground",
+
+    // Press interaction
     "transition-[transform,box-shadow] duration-150 ease-out",
 
-    // Focus and disabled state are driven by the native input.
+    // Keyboard focus and disabled state are driven by the native input.
     "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
     "peer-disabled:cursor-not-allowed peer-disabled:bg-disabled peer-disabled:text-disabled-foreground",
     "peer-disabled:shadow-none motion-reduce:transition-none",
+
+    // Reveal the dot once the native input is checked.
     "peer-checked:[&>span]:scale-100 peer-checked:[&>span]:opacity-100",
   ].join(" "),
   {
     variants: {
+      // Control diameter
       size: {
         sm: "size-5",
         md: "size-6",
@@ -71,7 +78,13 @@ export default function Radio({
     <label
       htmlFor={id}
       className={twMerge(
-        "inline-flex w-fit items-center gap-3 font-mono text-sm font-bold",
+        [
+          // Layout
+          "inline-flex w-fit items-center gap-3",
+
+          // Typography
+          "font-mono text-sm font-bold",
+        ].join(" "),
         disabled && "cursor-not-allowed opacity-70",
         wrapperClassName,
       )}
@@ -103,8 +116,13 @@ export default function Radio({
           <span
             aria-hidden="true"
             className={[
+              // Hidden until the radio is checked
               "size-1/2 scale-0 rounded-full bg-main opacity-0",
+
+              // Reveal
               "transition-[transform,opacity] duration-150 ease-out",
+
+              // Reduced motion
               "motion-reduce:transition-none",
             ].join(" ")}
           />

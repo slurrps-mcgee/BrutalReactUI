@@ -76,6 +76,9 @@
   /* Radius tokens */
   --radius: 0.375rem;
 
+  /* Chrome stroke. Resting borders and inner corners share it. */
+  --border-width: 3px;
+
   /* Scrollbar tokens. Thumb follows the ink so it stays visible in dark. */
   --sb-track-color: var(--background);
   --sb-thumb-color: var(--foreground);

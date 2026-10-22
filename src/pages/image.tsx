@@ -16,7 +16,7 @@ export default function ImagePage() {
       <Example
         imports="Image"
         title="Animated"
-        summary="animate draws the frame, then pops it. rounded uses the library radius."
+        summary="animate pops the frame. rounded uses the library radius."
         code={`<Image
   image={{ src, width: 1200, height: 675 }}
   title="Library preview"

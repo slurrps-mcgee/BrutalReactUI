@@ -42,7 +42,7 @@ export default function DropdownPage() {
       <Example
         imports="Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Animated menu"
-        summary="animate on Dropdown draws the toggle, then draws the menu and pops it out when it opens. The toggle presses into its shadow and turns its caret."
+        summary="animate on Dropdown pops the toggle, then pops the menu out when it opens. The toggle presses into its shadow and turns its caret."
         code={`<Dropdown animate rounded>
   <DropdownToggle variant="primary">Standalone</DropdownToggle>
   <DropdownMenu>
@@ -67,7 +67,7 @@ export default function DropdownPage() {
       <Example
         imports="Dropdown, DropdownToggle, DropdownMenu, DropdownItem"
         title="Static menu"
-        summary="animate false opens the menu without the draw or the pop. The toggle still presses into its shadow."
+        summary="animate false opens the menu without the pop. The toggle still presses into its shadow."
         code={`<Dropdown>
   <DropdownToggle variant="secondary">Static</DropdownToggle>
   <DropdownMenu>

@@ -7,18 +7,23 @@ import { useSurfaceFlag } from "../utils/surface";
 // Checkbox control styles
 const checkboxStyles = cva(
   [
-    // Box and interaction
-    "relative isolate inline-flex shrink-0 items-center justify-center border-[3px] border-border",
-    "bg-secondary-background text-foreground",
+    // Layout and stacking
+    "relative isolate inline-flex shrink-0 items-center justify-center",
+
+    // Border and fill
+    "border-[length:var(--border-width)] border-border bg-secondary-background text-foreground",
+
+    // Press interaction
     "transition-[transform,box-shadow] duration-150 ease-out",
 
-    // Focus and disabled state are driven by the native input.
+    // Keyboard focus and disabled state are driven by the native input.
     "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
     "peer-disabled:cursor-not-allowed peer-disabled:bg-disabled peer-disabled:text-disabled-foreground",
     "peer-disabled:shadow-none motion-reduce:transition-none",
   ].join(" "),
   {
     variants: {
+      // Control diameter
       size: {
         sm: "size-5",
         md: "size-6",
@@ -71,7 +76,13 @@ export default function Checkbox({
     <label
       htmlFor={id}
       className={twMerge(
-        "inline-flex w-fit items-center gap-3 font-mono text-sm font-bold",
+        [
+          // Layout
+          "inline-flex w-fit items-center gap-3",
+
+          // Typography
+          "font-mono text-sm font-bold",
+        ].join(" "),
         disabled && "cursor-not-allowed opacity-70",
         wrapperClassName,
       )}
@@ -104,8 +115,13 @@ export default function Checkbox({
         >
           <Check
             className={[
+              // Hidden until the box is checked
               "size-[75%] scale-0 stroke-[4] opacity-0",
+
+              // Reveal
               "transition-[transform,opacity] duration-150 ease-out",
+
+              // Reduced motion
               "motion-reduce:transition-none",
             ].join(" ")}
           />

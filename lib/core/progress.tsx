@@ -3,19 +3,29 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
+  borderPaintClass,
+  faceRadiusClass,
+} from "../utils/surface";
+import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
+// Progress track styles
 const progressStyles = cva(
-  "relative w-full overflow-hidden border-[3px] border-border bg-secondary-background",
+  [
+    // Layout, border, and fill
+    "relative w-full bg-secondary-background",
+  ].join(" "),
   {
     variants: {
+      // Track height
       size: {
         sm: "h-4",
         md: "h-6",
         lg: "h-9",
       },
+      // Optional radius on the track
       rounded: {
         true: "rounded-[var(--radius)]",
         false: "",
@@ -28,13 +38,18 @@ const progressStyles = cva(
   },
 );
 
+// Indicator styles
 const indicatorStyles = cva(
   [
+    // Fill grows with the value.
     "h-full min-w-0 transition-[width] duration-300 ease-out",
+
+    // Reduced motion
     "motion-reduce:transition-none motion-reduce:animate-none",
   ].join(" "),
   {
     variants: {
+      // Fill
       variant: {
         primary: "bg-main",
         secondary: "bg-chart-2",
@@ -43,6 +58,7 @@ const indicatorStyles = cva(
         danger: "bg-danger",
         info: "bg-info",
       },
+      // Unknown value slides a short bar.
       indeterminate: {
         true: "w-1/3 animate-pulse",
         false: "",
@@ -97,18 +113,28 @@ export default function Progress({
   const percentage =
     safeValue === undefined ? undefined : (safeValue / safeMax) * 100;
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
 
   return (
     <div
       ref={ref}
       className={twMerge(
-        "relative isolate w-full",
-        showShadow && "shadow-[var(--shadow)]",
-        disabled && "pointer-events-none opacity-70",
-        rounded && "rounded-[var(--radius)]",
-        shouldAnimate && "animate-brutal-pop",
-        wrapperClassName,
+        [
+          // Layout and stacking
+          "relative isolate w-full",
+
+          // Hard offset. A flat track stays put.
+          shadow && "shadow-[var(--shadow)]",
+          rounded && "rounded-[var(--radius)]",
+
+          // Disabled state
+          disabled && "pointer-events-none opacity-70",
+
+          // Animation
+          shouldAnimate && "animate-brutal-pop",
+          wrapperClassName,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       data-pop-direction="out"
     >
@@ -122,41 +148,53 @@ export default function Progress({
           percentage === undefined ? "Loading" : `${Math.round(percentage)}%`
         }
         className={twMerge(
-          progressStyles({ size, rounded }),
-          shouldAnimate && "brutal-pop-face",
-          !border
-            ? "border-none"
-            : shouldAnimate
-              ? "border-transparent"
-              : "border-border",
-          faceClassName,
-          className,
+          [
+            progressStyles({ size }),
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+            faceRadiusClass(rounded === true),
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
         )}
         {...props}
       >
         {shouldAnimate && border && (
           <DrawBorder
             animate
-            radius={rounded ? "var(--radius)" : undefined}
+            radius={rounded === true ? "var(--radius)" : undefined}
             className="z-10"
           />
         )}
         <div
-          aria-hidden="true"
           className={twMerge(
-            indicatorStyles({ variant, indeterminate }),
-            rounded && "rounded-[calc(var(--radius)-3px)]",
-            indicatorClassName,
+            "h-full overflow-hidden",
+            rounded &&
+              "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
           )}
-          style={
-            percentage === undefined ? undefined : { width: `${percentage}%` }
-          }
-        />
-        {showValue && percentage !== undefined && (
-          <span className="absolute inset-0 flex items-center justify-center font-mono text-xs font-bold">
-            {Math.round(percentage)}%
-          </span>
-        )}
+        >
+          <div
+            aria-hidden="true"
+            className={twMerge(
+              indicatorStyles({ variant, indeterminate }),
+              indicatorClassName,
+            )}
+            style={
+              percentage === undefined ? undefined : { width: `${percentage}%` }
+            }
+          />
+          {showValue && percentage !== undefined && (
+            <span className="absolute inset-0 flex items-center justify-center font-mono text-xs font-bold">
+              {Math.round(percentage)}%
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -53,7 +53,10 @@ export default function FloatingLabel({
     placeholder: child.props.placeholder ?? " ",
     className: twMerge(
       [
+        // Resting padding. The label sits in the middle of the control.
         "py-4",
+
+        // Shrink the field once it is focused or filled so the label can rise.
         "group-focus-within/floating:pt-6 group-focus-within/floating:pb-2",
         "group-has-[input:not(:placeholder-shown)]/floating:pt-6",
         "group-has-[input:not(:placeholder-shown)]/floating:pb-2",
@@ -67,11 +70,16 @@ export default function FloatingLabel({
       aria-disabled={disabled || undefined}
       className={twMerge(
         [
+          // Layout
           "group/floating relative w-full",
+
+          // Raised label once the field has a value
           "[&:has(input:not(:placeholder-shown))>label]:top-2",
           "[&:has(input:not(:placeholder-shown))>label]:h-auto",
           "[&:has(input:not(:placeholder-shown))>label]:items-start",
           "[&:has(input:not(:placeholder-shown))>label]:text-[0.65rem]",
+
+          // Raised label while the field is focused
           "[&:focus-within>label]:top-2 [&:focus-within>label]:h-auto",
           "[&:focus-within>label]:items-start",
           "[&:focus-within>label]:text-[0.65rem]",
@@ -87,9 +95,16 @@ export default function FloatingLabel({
         htmlFor={id}
         className={twMerge(
           [
+            // Layout. The label covers the control until it rises.
             "pointer-events-none absolute inset-x-4 top-0 z-20 flex h-full items-center",
+
+            // Typography
             "font-mono text-sm font-bold uppercase tracking-wide",
+
+            // Rise
             "transition-[top,height,font-size] duration-150",
+
+            // Reduced motion
             "motion-reduce:transition-none",
           ].join(" "),
           labelClassName,

@@ -2,7 +2,13 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import { NavCollapseProvider } from "./nav";
 import {
   useAnimationTrigger,
@@ -16,7 +22,7 @@ const sidebarStyles = cva(
     "relative z-10 isolate flex h-full min-h-0 w-full flex-col overflow-visible",
 
     // Border and typography
-    "border-[3px] font-mono font-bold",
+    "font-mono font-bold",
 
     // Disabled state and reduced motion. Gray communicates that it cannot be used.
     "aria-disabled:pointer-events-none aria-disabled:bg-disabled aria-disabled:text-disabled-foreground",
@@ -64,6 +70,108 @@ const sidebarStyles = cva(
     },
   },
 );
+
+type SidebarFaceProps = SidebarProps;
+
+function SidebarFace({
+  children,
+  className,
+  variant,
+  size,
+  collapsed = false,
+  animate: animateProp,
+  rounded: roundedProp,
+  shadow: shadowProp,
+  border: borderProp,
+  disabled = false,
+  wrapperClassName: wrapperClassNameProp,
+  faceClassName,
+  ...props
+}: SidebarFaceProps) {
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+
+  // Wrapper classes
+  const wrapperClassName = twMerge(
+    [
+      // Layout and stacking. A collapsed rail sits above the page so its flyout shows.
+      "relative isolate flex h-full max-h-dvh",
+      collapsed && "z-50",
+
+      // Width eases between the icon rail and the full column.
+      "transition-[width] duration-300 ease-out",
+      collapsed ? "w-20" : "w-full",
+
+      // Hard offset. A flat face stays put.
+      shadow && "shadow-[var(--shadow)]",
+      rounded && "rounded-[var(--radius)]",
+
+      // Animation
+      shouldAnimate && "animate-brutal-pop",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    wrapperClassNameProp,
+  );
+
+  return (
+    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
+      <aside
+        className={twMerge(
+          [
+            sidebarStyles({ variant, size, collapsed }),
+
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+
+            // Pop target. Must be the wrapper's direct child.
+            shouldAnimate && "brutal-pop-face",
+            faceRadiusClass(rounded),
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
+        )}
+        aria-disabled={disabled || undefined}
+        {...props}
+      >
+        {shouldAnimate && border && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-10"
+          />
+        )}
+        <SurfaceProvider
+          rounded={rounded}
+          shadow={shadowProp}
+          border={borderProp}
+          animate={animateProp}
+        >
+          <div
+            className={twMerge(
+              [
+                // Layout. Scrolls a long column. A collapsed rail stays visible so the flyout is not clipped.
+                "flex min-h-0 w-full flex-1 flex-col gap-4",
+                collapsed
+                  ? "items-center overflow-visible"
+                  : "overflow-x-hidden overflow-y-auto pe-3",
+              ]
+                .filter(Boolean)
+                .join(" "),
+            )}
+          >
+            {children}
+          </div>
+        </SurfaceProvider>
+      </aside>
+    </div>
+  );
+}
 
 // Sidebar props
 export type SidebarProps = HTMLAttributes<HTMLElement> &
@@ -138,114 +246,6 @@ export default function Sidebar({
   );
 }
 
-type SidebarFaceProps = SidebarProps;
-
-function SidebarFace({
-  children,
-  className,
-  variant,
-  size,
-  collapsed = false,
-  animate: animateProp,
-  rounded: roundedProp,
-  shadow: shadowProp,
-  border: borderProp,
-  disabled = false,
-  wrapperClassName: wrapperClassNameProp,
-  faceClassName,
-  ...props
-}: SidebarFaceProps) {
-  const animate = useSurfaceAnimate(animateProp);
-  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
-  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
-  const border = useSurfaceFlag(borderProp, "border", true);
-  const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
-
-  // Wrapper classes
-  const wrapperClassName = twMerge(
-    [
-      // Layout and stacking. A collapsed rail sits above the page so its flyout shows.
-      "relative isolate flex h-full max-h-dvh",
-      collapsed && "z-50",
-
-      // Width eases between the icon rail and the full column.
-      "transition-[width] duration-300 ease-out",
-      collapsed ? "w-20" : "w-full",
-
-      // Shadow. A pop needs the offset, so animation turns it on.
-      showShadow && "shadow-[var(--shadow)]",
-      rounded && "rounded-[var(--radius)]",
-
-      // Animation
-      shouldAnimate && "animate-brutal-pop",
-    ]
-      .filter(Boolean)
-      .join(" "),
-    wrapperClassNameProp,
-  );
-
-  return (
-    <div ref={ref} className={wrapperClassName} data-pop-direction="out">
-      <aside
-        className={twMerge(
-          [
-            sidebarStyles({ variant, size, collapsed }),
-
-            // Resting stroke, or none while the SVG draws it. border false drops both.
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
-
-            // Pop target. Must be the wrapper's direct child.
-            shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
-            faceClassName,
-            className,
-          ]
-            .filter(Boolean)
-            .join(" "),
-        )}
-        aria-disabled={disabled || undefined}
-        {...props}
-      >
-        {/* Border */}
-        {shouldAnimate && border && (
-          <DrawBorder
-            animate
-            radius={rounded ? "var(--radius)" : undefined}
-            className="z-10"
-          />
-        )}
-        <SurfaceProvider
-          shadow={showShadow}
-          border={border}
-          rounded={rounded}
-          animate={animate}
-        >
-          <div
-            className={twMerge(
-              [
-                // Layout. Scrolls a long column. A collapsed rail stays visible so the flyout is not clipped.
-                "flex min-h-0 w-full flex-1 flex-col gap-4",
-                collapsed
-                  ? "items-center overflow-visible"
-                  : "overflow-x-hidden overflow-y-auto pe-3",
-              ]
-                .filter(Boolean)
-                .join(" "),
-            )}
-          >
-            {children}
-          </div>
-        </SurfaceProvider>
-      </aside>
-    </div>
-  );
-}
-
 // Offcanvas props
 export type OffcanvasProps = HTMLAttributes<HTMLElement> &
   VariantProps<typeof sidebarStyles> & {
@@ -275,7 +275,6 @@ export function Offcanvas({
   const rounded = useSurfaceFlag(roundedProp, "rounded", false);
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
-  const animate = useSurfaceAnimate(animateProp);
   if (!open) return null;
 
   return (
@@ -306,10 +305,10 @@ export function Offcanvas({
         {...props}
       >
         <SurfaceProvider
-          shadow={shadow}
-          border={border}
           rounded={rounded}
-          animate={animate}
+          shadow={shadowProp}
+          border={borderProp}
+          animate={animateProp}
         >
           <div
             className={[

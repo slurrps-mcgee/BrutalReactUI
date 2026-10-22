@@ -12,8 +12,7 @@ export default function ContainerPage() {
         <span className="font-mono">rounded</span> uses the library radius.{" "}
         <span className="font-mono">shadow</span> and{" "}
         <span className="font-mono">border</span> can be turned off.{" "}
-        <span className="font-mono">animate</span> draws the border, then pops
-        the face.
+        <span className="font-mono">animate</span> pops the face.
       </p>
 
       <Example
@@ -82,7 +81,7 @@ export default function ContainerPage() {
       <Example
         imports="Container"
         title="Animated"
-        summary="animate draws the border, then pops the face. scroll waits until the section enters the viewport. The shadow stays on for that pop."
+        summary="animate pops the face. scroll waits until the section enters the viewport. The shadow stays on for that pop."
         code={`<Container title="Scroll" animate="scroll" rounded>
   <p>Draws when it enters.</p>
 </Container>`}

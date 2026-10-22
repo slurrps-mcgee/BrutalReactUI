@@ -78,7 +78,7 @@ export default function ButtonsPage() {
       <Example
         imports="Button"
         title="Icons and animation"
-        summary="Pass animate to draw the border and pop the face. rounded uses the library radius. An icon can stand alone."
+        summary="Pass animate to pop the face. rounded uses the library radius. An icon can stand alone."
         code={`import { Send } from "lucide-react";
 
 <Button animate rounded>Save</Button>

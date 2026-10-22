@@ -3,18 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceDisabled,
+  useSurfaceFlag,
+} from "../utils/surface";
+import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
 
-// Badge styles
+// Styles for the Badge component.
 const badgeStyles = cva(
   [
     // Layout and stacking
     "relative z-10 isolate inline-flex w-fit self-center items-center justify-center",
 
-    // Border and typography. Thinner than the 3px stroke on buttons and cards.
-    "border-2 text-center font-mono text-xs font-bold uppercase",
+    // Border and typography. Thinner than the shared stroke. The host sets --border-width.
+    "text-center font-mono text-xs font-bold uppercase",
 
     // Disabled state and reduced motion
     "motion-reduce:transition-none",
@@ -85,6 +92,7 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> &
     animate?: AnimationTrigger;
     rounded?: boolean;
     border?: boolean;
+    shadow?: boolean;
     disabled?: boolean;
     faceClassName?: string;
   };
@@ -95,52 +103,68 @@ export default function Badge({
   className,
   variant,
   size,
-  animate = false,
-  rounded = false,
-  border = true,
-  disabled = false,
+  animate: animateProp,
+  rounded: roundedProp,
+  border: borderProp,
+  shadow: shadowProp,
+  disabled: disabledProp,
   faceClassName,
   ...props
 }: BadgeProps) {
-  // Animation trigger
+  const animate = useSurfaceAnimate(animateProp);
+  const rounded = useSurfaceFlag(roundedProp, "rounded", false);
+  const border = useSurfaceFlag(borderProp, "border", true);
+  // A badge stays flat unless this badge asks for a shadow.
+  const shadow = shadowProp === true;
+  const disabled = useSurfaceDisabled(disabledProp);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLSpanElement>(animate);
 
   // Main return
   return (
     <span
       ref={ref}
-      aria-disabled={disabled || undefined}
+      data-pop-direction={shouldAnimate ? "out" : undefined}
       className={twMerge(
         [
-          badgeStyles({ variant, size }),
-
-          // Resting stroke, or none while the SVG draws it. border false drops both.
-          !border
-            ? "border-none"
-            : shouldAnimate
-              ? "border-transparent"
-              : "border-border",
+          // Thinner stroke than the shared 3px chrome. The face inherits it.
+          "relative inline-flex w-fit [--border-width:2px]",
           rounded && "rounded-[var(--radius)]",
+          shadow && "shadow-[var(--shadow)]",
+          shouldAnimate && "animate-brutal-pop",
           disabled && "pointer-events-none opacity-70",
-          faceClassName,
-          className,
         ]
           .filter(Boolean)
           .join(" "),
       )}
-      {...props}
     >
-      {/* Border */}
-      {shouldAnimate && border && (
-        <DrawBorder
-          animate
-          strokeWidth={2}
-          radius={rounded ? "var(--radius)" : undefined}
-          className="z-10"
-        />
-      )}
-      {/* Children */}
-      <span className="relative z-10">{children}</span>
+      <span
+        aria-disabled={disabled || undefined}
+        className={twMerge(
+          [
+            badgeStyles({ variant, size }),
+
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+            shouldAnimate && "brutal-pop-face",
+            faceRadiusClass(rounded),
+            faceClassName,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" "),
+        )}
+        {...props}
+      >
+        {shouldAnimate && border && (
+          <DrawBorder
+            animate
+            radius={rounded ? "var(--radius)" : undefined}
+            className="z-20"
+          />
+        )}
+        {/* Children */}
+        <span className="relative z-10">{children}</span>
+      </span>
     </span>
   );
 }

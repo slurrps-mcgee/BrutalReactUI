@@ -3,6 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
 import {
+  borderPaintClass,
+  faceRadiusClass,
   useSurfaceAnimate,
   useSurfaceFlag,
 } from "../utils/surface";
@@ -18,12 +20,10 @@ const buttonStyles = cva(
     "group/button relative z-10 isolate inline-flex items-center justify-center self-center gap-2",
 
     // Border width. Color is chosen once we know if the stroke is drawn.
-    "border-[3px] font-mono font-bold uppercase tracking-wide",
+    "font-mono font-bold uppercase tracking-wide",
 
-    // Press interaction
+    // Press interaction. The offset is added only while the shadow is on.
     "transition-transform duration-150",
-    "active:translate-x-[var(--shadow-offset-x)]",
-    "active:translate-y-[var(--shadow-offset-y)]",
 
     // Keyboard focus
     "focus-visible:outline-none focus-visible:ring-2",
@@ -83,7 +83,7 @@ const buttonStyles = cva(
 const fillStyles = cva(
   [
     // Fill layer positioning. Slightly larger than the clip so subpixels still meet the stroke.
-    "pointer-events-none absolute inset-0 origin-left",
+    "pointer-events-none absolute -inset-px origin-left",
 
     // Fill reveal on hover and keyboard focus
     "scale-x-0 transition-transform duration-300 ease-out",
@@ -142,8 +142,6 @@ export default function Button({
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
-
   // Wrapper classes
   const wrapperClassName = twMerge(
     [
@@ -153,8 +151,8 @@ export default function Button({
       // Full width
       fluid ? "flex w-full" : "inline-flex w-fit",
 
-      // Shadow. A pop needs the offset, so animation turns it on.
-      showShadow && "shadow-[var(--shadow)]",
+      // Hard offset. A flat face stays put.
+      shadow && "shadow-[var(--shadow)]",
       rounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -184,16 +182,16 @@ export default function Button({
           [
             buttonStyles({ variant, size, fluid }),
 
-            // Resting stroke, or none while the SVG draws it. border false drops both.
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
+
+            // Press into the shadow. A flat button stays put.
+            shadow &&
+              "active:translate-x-[var(--shadow-offset-x)] active:translate-y-[var(--shadow-offset-y)]",
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
+            faceRadiusClass(rounded),
             faceClassName,
             className,
           ]
@@ -202,12 +200,11 @@ export default function Button({
         )}
         {...props}
       >
-        {/* Border */}
         {shouldAnimate && border && (
           <DrawBorder
             animate
             radius={rounded ? "var(--radius)" : undefined}
-            className="z-10"
+            className="z-20"
           />
         )}
         {/* Children. Outline ink turns dark on the slide, which is a descendant of the group. */}
@@ -225,9 +222,16 @@ export default function Button({
           aria-hidden="true"
           className={twMerge(
             [
-              // Clip the slide inside the 3px stroke, including the rounded corners.
-              "pointer-events-none absolute inset-0 z-0 overflow-hidden",
-              rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
+              // Cover the face up to the stroke. A drawn stroke is centered on the
+              // edge, so only half of it sits inside the face. A resting border
+              // already ends at the padding box.
+              "pointer-events-none absolute z-0 overflow-hidden",
+              shouldAnimate && border && rounded
+                ? "inset-[max(0px,calc(var(--border-width)/2-1px))] rounded-[max(0px,calc(var(--radius)-var(--border-width)/2+1px))]"
+                : "inset-0",
+              rounded &&
+                !(shouldAnimate && border) &&
+                "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
             ]
               .filter(Boolean)
               .join(" "),
@@ -236,7 +240,6 @@ export default function Button({
           <span
             className={twMerge(
               fillStyles({ variant }),
-              rounded && "rounded-[max(0px,calc(var(--radius)-3px))]",
               fillClassName,
             )}
           />

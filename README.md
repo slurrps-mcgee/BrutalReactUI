@@ -111,7 +111,7 @@ Many faces accept the same options:
 | `animate` | `false`, `true`, or `"scroll"`     | `false` |
 | `shadow`  | hard shadow, where the prop exists | varies  |
 
-`animate` draws the border, then pops the face outward. Entrance animation does not pop inward. `true` plays on mount. `"scroll"` plays the first time the element enters the viewport. `className` lands on the face. `wrapperClassName`, where present, lands on the shadow wrapper.
+`animate` pops the face outward. It belongs only on a component that plays that entrance. Entrance animation does not pop inward. `true` plays on mount. `"scroll"` plays the first time the element enters the viewport. `className` lands on the face. `wrapperClassName`, where present, lands on the shadow wrapper.
 
 Status colors used by alerts, badges, progress, and toasts are `success`, `warning`, `danger`, and `info`.
 
@@ -121,7 +121,7 @@ Status colors used by alerts, badges, progress, and toasts are `success`, `warni
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Accordion`     | Stacked panels. `type` is `"single"` or `"multiple"`. Single mode is collapsible. Parts: `AccordionItem`, `AccordionTrigger`, `AccordionContent`.                                 |
 | `Alert`         | Inline status. `dismissible` adds a close control. `timer` or `duration`, in milliseconds, fades it out. `0` keeps it open.                                                       |
-| `Badge`         | Small label. `animate` draws its border and does not add a shadow.                                                                                                                |
+| `Badge`         | Small label. `animate` pops the face and does not add a shadow.                                                                                                                   |
 | `Breadcrumb`    | Trail of links. Parts: `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, `BreadcrumbSeparator`.                                                             |
 | `Button`        | Pressable face. `fluid` stretches it. `type` defaults to `"button"`. Pressing moves it into its shadow.                                                                       |
 | `ButtonGroup`   | Joined buttons with one shadow. `selectionMode` is `"none"`, `"single"`, or `"multiple"`, and defaults to `"none"`. `orientation` is `"horizontal"` or `"vertical"`.              |
@@ -130,8 +130,8 @@ Status colors used by alerts, badges, progress, and toasts are `success`, `warni
 | `Checkbox`      | Flat until checked, then it lifts with a short shadow.                                                                                                                            |
 | `CodeSnippet`   | Highlighted source with a copy control. `code` and `language` are required. `showLanguage` defaults to `true`.                                                                    |
 | `Collapse`      | One panel. Control it with `open` and `onOpenChange`, or leave it uncontrolled. Parts: `CollapseTrigger`, `CollapseContent`.                                                      |
-| `Container`     | Section frame. The normal width is `max-w-7xl`. `fluid` fills the parent. `rounded` uses the library radius. `shadow` and `border` can be off. `animate` draws the border, then pops the face. |
-| `Dropdown`      | Menu. `shadow`, `border`, `rounded`, and `animate` pass to the toggle and the menu. `fluid` stretches both across the parent. Opening presses the toggle into its shadow. `animate` draws the toggle, then pops the menu out when it opens. `align` on `DropdownMenu` is `left` or `right`. Parts: `DropdownToggle`, `DropdownMenu`, `DropdownItem`. |
+| `Container`     | Section frame. The normal width is `max-w-7xl`. `fluid` fills the parent. `rounded` uses the library radius. `shadow` and `border` can be off. `animate` pops the face. |
+| `Dropdown`      | Menu. `shadow`, `border`, `rounded`, and `animate` pass to the toggle and the menu. `fluid` stretches both across the parent. Opening presses the toggle into its shadow. `animate` pops the toggle, then pops the menu out when it opens. `align` on `DropdownMenu` is `left` or `right`. Parts: `DropdownToggle`, `DropdownMenu`, `DropdownItem`. |
 | `FloatingLabel` | Label that rises while the field is focused or filled. Pass one `Input`.                                                                                                          |
 | `Form`          | Validated form. `noValidate` is applied for you. Parts: `FormField`, `FormLabel`, `FormFeedback`. Invalid fields use the danger border and shadow.                                |
 | `Image`         | Framed image. `image` is `{ src, width?, height? }`. `title` becomes `Screenshot of ${title}`.                                                                                    |
@@ -139,9 +139,9 @@ Status colors used by alerts, badges, progress, and toasts are `success`, `warni
 | `InputGroup`    | Joined prefix, field, and suffix. The group lifts on focus. Parts: `InputGroupText`.                                                                                              |
 | `Link`          | Text link. `href` is required and `children` is a string. External `http` and `https` URLs open in a new tab.                                                                     |
 | `ListGroup`     | Stacked items with one border and shadow. Parts: `ListGroupItem`, `ListGroupButton`, `ListGroupLink`.                                                                             |
-| `Modal`         | Dialog. `animate` draws the border, then reveals the face. Parts: `ModalHeader`, `ModalBody`, `ModalFooter`, `ModalClose`.                                                        |
-| `Nav`           | Link list for a bar or sidebar. Parts: `NavItem`, `NavLink`, `NavGroup`. `animate` on `NavItem` draws that link, and a dropdown in the item, then pops it.                        |
-| `Navbar`        | Top bar. `sticky` keeps it at the top while the page scrolls. `animate` draws the bar and, by default, its links, dropdown toggles, and toggler. An open collapse stacks each item full width below the large breakpoint. `fluid` on a `Dropdown` there spans that row. Parts: `NavbarBrand`, `NavbarCollapse`. Pair the collapse with `Toggler`. |
+| `Modal`         | Dialog. `animate` pops the face out of its shadow. Parts: `ModalHeader`, `ModalBody`, `ModalFooter`, `ModalClose`.                                                                |
+| `Nav`           | Link list for a bar or sidebar. Parts: `NavItem`, `NavLink`, `NavGroup`. `animate` on `NavItem` pops an active link, and a dropdown in the item pops when it opens.               |
+| `Navbar`        | Top bar. `sticky` keeps it at the top while the page scrolls. `animate` pops the bar and, by default, its links, dropdown toggles, and toggler. An open collapse stacks each item full width below the large breakpoint. `fluid` on a `Dropdown` there spans that row. Parts: `NavbarBrand`, `NavbarCollapse`. Pair the collapse with `Toggler`. |
 | `Pagination`    | Page links. Parts: `PaginationList`, `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis`.                                            |
 | `Progress`      | Bar. Omit `value` for an indeterminate state. `shadow` defaults to `false`.                                                                                                       |
 | `Radio`         | Round option. The shadow appears only while it is selected.                                                                                                                       |
@@ -154,7 +154,7 @@ Status colors used by alerts, badges, progress, and toasts are `success`, `warni
 | `Toast`         | Notification. Wrap the app in `ToastProvider`, render `ToastViewport`, and call `useToast()`. `timer` or `duration` fades each toast.                                             |
 | `Tooltip`       | Hover and focus hint. Parts: `TooltipTrigger`, `TooltipContent`.                                                                                                                  |
 | `Toggler`       | Menu button. `iconAnimation` is `normal`, `spin`, `rotate-clockwise`, `rotate-counterclockwise`, `arrow-left`, `arrow-right`, `arrow-up`, or `arrow-down`.                        |
-| `ThemeToggle`   | A button that switches light and dark. `animate` draws that control. When `ThemeProvider` themes include another name, it becomes a dropdown of those names. `align` is `left` or `right`. It must render under `ThemeProvider`. |
+| `ThemeToggle`   | A button that switches light and dark. `animate` pops that control. When `ThemeProvider` themes include another name, it becomes a dropdown of those names. `align` is `left` or `right`. It must render under `ThemeProvider`. |
 
 ```tsx
 <Button variant="secondary" size="lg" rounded animate="scroll">

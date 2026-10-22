@@ -9,8 +9,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
+// Pagination styles. The nav only publishes the page colors and size.
 const paginationStyles = cva("", {
   variants: {
+    // Page fill and ink, read by each link.
     variant: {
       primary: "[--page-bg:var(--main)] [--page-fg:var(--main-foreground)]",
       secondary:
@@ -18,6 +20,7 @@ const paginationStyles = cva("", {
       outline:
         "[--page-bg:var(--surface)] [--page-fg:var(--surface-foreground)]",
     },
+    // Control size and type size
     size: {
       sm: "[--page-size:2.25rem] text-xs",
       md: "[--page-size:2.75rem] text-sm",
@@ -29,6 +32,48 @@ const paginationStyles = cva("", {
     size: "md",
   },
 });
+
+// Page link styles
+const pageLinkStyles = cva(
+  [
+    // Layout
+    "inline-flex size-[var(--page-size)] items-center justify-center",
+
+    // Border, fill, and typography
+    "border-[length:var(--border-width)] border-border bg-[var(--page-bg)] text-[var(--page-fg)]",
+    "font-mono font-bold uppercase",
+
+    // Hover
+    "transition-colors duration-150 hover:bg-main hover:text-main-foreground",
+
+    // Keyboard focus
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    "focus-visible:ring-offset-2",
+
+    // Disabled state and reduced motion
+    "aria-disabled:pointer-events-none aria-disabled:bg-disabled",
+    "aria-disabled:text-disabled-foreground aria-disabled:shadow-none",
+    "motion-reduce:transition-none",
+  ].join(" "),
+  {
+    variants: {
+      // Current page
+      active: {
+        true: "bg-main text-main-foreground",
+        false: "",
+      },
+      // Previous and next need room for a label.
+      wide: {
+        true: "w-auto gap-2 px-3",
+        false: "",
+      },
+    },
+    defaultVariants: {
+      active: false,
+      wide: false,
+    },
+  },
+);
 
 type PaginationStyleProps = VariantProps<typeof paginationStyles>;
 const PaginationContext = createContext<PaginationStyleProps>({
@@ -69,55 +114,6 @@ export default function Pagination({
   );
 }
 
-export function PaginationList({
-  className,
-  ...props
-}: HTMLAttributes<HTMLUListElement>) {
-  return (
-    <ul
-      className={twMerge(
-        "flex list-none flex-wrap items-center gap-2",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-export function PaginationItem(props: HTMLAttributes<HTMLLIElement>) {
-  return <li {...props} />;
-}
-
-const pageLinkStyles = cva(
-  [
-    "inline-flex size-[var(--page-size)] items-center justify-center",
-    "border-[3px] border-border bg-[var(--page-bg)] text-[var(--page-fg)]",
-    "font-mono font-bold uppercase",
-    "transition-colors duration-150 hover:bg-main hover:text-main-foreground",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-    "focus-visible:ring-offset-2",
-    "aria-disabled:pointer-events-none aria-disabled:bg-disabled",
-    "aria-disabled:text-disabled-foreground aria-disabled:shadow-none",
-    "motion-reduce:transition-none",
-  ].join(" "),
-  {
-    variants: {
-      active: {
-        true: "bg-main text-main-foreground",
-        false: "",
-      },
-      wide: {
-        true: "w-auto gap-2 px-3",
-        false: "",
-      },
-    },
-    defaultVariants: {
-      active: false,
-      wide: false,
-    },
-  },
-);
-
 export type PaginationLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   active?: boolean;
   disabled?: boolean;
@@ -127,6 +123,35 @@ export type PaginationLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   wrapperClassName?: string;
   faceClassName?: string;
 };
+
+type PaginationDirectionProps = PaginationLinkProps & {
+  label?: string;
+  children?: ReactNode;
+};
+
+export function PaginationList({
+  className,
+  ...props
+}: HTMLAttributes<HTMLUListElement>) {
+  return (
+    <ul
+      className={twMerge(
+        [
+          // Layout
+          "flex list-none flex-wrap items-center gap-2",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      )}
+      {...props}
+    />
+  );
+}
+
+export function PaginationItem(props: HTMLAttributes<HTMLLIElement>) {
+  return <li {...props} />;
+}
 
 export function PaginationLink({
   href,
@@ -173,11 +198,6 @@ export function PaginationLink({
     </span>
   );
 }
-
-type PaginationDirectionProps = PaginationLinkProps & {
-  label?: string;
-  children?: ReactNode;
-};
 
 export function PaginationPrevious({
   label = "Previous page",

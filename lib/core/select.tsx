@@ -14,13 +14,19 @@ import {
   type KeyboardEvent,
   type ReactNode,
   type RefObject,
-  type TransitionEvent,
+  type AnimationEvent,
 } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import { useControllableState } from "../utils/use-controllable-state";
 import { useDismissableLayer } from "../utils/use-dismissable-layer";
 import {
@@ -29,37 +35,13 @@ import {
 } from "../utils/use-enter-viewport";
 import { useFormFieldControl } from "./form";
 
-type OptionRecord = {
-  value: string;
-  label: string;
-  disabled: boolean;
-  id: string;
-  ref: RefObject<HTMLButtonElement | null>;
-};
-
-type SelectContextValue = {
-  value: string;
-  activeValue: string;
-  register: (option: OptionRecord) => () => void;
-  select: (value: string) => void;
-  setActive: (value: string) => void;
-};
-
-const SelectContext = createContext<SelectContextValue | null>(null);
-
-function useSelect() {
-  const context = useContext(SelectContext);
-  if (!context) throw new Error("SelectOption must render inside Select");
-  return context;
-}
-
 // Select trigger styles
 const selectStyles = cva(
   [
     // Layout, border, and typography
-    "relative z-10 flex w-full items-center justify-between gap-3 border-[3px] border-border font-mono font-bold",
+    "relative z-10 flex w-full items-center justify-between gap-3 border-border font-mono font-bold",
 
-    // Interaction. The open pop sets its own translate transition.
+    // Interaction. A shadowed open pop starts on this face.
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 
     // Disabled and reduced motion
@@ -94,102 +76,87 @@ const selectStyles = cva(
   },
 );
 
-// Select props
-export type SelectProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  "defaultValue" | "onChange"
-> &
-  VariantProps<typeof selectStyles> & {
-    value?: string;
-    defaultValue?: string;
-    onValueChange?: (value: string) => void;
-    open?: boolean;
-    defaultOpen?: boolean;
-    onOpenChange?: (open: boolean) => void;
-    name?: string;
-    required?: boolean;
-    disabled?: boolean;
-    valid?: boolean;
-    invalid?: boolean;
-    placeholder?: ReactNode;
-    rounded?: boolean;
-    shadow?: boolean;
-    border?: boolean;
-    animate?: AnimationTrigger;
-    wrapperClassName?: string;
-    faceClassName?: string;
-    triggerClassName?: string;
-    menuClassName?: string;
-    children?: ReactNode;
-  };
+type OptionRecord = {
+  value: string;
+  label: string;
+  disabled: boolean;
+  id: string;
+  ref: RefObject<HTMLButtonElement | null>;
+};
 
-// The menu mounts under the trigger. Both faces then pop out of their shadows
-// together. Closing presses them back in before the menu leaves.
+type SelectContextValue = {
+  value: string;
+  activeValue: string;
+  register: (option: OptionRecord) => () => void;
+  select: (value: string) => void;
+  setActive: (value: string) => void;
+};
+
+const SelectContext = createContext<SelectContextValue | null>(null);
+
+function useSelect() {
+  const context = useContext(SelectContext);
+  if (!context) throw new Error("SelectOption must render inside Select");
+  return context;
+}
+
+// A shadowed select starts in the offset and only pops out. Flat stays put.
+// Closing presses both faces back into the shadow before the menu leaves.
 function useSelectMenuMotion(open: boolean, shadow: boolean) {
+  const reduced =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const animate = shadow && !reduced;
+  const [prevOpen, setPrevOpen] = useState(open);
   const [present, setPresent] = useState(open);
-  const [popped, setPopped] = useState(false);
-  const [moving, setMoving] = useState(false);
-  const poppedRef = useRef(false);
+  const [poppingOut, setPoppingOut] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [lifted, setLifted] = useState(false);
 
-  useEffect(() => {
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) {
       setPresent(true);
-      if (reduced || !shadow) {
-        poppedRef.current = true;
-        setPopped(true);
-        setMoving(false);
-        return;
-      }
-
-      // Paint both faces in the shadow with no transition, then pop together.
-      poppedRef.current = false;
-      setPopped(false);
-      setMoving(false);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => {
-          poppedRef.current = true;
-          setMoving(true);
-          setPopped(true);
-        });
-      });
-      return () => {
-        cancelAnimationFrame(outer);
-        cancelAnimationFrame(inner);
-      };
-    }
-
-    const shouldSettle = shadow && !reduced && poppedRef.current;
-    poppedRef.current = false;
-    setPopped(false);
-    if (!shouldSettle) {
-      setMoving(false);
+      setClosing(false);
+      setLifted(false);
+      setPoppingOut(animate);
+    } else if (animate && (poppingOut || lifted)) {
+      setPoppingOut(false);
+      setLifted(false);
+      setClosing(true);
+    } else {
+      setPoppingOut(false);
+      setLifted(false);
+      setClosing(false);
       setPresent(false);
-      return;
-    }
-
-    setMoving(true);
-    const id = window.setTimeout(() => {
-      setPresent(false);
-      setMoving(false);
-    }, 480);
-    return () => window.clearTimeout(id);
-  }, [open, shadow]);
-
-  function onTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
-    if (event.target !== event.currentTarget) return;
-    if (event.propertyName !== "translate") return;
-    if (!open) {
-      setPresent(false);
-      setMoving(false);
     }
   }
 
-  return { present, popped, moving, onTransitionEnd };
+  useEffect(() => {
+    if (open || !closing) return;
+    const id = window.setTimeout(() => {
+      setClosing(false);
+      setPresent(false);
+    }, 450);
+    return () => window.clearTimeout(id);
+  }, [closing, open]);
+
+  function onAnimationEnd(event: AnimationEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget) return;
+    if (event.animationName === "brutalPopOut" && open) {
+      setPoppingOut(false);
+      setLifted(true);
+    }
+    if (event.animationName === "brutalPopIn" && !open) {
+      setClosing(false);
+      setPresent(false);
+    }
+  }
+
+  const menuPresent = open || present;
+  const faceMotion = poppingOut ? "out" : closing ? "in" : null;
+
+  return { menuPresent, faceMotion, onAnimationEnd };
 }
 
 function optionLabel(children: ReactNode, value: string, textValue?: string) {
@@ -219,6 +186,35 @@ function optionsFromChildren(children: ReactNode) {
   });
   return found;
 }
+
+// Select props
+export type SelectProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "defaultValue" | "onChange"
+> &
+  VariantProps<typeof selectStyles> & {
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    open?: boolean;
+    defaultOpen?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    name?: string;
+    required?: boolean;
+    disabled?: boolean;
+    valid?: boolean;
+    invalid?: boolean;
+    placeholder?: ReactNode;
+    rounded?: boolean;
+    shadow?: boolean;
+    border?: boolean;
+    animate?: AnimationTrigger;
+    wrapperClassName?: string;
+    faceClassName?: string;
+    triggerClassName?: string;
+    menuClassName?: string;
+    children?: ReactNode;
+  };
 
 // Main Select component
 export function Select({
@@ -250,10 +246,9 @@ export function Select({
 }: SelectProps) {
   const rounded = useSurfaceFlag(roundedProp, "rounded", false);
   const border = useSurfaceFlag(borderProp, "border", true);
-  const shadowFlag = useSurfaceFlag(shadowProp, "shadow", true);
+  const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const animate = useSurfaceAnimate(animateProp);
   const { ref: animateRef, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const shadow = shadowFlag || Boolean(animate);
   const [value, setValue] = useControllableState({
     value: valueProp,
     defaultValue,
@@ -282,22 +277,17 @@ export function Select({
 
   const close = useCallback(() => setOpen(false), [setOpen]);
   const {
-    present: menuPresent,
-    popped: menuPopped,
-    moving: menuMoving,
-    onTransitionEnd: onMenuTransitionEnd,
+    menuPresent,
+    faceMotion,
+    onAnimationEnd: onMenuAnimationEnd,
   } = useSelectMenuMotion(open, shadow);
-  const sunk = shadow && menuPresent && !menuPopped;
-  const popClassName = [
-    shadow &&
-      menuMoving &&
-      "transition-[translate] duration-[450ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none",
-    sunk
-      ? "translate-x-[var(--shadow-offset-x)] translate-y-[var(--shadow-offset-y)]"
-      : "translate-x-0 translate-y-0",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const popEasing = "450ms cubic-bezier(0.2, 0.8, 0.2, 1) both";
+  const faceStyle =
+    faceMotion === "out"
+      ? { animation: `brutalPopOut ${popEasing}` }
+      : faceMotion === "in"
+        ? { animation: `brutalPopIn ${popEasing}` }
+        : undefined;
   useDismissableLayer({ ref: rootRef, enabled: open, onDismiss: close });
 
   const register = useCallback((option: OptionRecord) => {
@@ -442,12 +432,7 @@ export function Select({
   }
 
   return (
-    <SurfaceProvider
-      shadow={shadow}
-      border={border}
-      rounded={rounded}
-      animate={animate}
-    >
+    <SurfaceProvider rounded={rounded}>
     <SelectContext.Provider
       value={{
         value,
@@ -476,7 +461,8 @@ export function Select({
           className={twMerge(
             "relative isolate",
             shouldAnimate && "animate-brutal-pop",
-            shadow && (menuPresent || shouldAnimate) && "shadow-[var(--shadow)]",
+            ((shadow && menuPresent) || (shadow && shouldAnimate)) &&
+              "shadow-[var(--shadow)]",
             rounded &&
               (menuPresent
                 ? "rounded-t-[var(--radius)]"
@@ -488,15 +474,18 @@ export function Select({
             id={triggerId}
             type="button"
             role="combobox"
+            style={faceStyle}
+            onAnimationEnd={onMenuAnimationEnd}
             className={twMerge(
               selectStyles({ variant, size, validity }),
-              !border && "border-none",
-              shouldAnimate && border && "border-transparent brutal-pop-face",
-              popClassName,
+              shouldAnimate && border ? "border-none" : borderPaintClass(border),
+              shouldAnimate && "brutal-pop-face",
               rounded &&
-                (menuPresent
-                  ? "rounded-t-[var(--radius)] rounded-b-none"
-                  : "rounded-[var(--radius)]"),
+                menuPresent &&
+                "rounded-t-[var(--radius)] rounded-b-none",
+              rounded &&
+                !menuPresent &&
+                faceRadiusClass(true),
               faceClassName,
               triggerClassName,
             )}
@@ -536,8 +525,8 @@ export function Select({
           <div
             className={twMerge(
               [
-                // Shadow stays put, directly under the trigger. The face pops with it.
-                "absolute left-0 top-full z-30 -mt-[3px] w-full",
+                // Sits under the trigger. Its shadow stays put while the face pops.
+                "absolute left-0 top-full z-30 -mt-[var(--border-width)] w-full",
                 shadow && "shadow-[var(--shadow)]",
                 rounded && "rounded-b-[var(--radius)] rounded-t-none",
               ]
@@ -549,15 +538,13 @@ export function Select({
               id={listboxId}
               role="listbox"
               aria-labelledby={triggerId}
-              onTransitionEnd={onMenuTransitionEnd}
+              style={faceStyle}
+              onAnimationEnd={onMenuAnimationEnd}
               className={twMerge(
                 [
-                  "max-h-64 w-full overflow-auto border-[3px]",
+                  "max-h-64 w-full overflow-auto border-[length:var(--border-width)]",
                   border ? "border-border" : "border-none",
                   "bg-[var(--surface)] text-[var(--surface-foreground)]",
-
-                  // Same pop as the trigger, so the menu stays under it.
-                  popClassName,
                   rounded && "rounded-b-[var(--radius)] rounded-t-none",
                 ]
                   .filter(Boolean)
@@ -585,7 +572,6 @@ export type SelectOptionProps = Omit<
   rounded?: boolean;
   shadow?: boolean;
   border?: boolean;
-  animate?: AnimationTrigger;
 };
 
 // Select option compound part
@@ -596,7 +582,6 @@ export function SelectOption({
   rounded,
   shadow,
   border,
-  animate,
   className,
   children,
   onClick,
@@ -634,12 +619,11 @@ export function SelectOption({
       type="button"
       role="option"
       tabIndex={-1}
-      data-animate={animate === undefined ? undefined : String(animate)}
       className={twMerge(
         [
           "flex w-full items-center justify-between gap-3 px-4 py-2 text-left font-mono text-sm font-bold",
           "focus-visible:outline-none",
-          border && "border-[3px] border-border",
+          border && "border-[length:var(--border-width)] border-border",
           shadow && "shadow-[var(--shadow)]",
           rounded && "rounded-[var(--radius)]",
           active && "bg-main text-main-foreground",

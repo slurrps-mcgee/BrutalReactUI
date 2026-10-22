@@ -2,13 +2,21 @@ import type { HTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 
+// Spinner styles
 const spinnerStyles = cva(
   [
-    "inline-block shrink-0 rounded-full border-[3px] border-current",
-    "border-r-transparent animate-spin motion-reduce:animate-none",
+    // Layout. The ring is a full circle with one gap.
+    "inline-block shrink-0 rounded-full border-[length:var(--border-width)] border-current",
+
+    // Spin. One side stays clear so the motion reads.
+    "border-r-transparent animate-spin",
+
+    // Reduced motion
+    "motion-reduce:animate-none",
   ].join(" "),
   {
     variants: {
+      // Ink
       variant: {
         primary: "text-main",
         secondary: "text-chart-2",
@@ -18,6 +26,7 @@ const spinnerStyles = cva(
         info: "text-info",
         current: "text-current",
       },
+      // Diameter and stroke
       size: {
         sm: "size-4 border-2",
         md: "size-6",
@@ -54,10 +63,17 @@ export default function Spinner({
       aria-label={label}
       aria-disabled={disabled || undefined}
       className={twMerge(
-        "inline-flex items-center",
-        rounded && "rounded-[var(--radius)]",
-        disabled && "pointer-events-none opacity-70",
-        className,
+        [
+          // Layout
+          "inline-flex items-center",
+          rounded && "rounded-[var(--radius)]",
+
+          // Disabled state
+          disabled && "pointer-events-none opacity-70",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       )}
       {...props}
     >

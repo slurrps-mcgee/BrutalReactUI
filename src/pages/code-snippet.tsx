@@ -33,7 +33,7 @@ export default function CodeSnippetPage() {
       <Example
         imports="CodeSnippet"
         title="Variants"
-        summary="secondary and outline change the block face. animate draws the frame on scroll."
+        summary="secondary and outline change the block face. animate pops the frame on scroll."
         code={`<CodeSnippet
   code="const ready = true;"
   language="ts"

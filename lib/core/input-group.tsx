@@ -1,8 +1,7 @@
 import { type HTMLAttributes, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
-import type { AnimationTrigger } from "../utils/use-enter-viewport";
+import { SurfaceProvider, useSurfaceFlag } from "../utils/surface";
 
 // InputGroup styles
 const inputGroupStyles = cva(
@@ -20,9 +19,10 @@ const inputGroupStyles = cva(
   ].join(" "),
   {
     variants: {
+      // Direction. Neighbors share one 3px stroke.
       orientation: {
-        horizontal: "flex-row [&>*+*]:-ml-[3px]",
-        vertical: "flex-col [&>*+*]:-mt-[3px] [&>div]:w-full",
+        horizontal: "flex-row [&>*+*]:-ml-[var(--border-width)]",
+        vertical: "flex-col [&>*+*]:-mt-[var(--border-width)] [&>div]:w-full",
       },
     },
     defaultVariants: {
@@ -38,7 +38,6 @@ export type InputGroupProps = HTMLAttributes<HTMLDivElement> &
     rounded?: boolean;
     shadow?: boolean;
     border?: boolean;
-    animate?: AnimationTrigger;
     wrapperClassName?: string;
     faceClassName?: string;
     children?: ReactNode;
@@ -52,7 +51,6 @@ export function InputGroup({
   rounded: roundedProp,
   shadow: shadowProp,
   border: borderProp,
-  animate: animateProp,
   wrapperClassName,
   faceClassName,
   children,
@@ -60,8 +58,8 @@ export function InputGroup({
 }: InputGroupProps) {
   const rounded = useSurfaceFlag(roundedProp, "rounded", false);
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
-  const border = useSurfaceFlag(borderProp, "border", true);
-  const animate = useSurfaceAnimate(animateProp);
+  // border stays on this component. It is not passed down yet.
+  void borderProp;
 
   return (
     <div
@@ -120,11 +118,8 @@ export function InputGroup({
         {...props}
       >
         <SurfaceProvider
-          shadow={shadow}
-          border={border}
           // The group paints the outer corners. A full radius on every child would split the row.
           rounded={false}
-          animate={animate}
         >
           {children}
         </SurfaceProvider>
@@ -152,7 +147,7 @@ export function InputGroupText({
     <span
       data-rounded={roundedProp === false ? "false" : undefined}
       className={twMerge(
-        "inline-flex shrink-0 items-center justify-center border-[3px] border-border bg-main px-4 font-mono text-sm font-bold text-main-foreground",
+        "inline-flex shrink-0 items-center justify-center border-[length:var(--border-width)] border-border bg-main px-4 font-mono text-sm font-bold text-main-foreground",
         !border && "border-none",
         roundedProp && "rounded-[var(--radius)]",
         className,

@@ -14,11 +14,61 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
 } from "../utils/use-enter-viewport";
+
+// Button group item styles
+const buttonGroupItemStyles = cva(
+  [
+    // Layout and border
+    "relative inline-flex items-center justify-center gap-2 border-[length:var(--border-width)] border-border",
+
+    // Typography
+    "font-mono font-bold uppercase tracking-wide",
+
+    // Interaction
+    "transition-colors duration-200 hover:z-10 hover:bg-main hover:text-main-foreground",
+
+    // Keyboard focus
+    "focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2",
+    "focus-visible:ring-ring focus-visible:ring-offset-2",
+
+    // Disabled state and reduced motion
+    "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
+    "motion-reduce:transition-none",
+  ].join(" "),
+  {
+    variants: {
+      variant: {
+        primary: "bg-main text-main-foreground",
+        secondary: "bg-chart-2 text-main-foreground",
+        outline: "bg-[var(--surface)] text-[var(--surface-foreground)]",
+      },
+      size: {
+        sm: "px-3 py-2 text-xs",
+        md: "px-5 py-3 text-sm",
+        lg: "px-7 py-4 text-base",
+      },
+      selected: {
+        true: "z-10 bg-main text-main-foreground",
+        false: "",
+      },
+    },
+    defaultVariants: {
+      variant: "outline",
+      size: "md",
+      selected: false,
+    },
+  },
+);
 
 type ButtonGroupContextValue = {
   activeValue: string | null;
@@ -91,7 +141,6 @@ function ButtonGroupRoot({
   const border = useSurfaceFlag(borderProp, "border", true);
   const animate = useSurfaceAnimate(animateProp);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
   const [uncontrolledValue, setUncontrolledValue] = useState<string | string[]>(
     defaultValue ?? (selectionMode === "multiple" ? [] : ""),
   );
@@ -190,17 +239,12 @@ function ButtonGroupRoot({
 
   return (
     <ButtonGroupContext.Provider value={context}>
-      <SurfaceProvider
-        shadow={showShadow}
-        border={border}
-        rounded={rounded}
-        animate={animate}
-      >
+      <SurfaceProvider rounded={rounded}>
         <div
           ref={ref}
           className={twMerge(
             "relative inline-flex w-fit",
-            showShadow && "shadow-[var(--shadow)]",
+            shadow && "shadow-[var(--shadow)]",
             rounded && "rounded-[var(--radius)]",
             shouldAnimate && "animate-brutal-pop",
             wrapperClassName,
@@ -215,7 +259,7 @@ function ButtonGroupRoot({
                 // Layout
                 "relative inline-flex w-fit",
                 orientation === "horizontal" ? "flex-row" : "flex-col",
-                rounded && "rounded-[var(--radius)]",
+                faceRadiusClass(rounded),
                 shouldAnimate && "brutal-pop-face",
                 faceClassName,
                 className,
@@ -241,51 +285,6 @@ function ButtonGroupRoot({
     </ButtonGroupContext.Provider>
   );
 }
-
-// Button group item styles
-const buttonGroupItemStyles = cva(
-  [
-    // Layout and border
-    "relative inline-flex items-center justify-center gap-2 border-[3px] border-border",
-
-    // Typography
-    "font-mono font-bold uppercase tracking-wide",
-
-    // Interaction
-    "transition-colors duration-200 hover:z-10 hover:bg-main hover:text-main-foreground",
-
-    // Keyboard focus
-    "focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2",
-    "focus-visible:ring-ring focus-visible:ring-offset-2",
-
-    // Disabled state and reduced motion
-    "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
-    "motion-reduce:transition-none",
-  ].join(" "),
-  {
-    variants: {
-      variant: {
-        primary: "bg-main text-main-foreground",
-        secondary: "bg-chart-2 text-main-foreground",
-        outline: "bg-[var(--surface)] text-[var(--surface-foreground)]",
-      },
-      size: {
-        sm: "px-3 py-2 text-xs",
-        md: "px-5 py-3 text-sm",
-        lg: "px-7 py-4 text-base",
-      },
-      selected: {
-        true: "z-10 bg-main text-main-foreground",
-        false: "",
-      },
-    },
-    defaultVariants: {
-      variant: "outline",
-      size: "md",
-      selected: false,
-    },
-  },
-);
 
 // Button group item props
 export type ButtonGroupItemProps = ButtonHTMLAttributes<HTMLButtonElement> &
@@ -374,8 +373,8 @@ export const ButtonGroupItem = forwardRef<
 
           // Collapse adjacent 3px borders
           group.orientation === "horizontal"
-            ? "-ms-[3px] first-of-type:ms-0"
-            : "-mt-[3px] first-of-type:mt-0",
+            ? "-ms-[var(--border-width)] first-of-type:ms-0"
+            : "-mt-[var(--border-width)] first-of-type:mt-0",
 
           // Optional outer group radius. An item can replace it.
           border === false || (border === undefined && !group.border)

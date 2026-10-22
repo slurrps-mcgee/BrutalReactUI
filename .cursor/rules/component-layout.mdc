@@ -1,0 +1,49 @@
+---
+description: File layout and shared props for Brutal React UI components
+globs: lib/core/**/*.tsx,lib/utils/template.tsx
+alwaysApply: false
+---
+
+# Component layout
+
+Follow `lib/utils/template.tsx`. New components use this order, and skip a section that would be empty:
+
+1. Style consts (`cva` or class strings)
+2. Functions (hooks and helpers, not the components)
+3. Props for the root
+4. `export default function` for the root
+5. Children props
+6. Children functions
+
+A compound alias such as `Accordion.Item` follows the children.
+
+Parents pass `rounded` and `disabled` with `SurfaceProvider`. A parent may also pass `shadow`, `border`, and `animate`. Sidebar and Navbar do, so a NavItem follows the bar or the rail. A child prop replaces the parent. An omitted `rounded` or `disabled` keeps the parent value. An omitted `shadow`, `border`, or `animate` keeps a parent value when one was passed, and otherwise uses the child default. `border` and `shadow` default to true. `animate` and `rounded` default to false.
+
+Every component takes `disabled`. Every component except links also takes `rounded`, `border`, and `shadow`. `animate` belongs only on a component that plays the pop. A parent may pass `animate` with `SurfaceProvider` so a child that pops can follow it. While DrawBorder is mounted the face uses `border-none` and no border-width utility. The stroke's outer edge is the face border box. Otherwise the face keeps its CSS border. The pop face must be the wrapper's direct child: `.animate-brutal-pop > .brutal-pop-face`.
+
+```tsx
+const exampleStyles = cva("border-[length:var(--border-width)] border-border", {
+  variants: { size: { sm: "text-xs", md: "text-sm", lg: "text-base" } },
+  defaultVariants: { size: "md" },
+});
+
+type ExampleContextValue = { open: boolean };
+
+function useExample() {
+  return useContext(ExampleContext);
+}
+
+export type ExampleProps = HTMLAttributes<HTMLDivElement> & SurfaceProps;
+
+export default function Example({
+  children,
+  rounded,
+  disabled,
+}: ExampleProps) {
+  return (
+    <SurfaceProvider rounded={rounded} disabled={disabled}>
+      {children}
+    </SurfaceProvider>
+  );
+}
+```

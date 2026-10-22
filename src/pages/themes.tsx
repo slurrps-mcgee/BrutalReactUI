@@ -87,7 +87,7 @@ export default function ThemesPage() {
 
       <Example
         title="Register the name"
-        summary='themes replaces the built-in list. Keep "light" and "dark" in the array when those themes should remain. Another name turns ThemeToggle into a dropdown of the list. align right keeps that menu on the page. animate draws the control.'
+        summary='themes replaces the built-in list. Keep "light" and "dark" in the array when those themes should remain. Another name turns ThemeToggle into a dropdown of the list. align right keeps that menu on the page. animate pops the control.'
         imports="ThemeProvider"
         code={`<ThemeProvider themes={["light", "dark", "ocean"]}>
   <App />

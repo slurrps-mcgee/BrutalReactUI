@@ -57,7 +57,7 @@ export default function BadgesPage() {
       <Example
         imports="Badge"
         title="Rounded and animation"
-        summary="rounded uses the library radius. animate draws the border, then pops the face. There is still no shadow."
+        summary="rounded uses the library radius. animate pops the face. There is still no shadow."
         code={`<Badge rounded>Rounded</Badge>
 <Badge animate rounded>Animated</Badge>
 <Badge border={false}>No border</Badge>`}

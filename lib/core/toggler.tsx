@@ -2,7 +2,12 @@ import type { ButtonHTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import { useInNavbar } from "./navbar";
 import {
   useAnimationTrigger,
@@ -16,7 +21,7 @@ const togglerStyles = cva(
     "relative z-10 isolate inline-flex items-center justify-center",
 
     // Border and typography
-    "border-[3px] font-mono font-bold",
+    "font-mono font-bold",
 
     // Keyboard focus
     "focus-visible:outline-none focus-visible:ring-2",
@@ -109,7 +114,6 @@ export default function Toggler({
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
   const inNavbar = useInNavbar();
 
   // Wrapper classes
@@ -119,8 +123,8 @@ export default function Toggler({
       "relative isolate inline-flex w-fit",
       inNavbar && "lg:hidden",
 
-      // Shadow. A pop needs the offset, so animation turns it on.
-      showShadow && "shadow-[var(--shadow)]",
+      // Hard offset. A flat face stays put.
+      shadow && "shadow-[var(--shadow)]",
       isRounded && "rounded-[var(--radius)]",
 
       // Animation
@@ -140,16 +144,12 @@ export default function Toggler({
           [
             togglerStyles({ variant, size }),
 
-            // Resting stroke, or none while the SVG draws it. border false drops both.
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            isRounded && "rounded-[var(--radius)]",
+            faceRadiusClass(isRounded),
             faceClassName,
             className,
           ]
@@ -161,7 +161,6 @@ export default function Toggler({
         data-toggler-animation={iconAnimation}
         {...props}
       >
-        {/* Border */}
         {shouldAnimate && border && (
           <DrawBorder
             animate

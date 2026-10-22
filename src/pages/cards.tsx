@@ -119,9 +119,9 @@ export default function CardsPage() {
       <Example
         imports="Card, CardBody"
         title="Rounded animation and no border"
-        summary="animate with rounded draws the stroke on the card radius. border false removes that stroke."
+        summary="animate with rounded pops the rounded face. border false removes the stroke."
         code={`<Card rounded animate>
-  <CardBody>Rounded draw</CardBody>
+  <CardBody>Rounded pop</CardBody>
 </Card>
 <Card border={false}>
   <CardBody>No stroke</CardBody>
@@ -129,7 +129,7 @@ export default function CardsPage() {
       >
         <div className="grid gap-6 md:grid-cols-2">
           <Card rounded animate>
-            <CardBody>Rounded draw</CardBody>
+            <CardBody>Rounded pop</CardBody>
           </Card>
           <Card border={false}>
             <CardBody>No stroke</CardBody>

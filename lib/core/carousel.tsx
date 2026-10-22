@@ -11,18 +11,24 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
-import type { AnimationTrigger } from "../utils/use-enter-viewport";
+import { SurfaceProvider, useSurfaceFlag } from "../utils/surface";
 
+// Styles for the Carousel component.
 const carouselStyles = cva(
   [
-    "relative isolate w-full border-[3px] border-border",
+    // Layout and border
+    "relative isolate w-full border-[length:var(--border-width)] border-border",
+
+    // Fill and ink
     "bg-[var(--surface)] text-[var(--surface-foreground)]",
+
+    // Keyboard focus
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     "focus-visible:ring-offset-2",
   ].join(" "),
   {
     variants: {
+      // Fill, ink, and the control accent
       variant: {
         primary:
           "bg-main text-main-foreground [--carousel-accent:var(--chart-2)]",
@@ -31,6 +37,7 @@ const carouselStyles = cva(
         outline:
           "bg-[var(--surface)] text-[var(--surface-foreground)] [--carousel-accent:var(--main)]",
       },
+      // Type size
       size: {
         sm: "text-xs",
         md: "text-sm",
@@ -44,18 +51,28 @@ const carouselStyles = cva(
   },
 );
 
+// Styles for the Carousel control buttons.
 const controlStyles = cva(
   [
+    // Layout. Centered on the vertical middle of the frame.
     "absolute top-1/2 z-20 inline-flex -translate-y-1/2 items-center justify-center",
-    "border-[3px] border-border bg-[var(--carousel-accent)] text-main-foreground",
+
+    // Border, fill, and ink
+    "border-[length:var(--border-width)] border-border bg-[var(--carousel-accent)] text-main-foreground",
+
+    // Motion
     "transition-transform duration-150",
-    "hover:translate-x-[var(--shadow-offset-x)]",
+
+    // Keyboard focus
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+
+    // Disabled state and reduced motion
     "disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-foreground",
     "disabled:shadow-none motion-reduce:transition-none",
   ].join(" "),
   {
     variants: {
+      // Control diameter
       size: {
         sm: "size-9",
         md: "size-11",
@@ -68,6 +85,7 @@ const controlStyles = cva(
   },
 );
 
+// Custom hook to check if the user has reduced motion preferences.
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
 
@@ -82,12 +100,14 @@ function useReducedMotion() {
   return reduced;
 }
 
+// Helper function to clamp the index to the range of the slides.
 function clampIndex(index: number, count: number, loop: boolean) {
   if (count <= 0) return 0;
   if (loop) return ((index % count) + count) % count;
   return Math.min(count - 1, Math.max(0, index));
 }
 
+// Props for the Carousel component.
 export type CarouselProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
   VariantProps<typeof carouselStyles> & {
     children: ReactNode;
@@ -105,7 +125,6 @@ export type CarouselProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
     rounded?: boolean;
     shadow?: boolean;
     border?: boolean;
-    animate?: AnimationTrigger;
     disabled?: boolean;
     wrapperClassName?: string;
     faceClassName?: string;
@@ -114,6 +133,7 @@ export type CarouselProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
     trackClassName?: string;
   };
 
+// The Carousel component is used to create a carousel of slides. Parent
 export default function Carousel({
   children,
   index,
@@ -130,7 +150,6 @@ export default function Carousel({
   rounded: roundedProp,
   shadow: shadowProp,
   border: borderProp,
-  animate: animateProp,
   disabled = false,
   wrapperClassName,
   faceClassName,
@@ -152,7 +171,6 @@ export default function Carousel({
   const rounded = useSurfaceFlag(roundedProp, "rounded", false);
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const border = useSurfaceFlag(borderProp, "border", true);
-  const animate = useSurfaceAnimate(animateProp);
   const slides = Children.toArray(children);
   const count = slides.length;
   const [uncontrolledIndex, setUncontrolledIndex] = useState(defaultIndex);
@@ -243,12 +261,7 @@ export default function Carousel({
   const nextDisabled = !loop && currentIndex === count - 1;
 
   return (
-    <SurfaceProvider
-      shadow={shadow}
-      border={border}
-      rounded={rounded}
-      animate={animate}
-    >
+    <SurfaceProvider rounded={rounded} disabled={disabled || undefined}>
     <div
       role="region"
       aria-roledescription="carousel"
@@ -291,7 +304,7 @@ export default function Carousel({
       <div
         className={twMerge(
           "overflow-hidden",
-          rounded && "rounded-[calc(var(--radius)-3px)]",
+          rounded && "rounded-[calc(var(--radius)-var(--border-width))]",
           viewportClassName,
         )}
         aria-live={autoplay && !paused ? "off" : "polite"}
@@ -327,8 +340,7 @@ export default function Carousel({
             disabled={previousDisabled}
             className={twMerge(
               controlStyles({ size }),
-              "left-3 hover:translate-y-[calc(-50%+var(--shadow-offset-y))]",
-              shadow && "shadow-[var(--shadow)]",
+              "left-3",
               !border && "border-none",
               rounded && "rounded-[var(--radius)]",
             )}
@@ -342,8 +354,7 @@ export default function Carousel({
             disabled={nextDisabled}
             className={twMerge(
               controlStyles({ size }),
-              "right-3 hover:translate-y-[calc(-50%+var(--shadow-offset-y))]",
-              shadow && "shadow-[var(--shadow)]",
+              "right-3",
               !border && "border-none",
               rounded && "rounded-[var(--radius)]",
             )}
@@ -367,11 +378,20 @@ export default function Carousel({
               aria-label={`Go to slide ${slideIndex + 1}`}
               aria-current={slideIndex === currentIndex ? "true" : undefined}
               className={twMerge(
-                "size-3 border-2 bg-secondary-background",
-                border ? "border-border" : "border-none",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                slideIndex === currentIndex && "bg-[var(--carousel-accent)]",
-                rounded && "rounded-full",
+                [
+                  // Dot
+                  "size-3 border-2 bg-secondary-background",
+                  border ? "border-border" : "border-none",
+
+                  // Keyboard focus
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+
+                  // Current slide
+                  slideIndex === currentIndex && "bg-[var(--carousel-accent)]",
+                  rounded && "rounded-full",
+                ]
+                  .filter(Boolean)
+                  .join(" "),
               )}
               onClick={() => goTo(slideIndex)}
             />
@@ -383,19 +403,19 @@ export default function Carousel({
   );
 }
 
+// Props for the CarouselSlide component.
 export type CarouselSlideProps = HTMLAttributes<HTMLDivElement> & {
   rounded?: boolean;
   shadow?: boolean;
   border?: boolean;
-  animate?: AnimationTrigger;
 };
 
+// The CarouselSlide component is used to create a single slide in the carousel.
 export function CarouselSlide({
   className,
   rounded,
   shadow,
   border,
-  animate,
   ...props
 }: CarouselSlideProps) {
   return (
@@ -404,11 +424,10 @@ export function CarouselSlide({
         "h-full w-full",
         shadow && "shadow-[var(--shadow)]",
         border === false && "!border-none",
-        border && "border-[3px] border-border",
+        border && "border-[length:var(--border-width)] border-border",
         rounded && "rounded-[var(--radius)]",
         className,
       )}
-      data-animate={animate === undefined ? undefined : String(animate)}
       {...props}
     />
   );

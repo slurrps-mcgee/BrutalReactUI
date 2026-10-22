@@ -23,12 +23,6 @@ import {
 import { twMerge } from "tailwind-merge";
 import { usePresence } from "../utils/use-presence";
 
-export type ToastVariant =
-  "primary" | "secondary" | "success" | "warning" | "danger" | "info";
-
-export type ToastPosition =
-  "top-left" | "top-right" | "bottom-left" | "bottom-right";
-
 // Toast styles
 const toastStyles = cva(
   [
@@ -36,7 +30,7 @@ const toastStyles = cva(
     "pointer-events-auto relative isolate flex w-full items-start gap-3",
 
     // Border and typography
-    "border-[3px] border-border",
+    "border-[length:var(--border-width)] border-border",
     "font-mono",
 
     // Reduced motion
@@ -45,6 +39,7 @@ const toastStyles = cva(
   ].join(" "),
   {
     variants: {
+      // Fill and ink
       variant: {
         primary: "bg-main text-main-foreground",
         secondary: "bg-chart-2 text-main-foreground",
@@ -67,6 +62,25 @@ const toastStyles = cva(
   },
 );
 
+const positionStyles: Record<ToastPosition, string> = {
+  "top-left": "left-4 top-4 items-start",
+  "top-right": "right-4 top-4 items-end",
+  "bottom-left": "bottom-4 left-4 items-start",
+  "bottom-right": "bottom-4 right-4 items-end",
+};
+
+type ToastRecord = ToastInput & {
+  id: string;
+  closing?: boolean;
+};
+
+export type ToastContextValue = {
+  toast: (toast: ToastInput) => string;
+  dismiss: (id?: string) => void;
+  toasts: readonly ToastRecord[];
+  available: boolean;
+};
+
 const variantIcons: Record<ToastVariant, typeof Bell> = {
   primary: Bell,
   secondary: Bell,
@@ -75,6 +89,26 @@ const variantIcons: Record<ToastVariant, typeof Bell> = {
   danger: XCircle,
   info: Info,
 };
+
+const fallbackToastContext: ToastContextValue = {
+  toast: () => "",
+  dismiss: () => undefined,
+  toasts: [],
+  available: false,
+};
+
+const ToastContext = createContext<ToastContextValue | null>(null);
+
+// Safe outside ToastProvider so optional integrations can retain local feedback.
+export function useToast() {
+  return useContext(ToastContext) ?? fallbackToastContext;
+}
+
+export type ToastVariant =
+  "primary" | "secondary" | "success" | "warning" | "danger" | "info";
+
+export type ToastPosition =
+  "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
 // Toast props
 export type ToastProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> &
@@ -97,6 +131,13 @@ export type ToastProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> &
     wrapperClassName?: string;
     faceClassName?: string;
   };
+
+export type ToastInput = Omit<
+  ToastProps,
+  "open" | "defaultOpen" | "onOpenChange" | "onDismiss"
+> & {
+  id?: string;
+};
 
 // Main Toast component
 export function Toast({
@@ -215,40 +256,18 @@ export function Toast({
   );
 }
 
-export type ToastInput = Omit<
-  ToastProps,
-  "open" | "defaultOpen" | "onOpenChange" | "onDismiss"
-> & {
-  id?: string;
-};
-
-type ToastRecord = ToastInput & {
-  id: string;
-  closing?: boolean;
-};
-
-export type ToastContextValue = {
-  toast: (toast: ToastInput) => string;
-  dismiss: (id?: string) => void;
-  toasts: readonly ToastRecord[];
-  available: boolean;
-};
-
-const fallbackToastContext: ToastContextValue = {
-  toast: () => "",
-  dismiss: () => undefined,
-  toasts: [],
-  available: false,
-};
-
-const ToastContext = createContext<ToastContextValue | null>(null);
-
 // Toast provider props
 export type ToastProviderProps = {
   children?: ReactNode;
   timer?: number;
   duration?: number;
   maxToasts?: number;
+};
+
+// Toast viewport props
+export type ToastViewportProps = HTMLAttributes<HTMLDivElement> & {
+  position?: ToastPosition;
+  portal?: boolean;
 };
 
 // Stores imperative toasts. Render ToastViewport anywhere beneath this provider.
@@ -306,24 +325,6 @@ export function ToastProvider({
     <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
   );
 }
-
-// Safe outside ToastProvider so optional integrations can retain local feedback.
-export function useToast() {
-  return useContext(ToastContext) ?? fallbackToastContext;
-}
-
-const positionStyles: Record<ToastPosition, string> = {
-  "top-left": "left-4 top-4 items-start",
-  "top-right": "right-4 top-4 items-end",
-  "bottom-left": "bottom-4 left-4 items-start",
-  "bottom-right": "bottom-4 right-4 items-end",
-};
-
-// Toast viewport props
-export type ToastViewportProps = HTMLAttributes<HTMLDivElement> & {
-  position?: ToastPosition;
-  portal?: boolean;
-};
 
 // Fixed, stacked live region for provider-managed toasts.
 export function ToastViewport({

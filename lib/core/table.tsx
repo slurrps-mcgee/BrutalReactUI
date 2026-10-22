@@ -9,7 +9,13 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import { SurfaceProvider, useSurfaceAnimate, useSurfaceFlag } from "../utils/surface";
+import {
+  SurfaceProvider,
+  borderPaintClass,
+  faceRadiusClass,
+  useSurfaceAnimate,
+  useSurfaceFlag,
+} from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,
@@ -22,6 +28,7 @@ const tableStyles = cva(
   ].join(" "),
   {
     variants: {
+      // Head fill, ink, and stripe, read by the rows.
       variant: {
         primary:
           "[--table-head:var(--main)] [--table-head-fg:var(--main-foreground)] [--table-stripe:color-mix(in_oklch,var(--foreground)_12%,var(--secondary-background))]",
@@ -30,6 +37,7 @@ const tableStyles = cva(
         outline:
           "[--table-head:var(--surface)] [--table-head-fg:var(--surface-foreground)] [--table-stripe:color-mix(in_oklch,var(--foreground)_12%,var(--secondary-background))]",
       },
+      // Type size
       size: {
         sm: "text-xs",
         md: "text-sm",
@@ -53,6 +61,12 @@ type TableOptions = {
   size: TableStyleProps["size"];
 };
 
+type CellSurfaceProps = {
+  border?: boolean;
+  rounded?: boolean;
+  shadow?: boolean;
+};
+
 const TableContext = createContext<TableOptions>({
   bordered: false,
   striped: false,
@@ -62,12 +76,12 @@ const TableContext = createContext<TableOptions>({
   size: "md",
 });
 
-type CellSurfaceProps = {
-  border?: boolean;
-  rounded?: boolean;
-  shadow?: boolean;
-  animate?: AnimationTrigger;
-};
+function cellPadding(size: TableOptions["size"], compact: boolean) {
+  if (compact) return "px-2 py-1.5";
+  if (size === "sm") return "px-3 py-2";
+  if (size === "lg") return "px-5 py-4";
+  return "px-4 py-3";
+}
 
 export type TableProps = TableHTMLAttributes<HTMLTableElement> &
   TableStyleProps &
@@ -91,22 +105,18 @@ export default function Table({
   border,
   rounded,
   shadow,
-  animate,
   children,
   ...props
 }: TableProps) {
   const grid = border ?? bordered;
+  // shadow stays on this table. It is not passed down yet.
+  void shadow;
 
   return (
     <TableContext.Provider
       value={{ bordered: grid, striped, hoverable, compact, stickyHeader, size }}
     >
-      <SurfaceProvider
-        border={border}
-        rounded={rounded}
-        shadow={shadow}
-        animate={animate}
-      >
+      <SurfaceProvider rounded={rounded}>
         <table
           data-bordered={grid ? "" : undefined}
           className={twMerge(
@@ -150,7 +160,6 @@ export function TableResponsive({
   const border = useSurfaceFlag(borderProp, "border", true);
   const animate = useSurfaceAnimate(animateProp);
   const { ref, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
-  const showShadow = shadow || Boolean(animate);
 
   return (
     <div
@@ -160,8 +169,8 @@ export function TableResponsive({
           // Layout and stacking. No overflow, so the shadow is not a scrollport.
           "brutal-table-wrapper group/table-wrapper relative isolate w-full",
 
-          // Shadow
-          showShadow && "shadow-[var(--shadow)]",
+          // Shadow.
+          shadow && "shadow-[var(--shadow)]",
           disabled && "pointer-events-none opacity-70",
           rounded && "rounded-[var(--radius)]",
 
@@ -179,19 +188,15 @@ export function TableResponsive({
           [
             // Layout and border. The stroke stays on this face.
             // A bordered table already draws that grid, so the frame does not add a second stroke.
-            "relative w-full border-[3px]",
+            "relative w-full",
             "has-[table[data-bordered]]:!border-0",
 
-            // Resting stroke, or none while the SVG draws it. border false drops both.
-            !border
-              ? "border-none"
-              : shouldAnimate
-                ? "border-transparent"
-                : "border-border",
+            // Drawn stroke, or the resting border. border false drops both.
+            shouldAnimate && border ? "border-none" : borderPaintClass(border),
 
             // Pop target. Must be the wrapper's direct child.
             shouldAnimate && "brutal-pop-face",
-            rounded && "rounded-[var(--radius)]",
+            faceRadiusClass(rounded),
             rounded && !shouldAnimate && "overflow-hidden",
             faceClassName,
           ]
@@ -199,7 +204,6 @@ export function TableResponsive({
             .join(" "),
         )}
       >
-        {/* Border */}
         {shouldAnimate && border && (
           <DrawBorder
             animate
@@ -226,12 +230,7 @@ export function TableResponsive({
           )}
           {...props}
         >
-          <SurfaceProvider
-            shadow={showShadow}
-            border={border}
-            rounded={rounded}
-            animate={animate}
-          >
+          <SurfaceProvider rounded={rounded}>
             {children}
           </SurfaceProvider>
         </div>
@@ -318,7 +317,7 @@ export function TableRow({
       className={twMerge(
         [
           // Every row keeps a bottom rule, including the last, unless a cell grid replaces it.
-          showRule && "border-b-[3px] border-border",
+          showRule && "border-b-[length:var(--border-width)] border-border",
           rounded && "rounded-[var(--radius)]",
           shadow && "shadow-[var(--shadow)]",
 
@@ -333,13 +332,6 @@ export function TableRow({
       {...props}
     />
   );
-}
-
-function cellPadding(size: TableOptions["size"], compact: boolean) {
-  if (compact) return "px-2 py-1.5";
-  if (size === "sm") return "px-3 py-2";
-  if (size === "lg") return "px-5 py-4";
-  return "px-4 py-3";
 }
 
 export function TableHead({
@@ -359,7 +351,7 @@ export function TableHead({
           "text-left font-bold uppercase tracking-wide",
 
           // Full grid. Collapse shares each edge, so every row and column is ruled.
-          showBorder && "border-[3px] border-border",
+          showBorder && "border-[length:var(--border-width)] border-border",
           rounded && "rounded-[var(--radius)]",
           shadow && "shadow-[var(--shadow)]",
           cellPadding(size, compact),
@@ -387,7 +379,7 @@ export function TableCell({
       className={twMerge(
         [
           // Full grid. Collapse shares each edge, so every row and column is ruled.
-          showBorder && "border-[3px] border-border",
+          showBorder && "border-[length:var(--border-width)] border-border",
           rounded && "rounded-[var(--radius)]",
           shadow && "shadow-[var(--shadow)]",
           cellPadding(size, compact),
@@ -417,7 +409,7 @@ export function TableCaption({
           // Layout and typography. Side and bottom rules continue the cell grid.
           // The row above already supplies the top rule.
           "caption-bottom bg-secondary-background px-4 py-3 text-left text-sm text-foreground",
-          showBorder && "border-x-[3px] border-b-[3px] border-border",
+          showBorder && "border-x-[length:var(--border-width)] border-b-[length:var(--border-width)] border-border",
           rounded && "rounded-[var(--radius)]",
           shadow && "shadow-[var(--shadow)]",
           className,
