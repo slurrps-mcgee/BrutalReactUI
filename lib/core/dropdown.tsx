@@ -299,20 +299,20 @@ export function Dropdown({
       }}
     >
       <SurfaceProvider rounded={rounded}>
-      <div
-        ref={ref}
-        aria-disabled={disabled || undefined}
-        className={twMerge(
-          "relative",
-          fluid ? "flex w-full" : "inline-flex w-fit",
-          disabled && "pointer-events-none opacity-70",
-          wrapperClassName,
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </div>
+        <div
+          ref={ref}
+          aria-disabled={disabled || undefined}
+          className={twMerge(
+            "relative",
+            fluid ? "flex w-full" : "inline-flex w-fit",
+            disabled && "pointer-events-none opacity-70",
+            wrapperClassName,
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </div>
       </SurfaceProvider>
     </DropdownContext.Provider>
   );
@@ -569,7 +569,9 @@ export function DropdownMenu({
           "relative z-20 flex min-w-48 flex-col",
 
           // Drawn stroke while the menu is animated, otherwise the resting border.
-          showBorder && animate ? "border-none" : borderPaintClass(Boolean(showBorder)),
+          showBorder && animate
+            ? "border-none"
+            : borderPaintClass(Boolean(showBorder)),
           "bg-[var(--surface)] text-[var(--surface-foreground)]",
           faceRadiusClass(Boolean(isRounded)),
           className,

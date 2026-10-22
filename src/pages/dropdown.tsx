@@ -29,9 +29,7 @@ export default function DropdownPage() {
 </Dropdown>`}
       >
         <Dropdown animate="scroll" rounded>
-          <DropdownToggle variant="primary">
-            Entrance
-          </DropdownToggle>
+          <DropdownToggle variant="primary">Entrance</DropdownToggle>
           <DropdownMenu>
             <DropdownItem href="#/badges">Badges</DropdownItem>
             <DropdownItem href="#/buttons">Buttons</DropdownItem>
@@ -53,9 +51,7 @@ export default function DropdownPage() {
 </Dropdown>`}
       >
         <Dropdown animate rounded>
-          <DropdownToggle variant="primary">
-            Standalone
-          </DropdownToggle>
+          <DropdownToggle variant="primary">Standalone</DropdownToggle>
           <DropdownMenu>
             <DropdownItem href="#/badges">Badges</DropdownItem>
             <DropdownItem href="#/buttons">Buttons</DropdownItem>

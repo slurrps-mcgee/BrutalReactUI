@@ -218,7 +218,8 @@ function HoverFill({
         [
           // Start at the inner edge so the fill never covers the 3px stroke.
           "pointer-events-none absolute inset-0 z-0 overflow-hidden",
-          rounded && "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
+          rounded &&
+            "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
         ]
           .filter(Boolean)
           .join(" "),
@@ -229,7 +230,8 @@ function HoverFill({
           fillStyles({ variant }),
           "group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100",
           fillClassName,
-          rounded && "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
+          rounded &&
+            "rounded-[max(0px,calc(var(--radius)-var(--border-width)))]",
         )}
       />
     </span>

@@ -185,10 +185,14 @@ export default function Collapse({
                 "relative bg-[var(--surface)] text-[var(--surface-foreground)]",
 
                 // Drawn stroke, or the resting border. border false drops both.
-                shouldAnimate && border ? "border-none" : borderPaintClass(border),
+                shouldAnimate && border
+                  ? "border-none"
+                  : borderPaintClass(border),
 
                 // Width an end trigger subtracts so its fill follows the stroke.
-                border ? "[--collapse-stroke:var(--border-width)]" : "[--collapse-stroke:0px]",
+                border
+                  ? "[--collapse-stroke:var(--border-width)]"
+                  : "[--collapse-stroke:0px]",
                 rounded && "[--face-radius:var(--radius)]",
 
                 // Pop target. Must be the wrapper's direct child.
@@ -389,7 +393,8 @@ export const CollapseContent = forwardRef<HTMLDivElement, CollapseContentProps>(
           <div
             className={twMerge(
               "p-4",
-              showBorder && "border-t-[length:var(--border-width)] border-border",
+              showBorder &&
+                "border-t-[length:var(--border-width)] border-border",
               rounded && "rounded-[var(--radius)]",
               rounded === false && "!rounded-none",
               innerClassName,

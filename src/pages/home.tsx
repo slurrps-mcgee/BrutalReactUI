@@ -145,13 +145,7 @@ export default function HomePage() {
           <OutlineSet />
           <CodeSnippet language="tsx" code={outlineSetCode} />
         </div>
-        <Container
-          title="Primary parent"
-          fluid
-          animate="scroll"
-          shadow
-          rounded
-        >
+        <Container title="Primary parent" fluid animate="scroll" shadow rounded>
           <OutlineSet />
         </Container>
         <Container

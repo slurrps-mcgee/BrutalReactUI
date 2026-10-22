@@ -248,7 +248,8 @@ export function Select({
   const border = useSurfaceFlag(borderProp, "border", true);
   const shadow = useSurfaceFlag(shadowProp, "shadow", true);
   const animate = useSurfaceAnimate(animateProp);
-  const { ref: animateRef, shouldAnimate } = useAnimationTrigger<HTMLDivElement>(animate);
+  const { ref: animateRef, shouldAnimate } =
+    useAnimationTrigger<HTMLDivElement>(animate);
   const [value, setValue] = useControllableState({
     value: valueProp,
     defaultValue,
@@ -433,131 +434,141 @@ export function Select({
 
   return (
     <SurfaceProvider rounded={rounded}>
-    <SelectContext.Provider
-      value={{
-        value,
-        activeValue: effectiveActiveValue,
-        register,
-        select: choose,
-        setActive: setActiveValue,
-      }}
-    >
-      <div
-        ref={rootRef}
-        className={twMerge(
-          "relative h-fit w-full self-start",
-          validity === "invalid" && "[--shadow-color:var(--danger)]",
-          wrapperClassName,
-          className,
-        )}
-        {...props}
+      <SelectContext.Provider
+        value={{
+          value,
+          activeValue: effectiveActiveValue,
+          register,
+          select: choose,
+          setActive: setActiveValue,
+        }}
       >
-        {(name || required) && (
-          <input type="hidden" name={name} value={value} disabled={disabled} />
-        )}
         <div
-          ref={animateRef}
-          data-pop-direction={shouldAnimate ? "out" : undefined}
+          ref={rootRef}
           className={twMerge(
-            "relative isolate",
-            shouldAnimate && "animate-brutal-pop",
-            ((shadow && menuPresent) || (shadow && shouldAnimate)) &&
-              "shadow-[var(--shadow)]",
-            rounded &&
-              (menuPresent
-                ? "rounded-t-[var(--radius)]"
-                : "rounded-[var(--radius)]"),
+            "relative h-fit w-full self-start",
+            validity === "invalid" && "[--shadow-color:var(--danger)]",
+            wrapperClassName,
+            className,
           )}
+          {...props}
         >
-          <button
-            ref={triggerRef}
-            id={triggerId}
-            type="button"
-            role="combobox"
-            style={faceStyle}
-            onAnimationEnd={onMenuAnimationEnd}
-            className={twMerge(
-              selectStyles({ variant, size, validity }),
-              shouldAnimate && border ? "border-none" : borderPaintClass(border),
-              shouldAnimate && "brutal-pop-face",
-              rounded &&
-                menuPresent &&
-                "rounded-t-[var(--radius)] rounded-b-none",
-              rounded &&
-                !menuPresent &&
-                faceRadiusClass(true),
-              faceClassName,
-              triggerClassName,
-            )}
-            aria-controls={listboxId}
-            aria-expanded={open}
-            aria-haspopup="listbox"
-            aria-activedescendant={open ? active?.id : undefined}
-            aria-describedby={
-              requiredInvalid || invalid ? field?.feedbackId : undefined
-            }
-            aria-invalid={requiredInvalid || invalid || undefined}
-            aria-required={required || undefined}
-            disabled={disabled}
-            onClick={toggleOpen}
-            onKeyDown={handleKeyDown}
-          >
-            {shouldAnimate && border && (
-              <DrawBorder
-                animate
-                radius={rounded && !menuPresent ? "var(--radius)" : undefined}
-                className="z-10"
-              />
-            )}
-            <span className={twMerge("relative z-10 truncate", !selected && "opacity-60")}>
-              {selected?.label ?? placeholder}
-            </span>
-            <ChevronDown
-              aria-hidden="true"
-              className={twMerge(
-                "size-4 shrink-0 transition-transform duration-200 motion-reduce:transition-none",
-                open && "rotate-180",
-              )}
+          {(name || required) && (
+            <input
+              type="hidden"
+              name={name}
+              value={value}
+              disabled={disabled}
             />
-          </button>
-        </div>
-        {menuPresent && (
+          )}
           <div
+            ref={animateRef}
+            data-pop-direction={shouldAnimate ? "out" : undefined}
             className={twMerge(
-              [
-                // Sits under the trigger. Its shadow stays put while the face pops.
-                "absolute left-0 top-full z-30 -mt-[var(--border-width)] w-full",
-                shadow && "shadow-[var(--shadow)]",
-                rounded && "rounded-b-[var(--radius)] rounded-t-none",
-              ]
-                .filter(Boolean)
-                .join(" "),
+              "relative isolate",
+              shouldAnimate && "animate-brutal-pop",
+              ((shadow && menuPresent) || (shadow && shouldAnimate)) &&
+                "shadow-[var(--shadow)]",
+              rounded &&
+                (menuPresent
+                  ? "rounded-t-[var(--radius)]"
+                  : "rounded-[var(--radius)]"),
             )}
           >
-            <div
-              id={listboxId}
-              role="listbox"
-              aria-labelledby={triggerId}
+            <button
+              ref={triggerRef}
+              id={triggerId}
+              type="button"
+              role="combobox"
               style={faceStyle}
               onAnimationEnd={onMenuAnimationEnd}
               className={twMerge(
+                selectStyles({ variant, size, validity }),
+                shouldAnimate && border
+                  ? "border-none"
+                  : borderPaintClass(border),
+                shouldAnimate && "brutal-pop-face",
+                rounded &&
+                  menuPresent &&
+                  "rounded-t-[var(--radius)] rounded-b-none",
+                rounded && !menuPresent && faceRadiusClass(true),
+                faceClassName,
+                triggerClassName,
+              )}
+              aria-controls={listboxId}
+              aria-expanded={open}
+              aria-haspopup="listbox"
+              aria-activedescendant={open ? active?.id : undefined}
+              aria-describedby={
+                requiredInvalid || invalid ? field?.feedbackId : undefined
+              }
+              aria-invalid={requiredInvalid || invalid || undefined}
+              aria-required={required || undefined}
+              disabled={disabled}
+              onClick={toggleOpen}
+              onKeyDown={handleKeyDown}
+            >
+              {shouldAnimate && border && (
+                <DrawBorder
+                  animate
+                  radius={rounded && !menuPresent ? "var(--radius)" : undefined}
+                  className="z-10"
+                />
+              )}
+              <span
+                className={twMerge(
+                  "relative z-10 truncate",
+                  !selected && "opacity-60",
+                )}
+              >
+                {selected?.label ?? placeholder}
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                className={twMerge(
+                  "size-4 shrink-0 transition-transform duration-200 motion-reduce:transition-none",
+                  open && "rotate-180",
+                )}
+              />
+            </button>
+          </div>
+          {menuPresent && (
+            <div
+              className={twMerge(
                 [
-                  "max-h-64 w-full overflow-auto border-[length:var(--border-width)]",
-                  border ? "border-border" : "border-none",
-                  "bg-[var(--surface)] text-[var(--surface-foreground)]",
+                  // Sits under the trigger. Its shadow stays put while the face pops.
+                  "absolute left-0 top-full z-30 -mt-[var(--border-width)] w-full",
+                  shadow && "shadow-[var(--shadow)]",
                   rounded && "rounded-b-[var(--radius)] rounded-t-none",
                 ]
                   .filter(Boolean)
                   .join(" "),
-                menuClassName,
               )}
             >
-              {children}
+              <div
+                id={listboxId}
+                role="listbox"
+                aria-labelledby={triggerId}
+                style={faceStyle}
+                onAnimationEnd={onMenuAnimationEnd}
+                className={twMerge(
+                  [
+                    "max-h-64 w-full overflow-auto border-[length:var(--border-width)]",
+                    border ? "border-border" : "border-none",
+                    "bg-[var(--surface)] text-[var(--surface-foreground)]",
+                    rounded && "rounded-b-[var(--radius)] rounded-t-none",
+                  ]
+                    .filter(Boolean)
+                    .join(" "),
+                  menuClassName,
+                )}
+              >
+                {children}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </SelectContext.Provider>
+          )}
+        </div>
+      </SelectContext.Provider>
     </SurfaceProvider>
   );
 }

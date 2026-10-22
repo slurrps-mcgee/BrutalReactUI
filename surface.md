@@ -4,12 +4,12 @@
 
 Shared tokens live in `lib/styles/index.css`:
 
-| Token | Role |
-| --- | --- |
-| `--border-width` | `3px`. Resting CSS borders share this width. |
-| `--radius` | `0.375rem`. Outer corner of a rounded face. |
-| `--shadow` | Hard offset, `var(--shadow-offset-x) var(--shadow-offset-y) 0 0 var(--shadow-color)`. |
-| `--border` | Stroke and shadow color. |
+| Token            | Role                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| `--border-width` | `3px`. Resting CSS borders share this width.                                          |
+| `--radius`       | `0.375rem`. Outer corner of a rounded face.                                           |
+| `--shadow`       | Hard offset, `var(--shadow-offset-x) var(--shadow-offset-y) 0 0 var(--shadow-color)`. |
+| `--border`       | Stroke and shadow color.                                                              |
 
 ## Surface
 
@@ -18,20 +18,20 @@ A surface is five optional flags: `rounded`, `border`, `shadow`, `animate`, and 
 `SurfaceProvider` publishes them on context. Each provider merges with the provider above it. A value passed to this provider replaces the parent. An omitted value keeps the parent value, including when that parent value is itself unset.
 
 ```ts
-rounded: rounded ?? parent.rounded
+rounded: rounded ?? parent.rounded;
 ```
 
 The same line runs for `disabled`, `border`, `shadow`, and `animate`. The root context is `{}`, so an unset flag stays `undefined` until some provider writes it.
 
 Components read the context through three hooks. Each one resolves in the same order: the component's own prop, then the context, then a default.
 
-| Hook | Default when the prop and every ancestor are unset |
-| --- | --- |
-| `useSurfaceFlag(own, "border")` | `true` |
-| `useSurfaceFlag(own, "shadow")` | `true` |
-| `useSurfaceFlag(own, "rounded")` | `false` |
-| `useSurfaceAnimate(own)` | `false` |
-| `useSurfaceDisabled(own)` | `false` |
+| Hook                             | Default when the prop and every ancestor are unset |
+| -------------------------------- | -------------------------------------------------- |
+| `useSurfaceFlag(own, "border")`  | `true`                                             |
+| `useSurfaceFlag(own, "shadow")`  | `true`                                             |
+| `useSurfaceFlag(own, "rounded")` | `false`                                            |
+| `useSurfaceAnimate(own)`         | `false`                                            |
+| `useSurfaceDisabled(own)`        | `false`                                            |
 
 `false` is a real value. `<Card rounded={false}>` inside a rounded parent stays square. Omitting `rounded` on that card keeps the parent's `true`.
 
@@ -49,12 +49,12 @@ Pass the raw prop into `SurfaceProvider`, not the resolved boolean. The template
 
 `surfaceClasses` emits a utility only when the flag is `true`. An omitted or `false` flag adds no class, so the element's current face stays as it is.
 
-| Flag | Class when true |
-| --- | --- |
-| `rounded` | `rounded-[var(--radius)]` |
-| `border` | `border-[length:var(--border-width)] border-border` |
-| `shadow` | `shadow-[var(--shadow)]` |
-| `disabled` | `pointer-events-none opacity-70` |
+| Flag       | Class when true                                     |
+| ---------- | --------------------------------------------------- |
+| `rounded`  | `rounded-[var(--radius)]`                           |
+| `border`   | `border-[length:var(--border-width)] border-border` |
+| `shadow`   | `shadow-[var(--shadow)]`                            |
+| `disabled` | `pointer-events-none opacity-70`                    |
 
 `borderPaintClass(border)` paints the resting stroke: `border-[length:var(--border-width)] border-border` when `border` is true, and `border-none` when it is false.
 
@@ -98,11 +98,11 @@ The fill span is an empty `absolute inset-0` layer. Components pass a hover back
 
 `useAnimationTrigger` maps the public `animate` prop:
 
-| `animate` | Result |
-| --- | --- |
-| omitted or `false` | `shouldAnimate` is false. The face stays put. |
-| `true` | `shouldAnimate` is true on mount. |
-| `"scroll"` | An `IntersectionObserver` at `threshold: 0.1` sets `shouldAnimate` the first time the wrapper intersects, then disconnects. `prefers-reduced-motion` never counts as entered, so a scroll entrance is skipped. |
+| `animate`          | Result                                                                                                                                                                                                         |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| omitted or `false` | `shouldAnimate` is false. The face stays put.                                                                                                                                                                  |
+| `true`             | `shouldAnimate` is true on mount.                                                                                                                                                                              |
+| `"scroll"`         | An `IntersectionObserver` at `threshold: 0.1` sets `shouldAnimate` the first time the wrapper intersects, then disconnects. `prefers-reduced-motion` never counts as entered, so a scroll entrance is skipped. |
 
 When `shouldAnimate` is true the wrapper gets `animate-brutal-pop` and `data-pop-direction="out"`, and the face gets `brutal-pop-face`. The face translates from `--shadow-offset-x` / `--shadow-offset-y` back to `0` over `450ms`. The shadow is a `box-shadow` on the wrapper, so the face slides off that offset and back to rest. `shadow={false}` omits the shadow utility. The face still rests at `0`, and the pop translate still runs when the entrance is on.
 
@@ -112,10 +112,10 @@ When `shouldAnimate` is true the wrapper gets `animate-brutal-pop` and `data-pop
 
 The template variants write the variables an outline child reads:
 
-| Variant | Fill | `--surface` | `--outline-button-fill` |
-| --- | --- | --- | --- |
-| `primary` | `bg-main` | `var(--main)` | `var(--chart-2)` |
-| `secondary` | `bg-chart-2` | `var(--chart-2)` | `var(--main)` |
-| `outline` | `bg-[var(--surface)]` | inherited | inherited |
+| Variant     | Fill                  | `--surface`      | `--outline-button-fill` |
+| ----------- | --------------------- | ---------------- | ----------------------- |
+| `primary`   | `bg-main`             | `var(--main)`    | `var(--chart-2)`        |
+| `secondary` | `bg-chart-2`          | `var(--chart-2)` | `var(--main)`           |
+| `outline`   | `bg-[var(--surface)]` | inherited        | inherited               |
 
 An outline face cuts out of the parent surface and uses the parent ink. A primary parent points the outline button's hover fill at `chart-2`. A secondary parent points it back at `main`.

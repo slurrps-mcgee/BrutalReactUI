@@ -224,7 +224,9 @@ export default function Sidebar({
       faceClassName={faceClassName}
       {...props}
     >
-      <NavCollapseProvider collapsed={collapsed}>{children}</NavCollapseProvider>
+      <NavCollapseProvider collapsed={collapsed}>
+        {children}
+      </NavCollapseProvider>
     </SidebarFace>
   );
 

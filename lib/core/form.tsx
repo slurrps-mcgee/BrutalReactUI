@@ -165,9 +165,7 @@ export function Form({
               className="z-10"
             />
           )}
-          <SurfaceProvider rounded={rounded}>
-            {children}
-          </SurfaceProvider>
+          <SurfaceProvider rounded={rounded}>{children}</SurfaceProvider>
         </form>
       </div>
     </FormContext.Provider>

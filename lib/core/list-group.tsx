@@ -207,7 +207,9 @@ export default function ListGroup({
               "flex-1",
 
               // Drawn stroke, or the resting border. border false drops both.
-              shouldAnimate && border ? "border-none" : borderPaintClass(border),
+              shouldAnimate && border
+                ? "border-none"
+                : borderPaintClass(border),
               !border &&
                 "[&>li:not([data-border=true])]:!border-none [&>li.contents:not([data-border=true])>*]:!border-none [&>li[data-border=true]:not(:first-child)]:border-t-[length:var(--border-width)] [&>li[data-border=true]:not(:first-child)]:border-border [&>li.contents[data-border=true]:not(:first-child)>*]:border-t-[length:var(--border-width)] [&>li.contents[data-border=true]:not(:first-child)>*]:border-border",
               "[&>li[data-border=false]]:!border-b-0 [&>li.contents[data-border=false]>*]:!border-b-0",
@@ -231,9 +233,7 @@ export default function ListGroup({
               className="z-10"
             />
           )}
-          <SurfaceProvider rounded={rounded}>
-            {children}
-          </SurfaceProvider>
+          <SurfaceProvider rounded={rounded}>{children}</SurfaceProvider>
         </ul>
       </div>
     </ListGroupContext.Provider>
@@ -290,7 +290,11 @@ export function ListGroupLink({
   const { size } = useContext(ListGroupContext);
   const chrome = useItemChrome({ border, rounded, shadow });
   return (
-    <li className="contents" data-border={chrome.dataBorder} data-rounded={chrome.dataRounded}>
+    <li
+      className="contents"
+      data-border={chrome.dataBorder}
+      data-rounded={chrome.dataRounded}
+    >
       <a
         href={disabled ? undefined : href}
         aria-current={active ? "page" : undefined}
@@ -320,7 +324,11 @@ export function ListGroupButton({
   const { size } = useContext(ListGroupContext);
   const chrome = useItemChrome({ border, rounded, shadow });
   return (
-    <li className="contents" data-border={chrome.dataBorder} data-rounded={chrome.dataRounded}>
+    <li
+      className="contents"
+      data-border={chrome.dataBorder}
+      data-rounded={chrome.dataRounded}
+    >
       <button
         type={type}
         disabled={disabled}

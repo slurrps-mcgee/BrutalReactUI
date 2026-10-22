@@ -280,7 +280,9 @@ export default function Modal({
                 !scrollable && "max-h-none overflow-visible",
 
                 // Drawn stroke, or the resting border. The dialog must not clip the stroke.
-                drawing ? "overflow-visible border-none" : borderPaintClass(border),
+                drawing
+                  ? "overflow-visible border-none"
+                  : borderPaintClass(border),
 
                 // Pop from the shadow. A flat dialog stays put.
                 "transition-[translate] duration-200 ease-out",

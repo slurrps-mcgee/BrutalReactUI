@@ -114,7 +114,14 @@ export default function Table({
 
   return (
     <TableContext.Provider
-      value={{ bordered: grid, striped, hoverable, compact, stickyHeader, size }}
+      value={{
+        bordered: grid,
+        striped,
+        hoverable,
+        compact,
+        stickyHeader,
+        size,
+      }}
     >
       <SurfaceProvider rounded={rounded}>
         <table
@@ -230,9 +237,7 @@ export function TableResponsive({
           )}
           {...props}
         >
-          <SurfaceProvider rounded={rounded}>
-            {children}
-          </SurfaceProvider>
+          <SurfaceProvider rounded={rounded}>{children}</SurfaceProvider>
         </div>
       </div>
     </div>
@@ -409,7 +414,8 @@ export function TableCaption({
           // Layout and typography. Side and bottom rules continue the cell grid.
           // The row above already supplies the top rule.
           "caption-bottom bg-secondary-background px-4 py-3 text-left text-sm text-foreground",
-          showBorder && "border-x-[length:var(--border-width)] border-b-[length:var(--border-width)] border-border",
+          showBorder &&
+            "border-x-[length:var(--border-width)] border-b-[length:var(--border-width)] border-border",
           rounded && "rounded-[var(--radius)]",
           shadow && "shadow-[var(--shadow)]",
           className,

@@ -202,33 +202,33 @@ function AccordionRoot(props: AccordionProps) {
   return (
     <AccordionContext.Provider value={context}>
       <SurfaceProvider rounded={rounded}>
-      <div
-        className={twMerge(
-          [
-            // Layout
-            "flex w-full flex-col",
-            flush ? "gap-0" : "gap-3",
-            rounded &&
-              [
-                "overflow-hidden rounded-[var(--radius)]",
-                "[&>*:first-child]:overflow-hidden [&>*:first-child]:rounded-t-[var(--radius)]",
-                "[&>*:first-child_[data-collapse-face]]:rounded-t-[var(--face-radius,var(--radius))]",
-                "[&>*:first-child_button]:rounded-t-[max(0px,calc(var(--radius)-var(--collapse-stroke,0px)))]",
-                "[&>*:last-child]:overflow-hidden [&>*:last-child]:rounded-b-[var(--radius)]",
-                "[&>*:last-child_[data-collapse-face]]:rounded-b-[var(--face-radius,var(--radius))]",
-                "[&>*:last-child[data-state=closed]_button]:rounded-b-[max(0px,calc(var(--radius)-var(--collapse-stroke,0px)))]",
-              ].join(" "),
-            className,
-          ]
-            .filter(Boolean)
-            .join(" "),
-        )}
-        data-orientation="vertical"
-        data-flush={flush ? "" : undefined}
-        {...domProps}
-      >
-        {children}
-      </div>
+        <div
+          className={twMerge(
+            [
+              // Layout
+              "flex w-full flex-col",
+              flush ? "gap-0" : "gap-3",
+              rounded &&
+                [
+                  "overflow-hidden rounded-[var(--radius)]",
+                  "[&>*:first-child]:overflow-hidden [&>*:first-child]:rounded-t-[var(--radius)]",
+                  "[&>*:first-child_[data-collapse-face]]:rounded-t-[var(--face-radius,var(--radius))]",
+                  "[&>*:first-child_button]:rounded-t-[max(0px,calc(var(--radius)-var(--collapse-stroke,0px)))]",
+                  "[&>*:last-child]:overflow-hidden [&>*:last-child]:rounded-b-[var(--radius)]",
+                  "[&>*:last-child_[data-collapse-face]]:rounded-b-[var(--face-radius,var(--radius))]",
+                  "[&>*:last-child[data-state=closed]_button]:rounded-b-[max(0px,calc(var(--radius)-var(--collapse-stroke,0px)))]",
+                ].join(" "),
+              className,
+            ]
+              .filter(Boolean)
+              .join(" "),
+          )}
+          data-orientation="vertical"
+          data-flush={flush ? "" : undefined}
+          {...domProps}
+        >
+          {children}
+        </div>
       </SurfaceProvider>
     </AccordionContext.Provider>
   );

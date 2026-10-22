@@ -237,12 +237,7 @@ export default function Button({
               .join(" "),
           )}
         >
-          <span
-            className={twMerge(
-              fillStyles({ variant }),
-              fillClassName,
-            )}
-          />
+          <span className={twMerge(fillStyles({ variant }), fillClassName)} />
         </span>
       </button>
     </div>

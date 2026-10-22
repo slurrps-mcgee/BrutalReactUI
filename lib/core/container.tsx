@@ -2,10 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { twMerge } from "tailwind-merge";
 import DrawBorder from "../utils/draw-border";
-import {
-  borderPaintClass,
-  faceRadiusClass,
-} from "../utils/surface";
+import { borderPaintClass, faceRadiusClass } from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,

@@ -6,9 +6,9 @@ import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider themes={["light", "dark", "ocean"]}>   
+    <ThemeProvider themes={["light", "dark", "ocean"]}>
       <ToastProvider>
-        <App /> 
+        <App />
         <ToastViewport />
       </ToastProvider>
     </ThemeProvider>

@@ -57,9 +57,7 @@ export default function DrawBorder({
       const radiusPx =
         Number.parseFloat(getComputedStyle(host).borderTopLeftRadius) || 0;
       // Outer edge follows the face corner, plus the overhang.
-      const curve = radius
-        ? Math.max(0, radiusPx + overhang - stroke / 2)
-        : 0;
+      const curve = radius ? Math.max(0, radiusPx + overhang - stroke / 2) : 0;
 
       rect.setAttribute("x", String(pad + center));
       rect.setAttribute("y", String(pad + center));

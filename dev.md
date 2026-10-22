@@ -56,7 +56,6 @@ Own: `innerClassName`
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 Own: `variant`, `size`, `title`, `icon`, `actions`, `dismissible`, `open`, `defaultOpen`, `onOpenChange`, `onDismiss`, `timer`, `duration`, `wrapperClassName`, `faceClassName`
 
 ## Badge
@@ -70,7 +69,6 @@ Own: `variant`, `size`, `faceClassName`
 ## Breadcrumb
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 Own: `variant`, `size`, `label`
 
@@ -116,7 +114,6 @@ Own: `variant`, `size`, `wrapperClassName`, `faceClassName`
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 ## Carousel
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
@@ -130,7 +127,6 @@ Shared: `rounded`, `border`, `shadow`
 ## Checkbox
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 Own: `label`, `size`, `wrapperClassName`, `controlClassName`, `faceClassName`, and input attributes
 
@@ -150,13 +146,11 @@ Own: `open`, `defaultOpen`, `onOpenChange`, `onOpenStart`, `onOpenEnd`, `onClose
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 Own: `hideIndicator`
 
 ### CollapseContent
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 Own: `innerClassName`
 
@@ -182,7 +176,6 @@ Own: `variant`, `size`, `caret`, and button attributes
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 Own: `href`, `active`, `variant`
 
 ### DropdownMenu
@@ -195,7 +188,6 @@ Own: `align`
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 Own: `label`, `htmlFor`, `labelClassName`
 
 ## Form
@@ -207,7 +199,6 @@ Own: `variant`, `size`, `wrapperClassName`, `faceClassName`
 ### FormField, FormLabel, FormFeedback
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 FormField own: `controlId`, `valid`, `invalid`
 
@@ -236,7 +227,6 @@ Own: `orientation`, `label`, `wrapperClassName`, `faceClassName`
 ### InputGroupText
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 ## Link
 
@@ -274,7 +264,6 @@ Own: `open`, `defaultOpen`, `onOpenChange`, `closeOnEscape`, `closeOnBackdrop`, 
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 ### ModalClose
 
 Shared: `rounded`, `border`, `shadow`, `animate`, `disabled`
@@ -309,7 +298,6 @@ Own: `variant`, `size`, `sticky`, `wrapperClassName`, `faceClassName`
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 NavbarBrand own: `href`
 
 NavbarCollapse own: `open`
@@ -317,7 +305,6 @@ NavbarCollapse own: `open`
 ## Pagination
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 Own: `variant`, `size`, `label`
 
@@ -341,13 +328,11 @@ Own: `variant`, `size`, `value`, `max`, `label`, `showValue`, `wrapperClassName`
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 Own: `label`, `size`, `wrapperClassName`, `controlClassName`, `faceClassName`, and input attributes
 
 ## Range
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 Own: `label`, `showValue`, `output`, `wrapperClassName`, and input attributes except `type`
 
@@ -407,7 +392,6 @@ Own: `wrapperClassName`, `faceClassName`
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 ### TableBody, TableFooter, TableRow, TableHead, TableCell, TableCaption
 
 Own: element attributes, plus the table context for stripe, hover, and compact padding
@@ -421,7 +405,6 @@ Own: `align`, `className`
 ## Toast
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 Own: `variant`, `size`, `title`, `description`, `action`, `icon`, `dismissible`, `timer`, `duration`, `open`, `defaultOpen`, `onOpenChange`, `onDismiss`, `wrapperClassName`, `faceClassName`
 
@@ -443,19 +426,16 @@ Own: `variant`, `size`, `expanded`, `controls`, `iconAnimation`, `wrapperClassNa
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 Own: `delay`
 
 ### TooltipTrigger
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
 
-
 Own: `asChild`
 
 ### TooltipContent
 
 Shared: `rounded`, `border`, `shadow`, `disabled`
-
 
 Own: `variant`, `size`, `placement`, `wrapperClassName`, `faceClassName`

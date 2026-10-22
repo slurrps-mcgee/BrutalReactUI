@@ -31,10 +31,11 @@ const breadcrumbStyles = cva(
       },
     },
     defaultVariants: {
-    variant: "outline",
-    size: "md",
+      variant: "outline",
+      size: "md",
+    },
   },
-});
+);
 
 // Breadcrumb link styles
 const linkStyles = cva(

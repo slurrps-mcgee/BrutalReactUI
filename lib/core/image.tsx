@@ -2,10 +2,7 @@ import { useLayoutEffect, useRef, useState, type HTMLAttributes } from "react";
 import { twMerge } from "tailwind-merge";
 import type { ProjectImage } from "../types/types";
 import DrawBorder from "../utils/draw-border";
-import {
-  borderPaintClass,
-  faceRadiusClass,
-} from "../utils/surface";
+import { borderPaintClass, faceRadiusClass } from "../utils/surface";
 import {
   useAnimationTrigger,
   type AnimationTrigger,

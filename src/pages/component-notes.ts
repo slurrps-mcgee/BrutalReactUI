@@ -672,8 +672,7 @@ export const containerNotes = note(
     {
       name: "animate",
       type: 'false | true | "scroll"',
-      detail:
-        "Pops the face. scroll waits for the viewport.",
+      detail: "Pops the face. scroll waits for the viewport.",
     },
     {
       name: "shadow",
@@ -1505,8 +1504,7 @@ export const tableNotes = note(
     {
       name: "TableResponsive animate",
       type: 'boolean | "scroll"',
-      detail:
-        "Pops the frame. Leave it off for a static table.",
+      detail: "Pops the frame. Leave it off for a static table.",
     },
   ],
 );

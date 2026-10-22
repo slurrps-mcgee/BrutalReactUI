@@ -262,143 +262,144 @@ export default function Carousel({
 
   return (
     <SurfaceProvider rounded={rounded} disabled={disabled || undefined}>
-    <div
-      role="region"
-      aria-roledescription="carousel"
-      aria-label={label}
-      aria-disabled={disabled || undefined}
-      tabIndex={0}
-      className={twMerge(
-        carouselStyles({ variant, size }),
-        shadow && "shadow-[var(--shadow)]",
-        !border && "border-none",
-        rounded && "rounded-[var(--radius)]",
-        disabled && "pointer-events-none opacity-70",
-        wrapperClassName,
-        faceClassName,
-        className,
-      )}
-      onKeyDown={handleKeyDown}
-      onMouseEnter={(event) => {
-        onMouseEnter?.(event);
-        if (!event.defaultPrevented) setHovered(true);
-      }}
-      onMouseLeave={(event) => {
-        onMouseLeave?.(event);
-        setHovered(false);
-      }}
-      onFocus={(event) => {
-        onFocus?.(event);
-        if (!event.defaultPrevented) setFocusWithin(true);
-      }}
-      onBlur={(event) => {
-        onBlur?.(event);
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          setFocusWithin(false);
-        }
-      }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      {...props}
-    >
       <div
+        role="region"
+        aria-roledescription="carousel"
+        aria-label={label}
+        aria-disabled={disabled || undefined}
+        tabIndex={0}
         className={twMerge(
-          "overflow-hidden",
-          rounded && "rounded-[calc(var(--radius)-var(--border-width))]",
-          viewportClassName,
+          carouselStyles({ variant, size }),
+          shadow && "shadow-[var(--shadow)]",
+          !border && "border-none",
+          rounded && "rounded-[var(--radius)]",
+          disabled && "pointer-events-none opacity-70",
+          wrapperClassName,
+          faceClassName,
+          className,
         )}
-        aria-live={autoplay && !paused ? "off" : "polite"}
+        onKeyDown={handleKeyDown}
+        onMouseEnter={(event) => {
+          onMouseEnter?.(event);
+          if (!event.defaultPrevented) setHovered(true);
+        }}
+        onMouseLeave={(event) => {
+          onMouseLeave?.(event);
+          setHovered(false);
+        }}
+        onFocus={(event) => {
+          onFocus?.(event);
+          if (!event.defaultPrevented) setFocusWithin(true);
+        }}
+        onBlur={(event) => {
+          onBlur?.(event);
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setFocusWithin(false);
+          }
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        {...props}
       >
         <div
           className={twMerge(
-            "flex transition-transform duration-500 ease-out motion-reduce:transition-none",
-            trackClassName,
+            "overflow-hidden",
+            rounded && "rounded-[calc(var(--radius)-var(--border-width))]",
+            viewportClassName,
           )}
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          aria-live={autoplay && !paused ? "off" : "polite"}
         >
-          {slides.map((slide, slideIndex) => (
-            <div
-              key={slideIndex}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`${slideIndex + 1} of ${count}`}
-              aria-hidden={slideIndex !== currentIndex}
-              inert={slideIndex !== currentIndex ? true : undefined}
-              className="w-full shrink-0"
-            >
-              {slide}
-            </div>
-          ))}
+          <div
+            className={twMerge(
+              "flex transition-transform duration-500 ease-out motion-reduce:transition-none",
+              trackClassName,
+            )}
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {slides.map((slide, slideIndex) => (
+              <div
+                key={slideIndex}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${slideIndex + 1} of ${count}`}
+                aria-hidden={slideIndex !== currentIndex}
+                inert={slideIndex !== currentIndex ? true : undefined}
+                className="w-full shrink-0"
+              >
+                {slide}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {controls && count > 1 && (
-        <>
-          <button
-            type="button"
-            aria-label="Previous slide"
-            disabled={previousDisabled}
-            className={twMerge(
-              controlStyles({ size }),
-              "left-3",
-              !border && "border-none",
-              rounded && "rounded-[var(--radius)]",
-            )}
-            onClick={previous}
-          >
-            <ChevronLeft aria-hidden="true" className="size-5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Next slide"
-            disabled={nextDisabled}
-            className={twMerge(
-              controlStyles({ size }),
-              "right-3",
-              !border && "border-none",
-              rounded && "rounded-[var(--radius)]",
-            )}
-            onClick={next}
-          >
-            <ChevronRight aria-hidden="true" className="size-5" />
-          </button>
-        </>
-      )}
-
-      {indicators && count > 1 && (
-        <div
-          role="group"
-          aria-label="Choose slide"
-          className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-2"
-        >
-          {slides.map((_, slideIndex) => (
+        {controls && count > 1 && (
+          <>
             <button
-              key={slideIndex}
               type="button"
-              aria-label={`Go to slide ${slideIndex + 1}`}
-              aria-current={slideIndex === currentIndex ? "true" : undefined}
+              aria-label="Previous slide"
+              disabled={previousDisabled}
               className={twMerge(
-                [
-                  // Dot
-                  "size-3 border-2 bg-secondary-background",
-                  border ? "border-border" : "border-none",
-
-                  // Keyboard focus
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-
-                  // Current slide
-                  slideIndex === currentIndex && "bg-[var(--carousel-accent)]",
-                  rounded && "rounded-full",
-                ]
-                  .filter(Boolean)
-                  .join(" "),
+                controlStyles({ size }),
+                "left-3",
+                !border && "border-none",
+                rounded && "rounded-[var(--radius)]",
               )}
-              onClick={() => goTo(slideIndex)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+              onClick={previous}
+            >
+              <ChevronLeft aria-hidden="true" className="size-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next slide"
+              disabled={nextDisabled}
+              className={twMerge(
+                controlStyles({ size }),
+                "right-3",
+                !border && "border-none",
+                rounded && "rounded-[var(--radius)]",
+              )}
+              onClick={next}
+            >
+              <ChevronRight aria-hidden="true" className="size-5" />
+            </button>
+          </>
+        )}
+
+        {indicators && count > 1 && (
+          <div
+            role="group"
+            aria-label="Choose slide"
+            className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-2"
+          >
+            {slides.map((_, slideIndex) => (
+              <button
+                key={slideIndex}
+                type="button"
+                aria-label={`Go to slide ${slideIndex + 1}`}
+                aria-current={slideIndex === currentIndex ? "true" : undefined}
+                className={twMerge(
+                  [
+                    // Dot
+                    "size-3 border-2 bg-secondary-background",
+                    border ? "border-border" : "border-none",
+
+                    // Keyboard focus
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+
+                    // Current slide
+                    slideIndex === currentIndex &&
+                      "bg-[var(--carousel-accent)]",
+                    rounded && "rounded-full",
+                  ]
+                    .filter(Boolean)
+                    .join(" "),
+                )}
+                onClick={() => goTo(slideIndex)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </SurfaceProvider>
   );
 }
