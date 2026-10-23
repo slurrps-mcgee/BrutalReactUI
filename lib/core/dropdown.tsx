@@ -201,7 +201,9 @@ function useMenuPresence(open: boolean, animate: boolean, border: boolean) {
     setPresent(true);
     setPhase("in");
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (!border || reduced) {
       let inner = 0;
       const outer = requestAnimationFrame(() => {
