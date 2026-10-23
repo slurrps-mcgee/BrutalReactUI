@@ -6,6 +6,7 @@ import {
   useId,
   useRef,
   useState,
+  type AnimationEvent,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type ReactNode,
@@ -180,7 +181,8 @@ function hoverInk(
 }
 
 // Holds the menu through the close so it can travel back into its shadow.
-function useMenuPresence(open: boolean, animate: boolean) {
+// A drawn stroke stays in the shadow until the border finishes, then pops.
+function useMenuPresence(open: boolean, animate: boolean, border: boolean) {
   const [present, setPresent] = useState(open);
   const [phase, setPhase] = useState<"in" | "out">(open ? "out" : "in");
 
@@ -199,15 +201,21 @@ function useMenuPresence(open: boolean, animate: boolean) {
     setPresent(true);
     setPhase("in");
 
-    let inner = 0;
-    const outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => setPhase("out"));
-    });
-    return () => {
-      cancelAnimationFrame(outer);
-      cancelAnimationFrame(inner);
-    };
-  }, [open, animate]);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!border || reduced) {
+      let inner = 0;
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => setPhase("out"));
+      });
+      return () => {
+        cancelAnimationFrame(outer);
+        cancelAnimationFrame(inner);
+      };
+    }
+
+    const timer = window.setTimeout(() => setPhase("out"), 900);
+    return () => window.clearTimeout(timer);
+  }, [open, animate, border]);
 
   useEffect(() => {
     if (!animate || open || !present) return;
@@ -227,7 +235,13 @@ function useMenuPresence(open: boolean, animate: boolean) {
     if (!open) setPresent(false);
   }
 
-  return { present, phase, onTransitionEnd };
+  function onAnimationEnd(event: AnimationEvent<HTMLElement>) {
+    if (event.animationName !== "drawBorder") return;
+    if (!open) return;
+    setPhase("out");
+  }
+
+  return { present, phase, onTransitionEnd, onAnimationEnd };
 }
 
 // Dropdown props
@@ -548,7 +562,11 @@ export function DropdownMenu({
   const isRounded = rounded ?? groupRounded;
   const animate = animateProp ?? Boolean(groupAnimate);
   const stack = useNavbarStack();
-  const { present, phase, onTransitionEnd } = useMenuPresence(open, animate);
+  const { present, phase, onTransitionEnd, onAnimationEnd } = useMenuPresence(
+    open,
+    animate,
+    Boolean(showBorder),
+  );
 
   // Keep the navbar above later siblings until the menu has finished closing.
   useEffect(() => {
@@ -631,6 +649,7 @@ export function DropdownMenu({
             .filter(Boolean)
             .join(" "),
         )}
+        onAnimationEnd={animate ? onAnimationEnd : undefined}
         onTransitionEnd={animate ? onTransitionEnd : undefined}
       >
         {face}
